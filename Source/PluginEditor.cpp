@@ -25,12 +25,13 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 	centerFreqSlider_.setTextValueSuffix("Hz");
 
 	addAndMakeVisible(&centerFreqSlider_);
-	centerFreqAttachment_ = new SliderAttachment(valueTreeState, processor.PID_CENTERFREQ, centerFreqSlider_);
+	centerFreqAttachment_.reset(new SliderAttachment(valueTreeState, processor.PID_CENTERFREQ, centerFreqSlider_));
 	valueTreeState.addParameterListener(processor.PID_CENTERFREQ, this);
 }
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
+	valueTreeState.removeParameterListener(processor.PID_CENTERFREQ, this);
 }
 
 //==============================================================================
