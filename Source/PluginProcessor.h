@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#include "MyBandPass.h"
 
 //==============================================================================
 /**
@@ -32,6 +32,8 @@ public:
    #endif
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
+
+	void updateFilters();
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -56,7 +58,16 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	//==============================================================================
+	const String PID_CENTERFREQ = "center_freq";
+
 private:
+	MyBandPass* wahFilter_;
+	float inverseSampleRate_;
+	
+	float Q_;
+	float gain_;
+	AudioProcessorValueTreeState parameters;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiWahAudioProcessor)
 };

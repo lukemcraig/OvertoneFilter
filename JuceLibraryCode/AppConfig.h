@@ -40,7 +40,7 @@
 #endif
 
 #ifndef JUCE_REPORT_APP_USAGE
- #define JUCE_REPORT_APP_USAGE 1
+ #define JUCE_REPORT_APP_USAGE 0
 #endif
 
 // END SECTION A
@@ -307,13 +307,13 @@
  #define JucePlugin_Enable_IAA             0
 #endif
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "JUCE Project"
+ #define JucePlugin_Name                   "Midi Wah"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "JUCE Project"
+ #define JucePlugin_Desc                   "MidiWah"
 #endif
 #ifndef  JucePlugin_Manufacturer
- #define JucePlugin_Manufacturer           "yourcompany"
+ #define JucePlugin_Manufacturer           "Liminal Signals"
 #endif
 #ifndef  JucePlugin_ManufacturerWebsite
  #define JucePlugin_ManufacturerWebsite    ""
@@ -325,13 +325,13 @@
  #define JucePlugin_ManufacturerCode       0x4d616e75 // 'Manu'
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             0x49387632 // 'I8v2'
+ #define JucePlugin_PluginCode             0x596a3367 // 'Yj3g'
 #endif
 #ifndef  JucePlugin_IsSynth
  #define JucePlugin_IsSynth                0
 #endif
 #ifndef  JucePlugin_WantsMidiInput
- #define JucePlugin_WantsMidiInput         0
+ #define JucePlugin_WantsMidiInput         1
 #endif
 #ifndef  JucePlugin_ProducesMidiOutput
  #define JucePlugin_ProducesMidiOutput     0
@@ -358,16 +358,16 @@
  #define JucePlugin_VSTCategory            kPlugCategEffect
 #endif
 #ifndef  JucePlugin_AUMainType
- #define JucePlugin_AUMainType             kAudioUnitType_Effect
+ #define JucePlugin_AUMainType             kAudioUnitType_MusicEffect
 #endif
 #ifndef  JucePlugin_AUSubType
  #define JucePlugin_AUSubType              JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AUExportPrefix
- #define JucePlugin_AUExportPrefix         JUCEProjectAU
+ #define JucePlugin_AUExportPrefix         MidiWahAU
 #endif
 #ifndef  JucePlugin_AUExportPrefixQuoted
- #define JucePlugin_AUExportPrefixQuoted   "JUCEProjectAU"
+ #define JucePlugin_AUExportPrefixQuoted   "MidiWahAU"
 #endif
 #ifndef  JucePlugin_AUManufacturerCode
  #define JucePlugin_AUManufacturerCode     JucePlugin_ManufacturerCode
@@ -409,11 +409,11 @@
  #define JucePlugin_AAXDisableMultiMono    0
 #endif
 #ifndef  JucePlugin_IAAType
- #define JucePlugin_IAAType                0x61757278 // 'aurx'
+ #define JucePlugin_IAAType                0x6175726d // 'aurm'
 #endif
 #ifndef  JucePlugin_IAASubType
  #define JucePlugin_IAASubType             JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_IAAName
- #define JucePlugin_IAAName                "yourcompany: JUCE Project"
+ #define JucePlugin_IAAName                "Liminal Signals: Midi Wah"
 #endif

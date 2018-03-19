@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    This file was auto-generated!
+	This file was auto-generated!
 
-    It contains the basic framework code for a JUCE plugin editor.
+	It contains the basic framework code for a JUCE plugin editor.
 
   ==============================================================================
 */
@@ -17,20 +17,28 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessorEditor  : public AudioProcessorEditor
+class MidiWahAudioProcessorEditor : public AudioProcessorEditor, public AudioProcessorValueTreeState::Listener
 {
 public:
-    MidiWahAudioProcessorEditor (MidiWahAudioProcessor&);
-    ~MidiWahAudioProcessorEditor();
+	typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
-    //==============================================================================
-    void paint (Graphics&) override;
-    void resized() override;
+	MidiWahAudioProcessorEditor(MidiWahAudioProcessor&, AudioProcessorValueTreeState&);
+	~MidiWahAudioProcessorEditor();
+
+	//==============================================================================
+	void paint(Graphics&) override;
+	void resized() override;
+	void parameterChanged(const String &parameterID, float newValue) override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    MidiWahAudioProcessor& processor;
+	// This reference is provided as a quick way for your editor to
+	// access the processor object that created it.
+	MidiWahAudioProcessor & processor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiWahAudioProcessorEditor)
+	AudioProcessorValueTreeState& valueTreeState;
+
+	Slider centerFreqSlider_;
+	ScopedPointer<SliderAttachment> centerFreqAttachment_;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)
 };

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="MidiWah" projectType="audioplug" buildStandalone="1" jucerVersion="5.2.1">
+<JUCERPROJECT name="MidiWah" projectType="audioplug" buildStandalone="1" jucerVersion="5.2.1"
+              companyName="Liminal Signals" reportAppUsage="0" pluginName="Midi Wah"
+              pluginManufacturer="Liminal Signals" pluginWantsMidiIn="1">
   <MAINGROUP id="uOFHnM" name="MidiWah">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
+      <FILE id="Pcr7fN" name="MyBandPass.h" compile="0" resource="0" file="Source/MyBandPass.h"/>
+      <FILE id="bDX1UO" name="MyBandPass.cpp" compile="1" resource="0" file="Source/MyBandPass.cpp"/>
       <FILE id="hxzAR3" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="zfHvuy" name="PluginProcessor.h" compile="0" resource="0"

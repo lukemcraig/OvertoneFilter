@@ -22,9 +22,25 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+	parameters(*this, nullptr)
 {
+	wahFilter_ = nullptr;
+
+	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
+		"Wah Center Frequency", // paramter Name
+		String("Hz"), // parameter label (suffix)
+		NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
+		600.0f, // default value
+		nullptr,
+		nullptr);
+
+	parameters.state = ValueTree(Identifier("MidiWahParameters"));
+	
+	Q_ = 5.0f;
+	inverseSampleRate_ = 1.0f / 44100.0f;
+	gain_ = 1.0f;
 }
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
@@ -98,12 +114,18 @@ void MidiWahAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+	wahFilter_ = new MyBandPass;
+	inverseSampleRate_ = 1.0f / sampleRate;
+
+	updateFilters();
 }
 
 void MidiWahAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+	delete wahFilter_;
+	wahFilter_ = nullptr;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -155,8 +177,20 @@ void MidiWahAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+        // wah-wah: 2nd order IIR filter, typically band pass on guitar pedals,
+		// resonant low-pass on analog synths, and sometimes a peaking filter.
+		// center freq is 400-1200 Hz
+		for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+			float in = channelData[sample];
+			float out = wahFilter_->processSingleSampleRaw(in);
+			channelData[sample] = out;
+		}
     }
+}
+
+void MidiWahAudioProcessor::updateFilters()
+{	
+	wahFilter_->makeMyBandPass(inverseSampleRate_, *parameters.getRawParameterValue(PID_CENTERFREQ), Q_, gain_);
 }
 
 //==============================================================================
@@ -167,7 +201,7 @@ bool MidiWahAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* MidiWahAudioProcessor::createEditor()
 {
-    return new MidiWahAudioProcessorEditor (*this);
+    return new MidiWahAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================
