@@ -33,7 +33,8 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
 		"Wah Center Frequency", // paramter Name
 		String("Hz"), // parameter label (suffix)
-		NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
+		//NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
+		NormalisableRange<float>(20.0f, 19000.0f, 0, 0.5f), //range
 		600.0f, // default value
 		nullptr,
 		nullptr);
@@ -52,9 +53,10 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 		NormalisableRange<float>(0.0f, 10.0f, 0, 1.5f), //range
 		1.0f, // default value
 		nullptr,
-		nullptr);
+		nullptr);	
 
 	parameters.state = ValueTree(Identifier("MidiWahParameters"));
+	//midiFreq_.referTo(parameters.state, PID_CENTERFREQ, nullptr);
 
 	inverseSampleRate_ = 1.0 / 44100.0;	
 }
@@ -196,9 +198,10 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 	for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(mResult, mSamplePosition);)
 	{
 		if (mResult.isNoteOn())
-		{			
+		{		
+			// convert the midi number to Hz, assuming A is 440Hz
 			midiDebugNumber_ = 440.0f * pow(2.0f, ((float)mResult.getNoteNumber() - 69.0f) / 12.0f);	
-			
+			//midiFreq_.setValue(midiDebugNumber_,nullptr);
 		}		
 	}
 

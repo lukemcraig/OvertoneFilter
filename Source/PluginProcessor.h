@@ -68,6 +68,7 @@ private:
 	MyBandPass** wahFilters_;
 	int numWahFilters_;
 	double inverseSampleRate_;
+	//CachedValue<float> midiFreq_;
 	
 	AudioProcessorValueTreeState parameters;
     //==============================================================================
