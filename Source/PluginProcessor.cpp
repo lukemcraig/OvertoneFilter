@@ -27,6 +27,7 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 	parameters(*this, nullptr)
 {
 	wahFilters_ = nullptr;
+	numWahFilters_ = 0;
 
 	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
 		"Wah Center Frequency", // paramter Name
@@ -114,7 +115,7 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
 {
 	// Use this method as the place to do any pre-playback
 	// initialisation that you need..
-	numWahFilters_ = getNumInputChannels();
+	numWahFilters_ = getTotalNumInputChannels();
 
 	wahFilters_ = (MyBandPass**)malloc(numWahFilters_ * sizeof(MyBandPass*));
 
