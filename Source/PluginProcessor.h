@@ -62,6 +62,8 @@ public:
 	const String PID_CENTERFREQ = "center_freq";
 	const String PID_Q = "q";
 	const String PID_GAIN = "gain";
+
+	int midiDebugNumber_;
 private:
 	MyBandPass** wahFilters_;
 	int numWahFilters_;

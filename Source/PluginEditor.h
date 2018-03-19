@@ -17,7 +17,9 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessorEditor : public AudioProcessorEditor, public AudioProcessorValueTreeState::Listener
+class MidiWahAudioProcessorEditor : public AudioProcessorEditor,
+	public AudioProcessorValueTreeState::Listener,
+	private Timer
 {
 public:
 	typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
@@ -29,6 +31,7 @@ public:
 	void paint(Graphics&) override;
 	void resized() override;
 	void parameterChanged(const String &parameterID, float newValue) override;
+	void timerCallback() override;
 
 private:
 	// This reference is provided as a quick way for your editor to
@@ -45,6 +48,8 @@ private:
 
 	Slider gainSlider_;
 	std::unique_ptr<SliderAttachment> gainAttachment_;
+
+	Label midiDebugLabel_;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)
 };

@@ -28,6 +28,7 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 {
 	wahFilters_ = nullptr;
 	numWahFilters_ = 0;
+	midiDebugNumber_ = 0;
 
 	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
 		"Wah Center Frequency", // paramter Name
@@ -189,6 +190,16 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 	// this code if your algorithm always overwrites all the output channels.
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
+
+	MidiMessage mResult;
+	int mSamplePosition;
+	for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(mResult, mSamplePosition);)
+	{
+		if (mResult.isNoteOn())
+		{			
+			midiDebugNumber_ = mResult.getNoteNumber();
+		}		
+	}
 
 	// This is the place where you'd normally do the guts of your plugin's
 	// audio processing...

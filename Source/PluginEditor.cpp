@@ -35,6 +35,12 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 	addAndMakeVisible(&gainSlider_);
 	gainAttachment_.reset(new SliderAttachment(valueTreeState, processor.PID_GAIN, gainSlider_));
 	valueTreeState.addParameterListener(processor.PID_GAIN, this);
+
+	midiDebugLabel_.setText("0",dontSendNotification);
+	addAndMakeVisible(&midiDebugLabel_);
+
+	startTimerHz(30);
+
 }
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
@@ -61,10 +67,13 @@ void MidiWahAudioProcessorEditor::resized()
 	centerFreqSlider_.setBounds(30, 30, 300, 40);
 	qSlider_.setBounds(30, centerFreqSlider_.getBottom(), 300, 40);
 	gainSlider_.setBounds(30, qSlider_.getBottom(), 300, 40);
+	
+	midiDebugLabel_.setBounds(30, gainSlider_.getBottom(), 75, 75);
 }
 
 void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, float newValue)
 {
+	
 	if (parameterID == processor.PID_CENTERFREQ) {
 		processor.updateFilters();
 	}
@@ -74,6 +83,11 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, fl
 	else if (parameterID == processor.PID_GAIN) {
 		processor.updateFilters();
 	}
+}
+
+void MidiWahAudioProcessorEditor::timerCallback()
+{
+	midiDebugLabel_.setText(juce::String(processor.midiDebugNumber_), dontSendNotification);
 }
 
 
