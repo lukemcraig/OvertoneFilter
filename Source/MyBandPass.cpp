@@ -3,20 +3,20 @@
 void MyBandPass::makeMyBandPass(const double inverseSampleRate, const double centerFreq,
 	const double Q) noexcept
 {
-	double normalizedFrequency = MathConstants<double>::pi * centerFreq * inverseSampleRate;
-	double n = 1.0 / std::tan(normalizedFrequency);
-	double nSquared = n * n;
-	double c1 = 1.0 / (1.0 + (n / Q) + nSquared);
+	// http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
+	// BPF: H(s) = s / (s^2 + s/Q + 1)  (constant skirt gain, peak gain = Q)
+	double w0 = MathConstants<double>::twoPi * centerFreq * inverseSampleRate;
+	double alpha = std::sin(w0) / (2.0 * Q);
 
 	// b (numerator) are the feedfoward coeffecients
 	// a (denominator) are the feedbackward coeffecients
-	//normalized to a0
-	double b0 = c1 * n / Q;
+	double b0 = alpha;
 	double b1 = 0.0;
-	double b2 = -b0;
-	double a0 = 1.0;
-	double a1 = c1 * 2.0 * (1.0 - nSquared);
-	double a2 = c1 * (1.0 - (n / Q) + nSquared);
+	double b2 = -alpha;
+	double a0 = 1.0 + alpha;
+	double a1 = -2.0 * std::cos(w0);
+	double a2 = 1.0 - alpha;
+
 	coefficients = IIRCoefficients(
 		b0,
 		b1,
