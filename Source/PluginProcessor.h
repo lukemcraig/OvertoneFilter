@@ -62,8 +62,9 @@ public:
 	const String PID_CENTERFREQ = "center_freq";
 
 private:
-	MyBandPass* wahFilter_;
-	float inverseSampleRate_;
+	MyBandPass** wahFilters_;
+	int numWahFilters_;
+	double inverseSampleRate_;
 	
 	float Q_;
 	float gain_;

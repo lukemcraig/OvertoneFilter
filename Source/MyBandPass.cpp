@@ -13,8 +13,8 @@ void MyBandPass::makeMyBandPass(const double inverseSampleRate, const double cen
 		1.0,
 		c1 * 2.0 * (1.0 - nSquared),
 		c1 * (1.0 - 1.0 / Q * n + nSquared));*/
-	coefficients = IIRCoefficients::makeBandPass(1.0 / inverseSampleRate, centerFreq, Q);
-
+	//coefficients = IIRCoefficients::makeBandPass(1.0 / inverseSampleRate, centerFreq, Q);
+	coefficients = IIRCoefficients::makeLowPass(1.0 / inverseSampleRate, centerFreq, Q);
 	setCoefficients(coefficients);
 }
 
