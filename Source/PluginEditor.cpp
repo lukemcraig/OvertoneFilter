@@ -88,6 +88,7 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, fl
 void MidiWahAudioProcessorEditor::timerCallback()
 {
 	midiDebugLabel_.setText(juce::String(processor.midiDebugNumber_), dontSendNotification);
+	centerFreqSlider_.setValue(processor.midiDebugNumber_);
 }
 
 

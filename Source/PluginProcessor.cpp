@@ -197,7 +197,8 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 	{
 		if (mResult.isNoteOn())
 		{			
-			midiDebugNumber_ = mResult.getNoteNumber();
+			midiDebugNumber_ = 440.0f * pow(2.0f, ((float)mResult.getNoteNumber() - 69.0f) / 12.0f);	
+			
 		}		
 	}
 
