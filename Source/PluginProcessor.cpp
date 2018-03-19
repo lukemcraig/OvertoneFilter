@@ -37,11 +37,25 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 		nullptr,
 		nullptr);
 
+	parameters.createAndAddParameter(PID_Q, // parameter ID
+		"Wah Q", // paramter Name
+		String(""), // parameter label (suffix)
+		NormalisableRange<float>(0.1f, 10.0f, 0, 1.5f), //range
+		5.0f, // default value
+		nullptr,
+		nullptr);
+
+	parameters.createAndAddParameter(PID_GAIN, // parameter ID
+		"Makeup Gain", // paramter Name
+		String(""), // parameter label (suffix)
+		NormalisableRange<float>(0.0f, 10.0f, 0, 1.5f), //range
+		1.0f, // default value
+		nullptr,
+		nullptr);
+
 	parameters.state = ValueTree(Identifier("MidiWahParameters"));
 
-	Q_ = 5.0f;
-	inverseSampleRate_ = 1.0 / 44100.0;
-	gain_ = 1.0f;
+	inverseSampleRate_ = 1.0 / 44100.0;	
 }
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
@@ -194,14 +208,15 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 		//	float in = channelData[sample];
 		//	float out = wahFilter_->processSingleSampleRaw(in);
 		//	channelData[sample] = out;
-		//}
+		//}		
 	}
+	buffer.applyGain(*parameters.getRawParameterValue(PID_GAIN));
 }
 
 void MidiWahAudioProcessor::updateFilters()
 {
 	for (int i = 0; i < numWahFilters_; ++i)
-		wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameters.getRawParameterValue(PID_CENTERFREQ), (double)Q_, (double)gain_);
+		wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameters.getRawParameterValue(PID_CENTERFREQ), (double)*parameters.getRawParameterValue(PID_Q));
 }
 
 //==============================================================================

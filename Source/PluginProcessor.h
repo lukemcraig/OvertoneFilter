@@ -60,14 +60,13 @@ public:
 
 	//==============================================================================
 	const String PID_CENTERFREQ = "center_freq";
-
+	const String PID_Q = "q";
+	const String PID_GAIN = "gain";
 private:
 	MyBandPass** wahFilters_;
 	int numWahFilters_;
 	double inverseSampleRate_;
 	
-	float Q_;
-	float gain_;
 	AudioProcessorValueTreeState parameters;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiWahAudioProcessor)

@@ -40,5 +40,11 @@ private:
 	Slider centerFreqSlider_;
 	std::unique_ptr<SliderAttachment> centerFreqAttachment_;
 
+	Slider qSlider_;
+	std::unique_ptr<SliderAttachment> qAttachment_;
+
+	Slider gainSlider_;
+	std::unique_ptr<SliderAttachment> gainAttachment_;
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)
 };

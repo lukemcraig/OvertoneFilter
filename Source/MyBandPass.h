@@ -4,7 +4,7 @@
 class MyBandPass : public IIRFilter
 {
 public:
-	void makeMyBandPass(const double inverseSampleRate, const double centerFreq, const double Q, const double gain) noexcept;
+	void makeMyBandPass(const double inverseSampleRate, const double centerFreq, const double Q) noexcept;
 	void copyCoefficientsFrom(const MyBandPass & other) noexcept;
 private:
 	//==============================================================================
