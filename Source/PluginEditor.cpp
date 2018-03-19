@@ -73,10 +73,10 @@ void MidiWahAudioProcessorEditor::resized()
 
 void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, float newValue)
 {	
-	if (parameterID == processor.PID_CENTERFREQ) {
-		processor.updateFilters();
-	}
-	else if (parameterID == processor.PID_Q) {
+	//if (parameterID == processor.PID_CENTERFREQ) {
+	//	processor.updateFilters();
+	//}
+	if (parameterID == processor.PID_Q) {
 		processor.updateFilters();
 	}
 	else if (parameterID == processor.PID_GAIN) {

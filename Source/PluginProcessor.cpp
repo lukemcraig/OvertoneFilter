@@ -28,7 +28,7 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 {
 	wahFilters_ = nullptr;
 	numWahFilters_ = 0;
-	midiDebugNumber_ = 0;
+	midiDebugNumber_ = 400.0f;
 
 	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
 		"Wah Center Frequency", // paramter Name
@@ -200,7 +200,12 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 		if (mResult.isNoteOn())
 		{		
 			// convert the midi number to Hz, assuming A is 440Hz
-			midiDebugNumber_ = 440.0f * pow(2.0f, ((float)mResult.getNoteNumber() - 69.0f) / 12.0f);	
+			float newFreq_ = 440.0f * pow(2.0f, ((float)mResult.getNoteNumber() - 69.0f) / 12.0f);
+			if (midiDebugNumber_ != newFreq_) {
+				midiDebugNumber_ = newFreq_;
+				updateFilters();
+			}
+
 			//midiFreq_.setValue(midiDebugNumber_,nullptr);
 		}		
 	}
@@ -229,9 +234,10 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 }
 
 void MidiWahAudioProcessor::updateFilters()
-{
+{	
 	for (int i = 0; i < numWahFilters_; ++i)
-		wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameters.getRawParameterValue(PID_CENTERFREQ), (double)*parameters.getRawParameterValue(PID_Q));
+		//wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameters.getRawParameterValue(PID_CENTERFREQ), (double)*parameters.getRawParameterValue(PID_Q));
+		wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)midiDebugNumber_, (double)*parameters.getRawParameterValue(PID_Q));
 }
 
 //==============================================================================

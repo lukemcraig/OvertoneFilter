@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="MidiWah" projectType="audioplug" buildStandalone="1" jucerVersion="5.2.1"
+<JUCERPROJECT name="MidiWah" projectType="audioplug" buildStandalone="1" jucerVersion="5.3.0"
               companyName="Liminal Signals" reportAppUsage="0" pluginName="Midi Wah"
               pluginManufacturer="Liminal Signals" pluginWantsMidiIn="1">
   <MAINGROUP id="uOFHnM" name="MidiWah">

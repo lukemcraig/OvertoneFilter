@@ -36,7 +36,7 @@
 // BEGIN SECTION A
 
 #ifndef JUCE_DISPLAY_SPLASH_SCREEN
- #define JUCE_DISPLAY_SPLASH_SCREEN 0
+ #define JUCE_DISPLAY_SPLASH_SCREEN 1
 #endif
 
 #ifndef JUCE_REPORT_APP_USAGE
@@ -91,6 +91,10 @@
 
 #ifndef    JUCE_JACK
  //#define JUCE_JACK 0
+#endif
+
+#ifndef    JUCE_USE_ANDROID_OBOE
+ //#define JUCE_USE_ANDROID_OBOE 0
 #endif
 
 #ifndef    JUCE_USE_ANDROID_OPENSLES
@@ -325,7 +329,7 @@
  #define JucePlugin_ManufacturerCode       0x4d616e75 // 'Manu'
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             0x596a3367 // 'Yj3g'
+ #define JucePlugin_PluginCode             0x4b747a75 // 'Ktzu'
 #endif
 #ifndef  JucePlugin_IsSynth
  #define JucePlugin_IsSynth                0
