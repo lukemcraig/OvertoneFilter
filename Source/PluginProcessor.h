@@ -36,6 +36,8 @@ public:
 
 	void updateFilters();
 
+	void updateFilterType();
+
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -60,11 +62,12 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 	//==============================================================================
-	//const String PID_CENTERFREQ = "center_freq";
+	const String PID_CENTERFREQ = "center_freq";
 	const String PID_Q = "q";
 	const String PID_GAIN = "gain";
 	const String PID_DRIVE = "drive";
-
+	const String PID_LADDER_TYPE = "ladder_type";
+	
 	float midiDebugNumber_;
 private:
 	LadderFilter** ladderFilters_;

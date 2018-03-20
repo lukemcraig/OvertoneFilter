@@ -34,13 +34,19 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 
 	addAndMakeVisible(&gainSlider_);
 	gainAttachment_.reset(new SliderAttachment(valueTreeState, processor.PID_GAIN, gainSlider_));
-	valueTreeState.addParameterListener(processor.PID_GAIN, this);
-
-	
+	valueTreeState.addParameterListener(processor.PID_GAIN, this);	
 
 	addAndMakeVisible(&driveSlider_);
 	driveAttachment_.reset(new SliderAttachment(valueTreeState, processor.PID_DRIVE, driveSlider_));
 	valueTreeState.addParameterListener(processor.PID_DRIVE, this);
+
+	ladderType_.addItem("LP12",1);
+	ladderType_.addItem("LP24",2);
+	ladderType_.addItem("HP12",3);
+	ladderType_.addItem("HP24",4);
+	addAndMakeVisible(&ladderType_);
+	ladderTypeAttachment_.reset(new ComboBoxAttachment(valueTreeState, processor.PID_LADDER_TYPE, ladderType_));
+	valueTreeState.addParameterListener(processor.PID_LADDER_TYPE, this);
 
 	startTimerHz(30);
 
@@ -49,9 +55,11 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
 	valueTreeState.removeParameterListener(processor.PID_CENTERFREQ, this);
+
 	valueTreeState.removeParameterListener(processor.PID_Q, this);
 	valueTreeState.removeParameterListener(processor.PID_GAIN, this);
 	valueTreeState.removeParameterListener(processor.PID_DRIVE, this);
+	valueTreeState.removeParameterListener(processor.PID_LADDER_TYPE, this);
 }
 
 //==============================================================================
@@ -68,10 +76,12 @@ void MidiWahAudioProcessorEditor::resized()
 {
 	// This is generally where you'll want to lay out the positions of any
 	// subcomponents in your editor..
-	centerFreqSlider_.setBounds(30, 30, 300, 40);
-	qSlider_.setBounds(30, centerFreqSlider_.getBottom(), 300, 40);
-	gainSlider_.setBounds(30, qSlider_.getBottom(), 300, 40);
-	driveSlider_.setBounds(30, gainSlider_.getBottom(), 300, 40);
+	const int LEFT_BOUND = 30;
+	centerFreqSlider_.setBounds(LEFT_BOUND, 30, 300, 40);
+	qSlider_.setBounds(LEFT_BOUND, centerFreqSlider_.getBottom(), 300, 40);
+	gainSlider_.setBounds(LEFT_BOUND, qSlider_.getBottom(), 300, 40);
+	driveSlider_.setBounds(LEFT_BOUND, gainSlider_.getBottom(), 300, 40);
+	ladderType_.setBounds(LEFT_BOUND, driveSlider_.getBottom(), 100, 40);
 	
 }
 
@@ -88,6 +98,9 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, fl
 	}
 	else if (parameterID == processor.PID_DRIVE) {
 		processor.updateFilters();
+	}
+	else if (parameterID == processor.PID_LADDER_TYPE) {
+		processor.updateFilterType();
 	}
 }
 

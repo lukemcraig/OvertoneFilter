@@ -31,14 +31,14 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 	numWahFilters_ = 0;
 	midiDebugNumber_ = 400.0f;
 
-	//parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
-	//	"Wah Center Frequency", // paramter Name
-	//	String("Hz"), // parameter label (suffix)
-	//	//NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
-	//	NormalisableRange<float>(20.0f, 19000.0f, 0, 0.5f), //range
-	//	600.0f, // default value
-	//	nullptr,
-	//	nullptr);
+	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
+		"Wah Center Frequency", // paramter Name
+		String("Hz"), // parameter label (suffix)
+		//NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
+		NormalisableRange<float>(20.0f, 19000.0f, 0, 0.5f), //range
+		600.0f, // default value
+		nullptr,
+		nullptr);
 
 	parameters.createAndAddParameter(PID_Q, // parameter ID
 		"Wah Q", // paramter Name
@@ -60,6 +60,14 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 		"Drive", // paramter Name
 		String(""), // parameter label (suffix)
 		NormalisableRange<float>(1.0f, 10.0f, 0, 1.0f), //range
+		1.0f, // default value
+		nullptr,
+		nullptr);
+
+	parameters.createAndAddParameter(PID_LADDER_TYPE, // parameter ID
+		"Ladder Type", // paramter Name
+		String(""), // parameter label (suffix)
+		NormalisableRange<float>(1.0f, 4.0f, 0, 1.0f), //range
 		1.0f, // default value
 		nullptr,
 		nullptr);
@@ -263,8 +271,34 @@ void MidiWahAudioProcessor::updateFilters()
 		//wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameters.getRawParameterValue(PID_CENTERFREQ), (double)*parameters.getRawParameterValue(PID_Q));
 		//wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)midiDebugNumber_, (double)*parameters.getRawParameterValue(PID_Q));
 		ladderFilters_[i]->setCutoffFrequencyHz(midiDebugNumber_);
-		ladderFilters_[i]->setResonance(*parameters.getRawParameterValue(PID_Q));		
+		ladderFilters_[i]->setResonance(*parameters.getRawParameterValue(PID_Q));
 		ladderFilters_[i]->setDrive(*parameters.getRawParameterValue(PID_DRIVE));
+	}
+}
+
+void MidiWahAudioProcessor::updateFilterType()
+{
+	LadderFilter::Mode mode = LadderFilter::Mode::LPF12;
+	auto ladderType = (int)*parameters.getRawParameterValue(PID_LADDER_TYPE);
+	switch (ladderType)
+	{
+	case 0:
+		mode = LadderFilter::Mode::LPF12;
+		break;
+	case 1:
+		mode = LadderFilter::Mode::LPF24;
+		break;
+	case 2:
+		mode = LadderFilter::Mode::HPF12;
+		break;
+	case 3:
+		mode = LadderFilter::Mode::HPF24;
+		break;
+	default:		
+		break;
+	}
+	for (int i = 0; i < numWahFilters_; ++i) {
+		ladderFilters_[i]->setMode(mode);
 	}
 }
 

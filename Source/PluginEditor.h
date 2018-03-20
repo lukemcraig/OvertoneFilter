@@ -23,6 +23,7 @@ class MidiWahAudioProcessorEditor : public AudioProcessorEditor,
 {
 public:
 	typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+	typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
 
 	MidiWahAudioProcessorEditor(MidiWahAudioProcessor&, AudioProcessorValueTreeState&);
 	~MidiWahAudioProcessorEditor();
@@ -51,7 +52,9 @@ private:
 
 	Slider driveSlider_;
 	std::unique_ptr<SliderAttachment> driveAttachment_;
-
+	
+	ComboBox ladderType_;
+	std::unique_ptr<ComboBoxAttachment> ladderTypeAttachment_;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)
 };
