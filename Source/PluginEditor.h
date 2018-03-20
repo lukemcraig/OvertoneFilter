@@ -49,7 +49,9 @@ private:
 	Slider gainSlider_;
 	std::unique_ptr<SliderAttachment> gainAttachment_;
 
-	Label midiDebugLabel_;
+	Slider driveSlider_;
+	std::unique_ptr<SliderAttachment> driveAttachment_;
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)
 };

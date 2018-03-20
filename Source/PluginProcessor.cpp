@@ -31,35 +31,43 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 	numWahFilters_ = 0;
 	midiDebugNumber_ = 400.0f;
 
-	parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
-		"Wah Center Frequency", // paramter Name
-		String("Hz"), // parameter label (suffix)
-		//NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
-		NormalisableRange<float>(20.0f, 19000.0f, 0, 0.5f), //range
-		600.0f, // default value
-		nullptr,
-		nullptr);
+	//parameters.createAndAddParameter(PID_CENTERFREQ, // parameter ID
+	//	"Wah Center Frequency", // paramter Name
+	//	String("Hz"), // parameter label (suffix)
+	//	//NormalisableRange<float>(400.0f, 1200.0f, 0, 0.5f), //range
+	//	NormalisableRange<float>(20.0f, 19000.0f, 0, 0.5f), //range
+	//	600.0f, // default value
+	//	nullptr,
+	//	nullptr);
 
 	parameters.createAndAddParameter(PID_Q, // parameter ID
 		"Wah Q", // paramter Name
 		String(""), // parameter label (suffix)
-		NormalisableRange<float>(0.1f, 10.0f, 0, 1.5f), //range
-		5.0f, // default value
+		NormalisableRange<float>(0.1f, 1.0f, 0, 1.0f), //range
+		0.5f, // default value
 		nullptr,
 		nullptr);
 
 	parameters.createAndAddParameter(PID_GAIN, // parameter ID
 		"Makeup Gain", // paramter Name
 		String(""), // parameter label (suffix)
-		NormalisableRange<float>(0.0f, 10.0f, 0, 1.5f), //range
+		NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f), //range
 		1.0f, // default value
 		nullptr,
-		nullptr);	
+		nullptr);
+
+	parameters.createAndAddParameter(PID_DRIVE, // parameter ID
+		"Drive", // paramter Name
+		String(""), // parameter label (suffix)
+		NormalisableRange<float>(1.0f, 10.0f, 0, 1.0f), //range
+		1.0f, // default value
+		nullptr,
+		nullptr);
 
 	parameters.state = ValueTree(Identifier("MidiWahParameters"));
 	//midiFreq_.referTo(parameters.state, PID_CENTERFREQ, nullptr);
 
-	inverseSampleRate_ = 1.0 / 44100.0;	
+	inverseSampleRate_ = 1.0 / 44100.0;
 }
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
@@ -147,7 +155,9 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
 		ladderFilters_[i] = new LadderFilter;
 		ladderFilters_[i]->reset();
 		ladderFilters_[i]->prepare(processSpec);
-	}		
+		ladderFilters_[i]->setMode(LadderFilter::Mode::LPF12);
+		ladderFilters_[i]->setDrive(*parameters.getRawParameterValue(PID_DRIVE));
+	}
 
 	inverseSampleRate_ = 1.0 / sampleRate;
 
@@ -212,7 +222,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 	for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(mResult, mSamplePosition);)
 	{
 		if (mResult.isNoteOn())
-		{		
+		{
 			// convert the midi number to Hz, assuming A is 440Hz
 			float newFreq_ = 440.0f * pow(2.0f, ((float)mResult.getNoteNumber() - 69.0f) / 12.0f);
 			if (midiDebugNumber_ != newFreq_) {
@@ -221,9 +231,9 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 			}
 
 			//midiFreq_.setValue(midiDebugNumber_,nullptr);
-		}		
+		}
 	}
-
+	dsp::AudioBlock<float> block(buffer);
 	// This is the place where you'd normally do the guts of your plugin's
 	// audio processing...
 	// Make sure to reset the state if your inner loop is processing
@@ -238,9 +248,11 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 		// resonant low-pass on analog synths, and sometimes a peaking filter.
 		// center freq is 400-1200 Hz
 		//wahFilters_[channel]->processSamples(channelData, buffer.getNumSamples());
-		dsp::AudioBlock<float> block(buffer);
-		ladderFilters_[channel]->process(dsp::ProcessContextReplacing<float>(block));
-		
+
+		ladderFilters_[channel]->process(
+			dsp::ProcessContextReplacing<float>(block.getSingleChannelBlock(channel))
+		);
+
 	}
 	buffer.applyGain(*parameters.getRawParameterValue(PID_GAIN));
 }
@@ -249,10 +261,10 @@ void MidiWahAudioProcessor::updateFilters()
 {
 	for (int i = 0; i < numWahFilters_; ++i) {
 		//wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameters.getRawParameterValue(PID_CENTERFREQ), (double)*parameters.getRawParameterValue(PID_Q));
-		wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)midiDebugNumber_, (double)*parameters.getRawParameterValue(PID_Q));
-		ladderFilters_[i]->setCutoffFrequencyHz((double)midiDebugNumber_);
-		ladderFilters_[i]->setResonance(0.5f);
-		ladderFilters_[i]->setMode(LadderFilter::Mode::LPF12);
+		//wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)midiDebugNumber_, (double)*parameters.getRawParameterValue(PID_Q));
+		ladderFilters_[i]->setCutoffFrequencyHz(midiDebugNumber_);
+		ladderFilters_[i]->setResonance(*parameters.getRawParameterValue(PID_Q));		
+		ladderFilters_[i]->setDrive(*parameters.getRawParameterValue(PID_DRIVE));
 	}
 }
 

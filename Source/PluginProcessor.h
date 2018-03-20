@@ -60,9 +60,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 	//==============================================================================
-	const String PID_CENTERFREQ = "center_freq";
+	//const String PID_CENTERFREQ = "center_freq";
 	const String PID_Q = "q";
 	const String PID_GAIN = "gain";
+	const String PID_DRIVE = "drive";
 
 	float midiDebugNumber_;
 private:

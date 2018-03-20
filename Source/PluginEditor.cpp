@@ -36,8 +36,11 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 	gainAttachment_.reset(new SliderAttachment(valueTreeState, processor.PID_GAIN, gainSlider_));
 	valueTreeState.addParameterListener(processor.PID_GAIN, this);
 
-	midiDebugLabel_.setText("0",dontSendNotification);
-	addAndMakeVisible(&midiDebugLabel_);
+	
+
+	addAndMakeVisible(&driveSlider_);
+	driveAttachment_.reset(new SliderAttachment(valueTreeState, processor.PID_DRIVE, driveSlider_));
+	valueTreeState.addParameterListener(processor.PID_DRIVE, this);
 
 	startTimerHz(30);
 
@@ -48,6 +51,7 @@ MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 	valueTreeState.removeParameterListener(processor.PID_CENTERFREQ, this);
 	valueTreeState.removeParameterListener(processor.PID_Q, this);
 	valueTreeState.removeParameterListener(processor.PID_GAIN, this);
+	valueTreeState.removeParameterListener(processor.PID_DRIVE, this);
 }
 
 //==============================================================================
@@ -67,8 +71,8 @@ void MidiWahAudioProcessorEditor::resized()
 	centerFreqSlider_.setBounds(30, 30, 300, 40);
 	qSlider_.setBounds(30, centerFreqSlider_.getBottom(), 300, 40);
 	gainSlider_.setBounds(30, qSlider_.getBottom(), 300, 40);
+	driveSlider_.setBounds(30, gainSlider_.getBottom(), 300, 40);
 	
-	midiDebugLabel_.setBounds(30, gainSlider_.getBottom(), 75, 75);
 }
 
 void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, float newValue)
@@ -82,11 +86,14 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, fl
 	else if (parameterID == processor.PID_GAIN) {
 		processor.updateFilters();
 	}
+	else if (parameterID == processor.PID_DRIVE) {
+		processor.updateFilters();
+	}
 }
 
 void MidiWahAudioProcessorEditor::timerCallback()
 {
-	midiDebugLabel_.setText(juce::String(processor.midiDebugNumber_), dontSendNotification);
+	
 	centerFreqSlider_.setValue(processor.midiDebugNumber_);
 }
 
