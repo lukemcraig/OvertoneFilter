@@ -19,6 +19,7 @@
 class MidiWahAudioProcessor  : public AudioProcessor
 {
 public:
+	typedef dsp::LadderFilter<float> LadderFilter;
     //==============================================================================
     MidiWahAudioProcessor();
     ~MidiWahAudioProcessor();
@@ -65,6 +66,7 @@ public:
 
 	float midiDebugNumber_;
 private:
+	LadderFilter** ladderFilters_;
 	MyBandPass** wahFilters_;
 	int numWahFilters_;
 	double inverseSampleRate_;
