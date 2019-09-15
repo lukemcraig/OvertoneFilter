@@ -16,67 +16,79 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessor  : public AudioProcessor
+class MidiWahAudioProcessor : public AudioProcessor
 {
 public:
-	typedef dsp::LadderFilter<float> LadderFilter;
+    typedef dsp::LadderFilter<float> LadderFilter;
+
     //==============================================================================
     MidiWahAudioProcessor();
+
     ~MidiWahAudioProcessor();
 
     //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#ifndef JucePlugin_PreferredChannelConfigurations
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+#endif
 
-    void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
+    void processBlock(AudioBuffer<float>&, MidiBuffer&) override;
 
-	void updateFilters();
+    void updateFilters();
 
-	void updateFilterType();
+    void updateFilterType();
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
+
     bool hasEditor() const override;
 
     //==============================================================================
     const String getName() const override;
 
     bool acceptsMidi() const override;
+
     bool producesMidi() const override;
+
     bool isMidiEffect() const override;
+
     double getTailLengthSeconds() const override;
 
     //==============================================================================
     int getNumPrograms() override;
+
     int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const String getProgramName (int index) override;
-    void changeProgramName (int index, const String& newName) override;
+
+    void setCurrentProgram(int index) override;
+
+    const String getProgramName(int index) override;
+
+    void changeProgramName(int index, const String& newName) override;
 
     //==============================================================================
-    void getStateInformation (MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+    void getStateInformation(MemoryBlock& destData) override;
 
-	//==============================================================================
-	const String PID_CENTERFREQ = "center_freq";
-	const String PID_Q = "q";
-	const String PID_GAIN = "gain";
-	const String PID_DRIVE = "drive";
-	const String PID_LADDER_TYPE = "ladder_type";
-	
-	float midiDebugNumber_;
+    void setStateInformation(const void* data, int sizeInBytes) override;
+
+    //==============================================================================
+    const String PID_CENTERFREQ = "center_freq";
+    const String PID_Q = "q";
+    const String PID_GAIN = "gain";
+    const String PID_DRIVE = "drive";
+    const String PID_LADDER_TYPE = "ladder_type";
+
+    float midiDebugNumber_;
 private:
-	LadderFilter** ladderFilters_;
-	MyBandPass** wahFilters_;
-	int numWahFilters_;
-	double inverseSampleRate_;
-	//CachedValue<float> midiFreq_;
-	
-	AudioProcessorValueTreeState parameters;
+    LadderFilter** ladderFilters_;
+    MyBandPass** wahFilters_;
+    int numWahFilters_;
+    double inverseSampleRate_;
+    //CachedValue<float> midiFreq_;
+
+    AudioProcessorValueTreeState parameters;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiWahAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)
 };
