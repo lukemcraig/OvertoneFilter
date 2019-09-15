@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="MidiWah" projectType="audioplug" buildStandalone="1" jucerVersion="5.3.0"
-              companyName="Liminal Signals" reportAppUsage="0" pluginName="Midi Wah"
-              pluginManufacturer="Liminal Signals" pluginWantsMidiIn="1">
+<JUCERPROJECT name="MidiWah" projectType="audioplug" buildStandalone="1" jucerVersion="5.4.4"
+              companyName="Luke M. Craig" reportAppUsage="0" pluginName="Midi Wah"
+              pluginManufacturer="Luke M. Craig" pluginWantsMidiIn="1" id="fu59EL"
+              pluginFormats="buildStandalone,buildVST3" pluginCharacteristicsValue="pluginWantsMidiIn"
+              buildVST="0" buildVST3="1" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" enableIAA="0">
   <MAINGROUP id="uOFHnM" name="MidiWah">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
       <FILE id="Pcr7fN" name="MyBandPass.h" compile="0" resource="0" file="Source/MyBandPass.h"/>
@@ -61,5 +64,8 @@
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
-  <JUCEOPTIONS/>
+  <JUCEOPTIONS JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

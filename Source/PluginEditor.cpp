@@ -74,8 +74,6 @@ void MidiWahAudioProcessorEditor::paint(Graphics& g)
 
 void MidiWahAudioProcessorEditor::resized()
 {
-	// This is generally where you'll want to lay out the positions of any
-	// subcomponents in your editor..
 	const int LEFT_BOUND = 30;
 	centerFreqSlider_.setBounds(LEFT_BOUND, 30, 300, 40);
 	qSlider_.setBounds(LEFT_BOUND, centerFreqSlider_.getBottom(), 300, 40);
@@ -105,8 +103,7 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String &parameterID, fl
 }
 
 void MidiWahAudioProcessorEditor::timerCallback()
-{
-	
+{	
 	centerFreqSlider_.setValue(processor.midiDebugNumber_);
 }
 
