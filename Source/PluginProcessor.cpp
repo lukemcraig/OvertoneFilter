@@ -130,8 +130,6 @@ void MidiWahAudioProcessor::updateFilters()
 {
     for (int i = 0; i < numWahFilters; ++i)
     {
-        //wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)*parameterHelper.valueTreeState.getRawParameterValue(PID_CENTERFREQ), (double)*parameterHelper.valueTreeState.getRawParameterValue(PID_Q));
-        //wahFilters_[i]->makeMyBandPass(inverseSampleRate_, (double)midiDebugNumber_, (double)*parameterHelper.valueTreeState.getRawParameterValue(PID_Q));
         auto filter = ladderFilters[i].get();
         filter->setCutoffFrequencyHz(midiDebugNumber);
         filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
@@ -139,37 +137,10 @@ void MidiWahAudioProcessor::updateFilters()
     }
 }
 
-void MidiWahAudioProcessor::updateFilterType()
-{
-    LadderFilter::Mode mode = LadderFilter::Mode::LPF12;
-    const auto ladderType = static_cast<int>(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_LADDER_TYPE));
-    switch (ladderType)
-    {
-    case 0:
-        mode = LadderFilter::Mode::LPF12;
-        break;
-    case 1:
-        mode = LadderFilter::Mode::LPF24;
-        break;
-    case 2:
-        mode = LadderFilter::Mode::HPF12;
-        break;
-    case 3:
-        mode = LadderFilter::Mode::HPF24;
-        break;
-    default:
-        break;
-    }
-    for (int i = 0; i < numWahFilters; ++i)
-    {
-        ladderFilters[i]->setMode(mode);
-    }
-}
-
 //==============================================================================
 bool MidiWahAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return false; // (change this to false if you choose to not supply an editor)
 }
 
 AudioProcessorEditor* MidiWahAudioProcessor::createEditor()

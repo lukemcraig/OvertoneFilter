@@ -41,10 +41,5 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            "Drive",
                                                            NormalisableRange<float>(1.0f, 10.0f, 0, 1.0f),
                                                            1.0f));
-    params.push_back(std::make_unique<AudioParameterFloat>(PID_LADDER_TYPE,
-                                                           "Ladder Type",
-                                                           NormalisableRange<float>(1.0f, 4.0f, 0, 1.0f),
-                                                           1.0f));
-
     return {params.begin(), params.end()};
 }

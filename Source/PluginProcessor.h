@@ -39,8 +39,6 @@ public:
 
     void updateFilters();
 
-    void updateFilterType();
-
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
 

@@ -41,14 +41,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     driveAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_DRIVE, driveSlider));
     parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_DRIVE, this);
 
-    ladderType.addItem("LP12", 1);
-    ladderType.addItem("LP24", 2);
-    ladderType.addItem("HP12", 3);
-    ladderType.addItem("HP24", 4);
-    addAndMakeVisible(&ladderType);
-    ladderTypeAttachment.reset(new ComboBoxAttachment(parameterHelper.valueTreeState, parameterHelper.PID_LADDER_TYPE, ladderType));
-    parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_LADDER_TYPE, this);
-
     startTimerHz(30);
 
     // ----
@@ -102,12 +94,12 @@ void MidiWahAudioProcessorEditor::setupSourceToggles()
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
+    //TODO remove these?
     parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_CENTERFREQ, this);
 
     parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_Q, this);
     parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_GAIN, this);
     parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_DRIVE, this);
-    parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_LADDER_TYPE, this);
 }
 
 //==============================================================================
@@ -220,10 +212,6 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String& parameterID, fl
     else if (parameterID == parameterHelper.PID_DRIVE)
     {
         processor.updateFilters();
-    }
-    else if (parameterID == parameterHelper.PID_LADDER_TYPE)
-    {
-        processor.updateFilterType();
     }
 }
 
