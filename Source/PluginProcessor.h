@@ -76,13 +76,15 @@ public:
     // TODO
     float midiDebugNumber;
 private:
+    MidiKeyboardState keyboardState;
+
     dsp::ProcessSpec processSpec{};
     int numWahFilters{};
     std::vector<std::unique_ptr<LadderFilter>> ladderFilters;
     double inverseSampleRate;
-    MidiKeyboardState keyboardState;
+
     ParameterHelper parameterHelper;
-    
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)
 };

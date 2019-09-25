@@ -91,6 +91,8 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
+    keyboardState.processNextMidiBuffer(midiMessages,0,buffer.getNumSamples(),false);
+
     MidiMessage mResult;
     int mSamplePosition;
     for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(mResult, mSamplePosition);)
@@ -140,7 +142,7 @@ void MidiWahAudioProcessor::updateFilters()
 //==============================================================================
 bool MidiWahAudioProcessor::hasEditor() const
 {
-    return false; // (change this to false if you choose to not supply an editor)
+    return true; // (change this to false if you choose to not supply an editor)
 }
 
 AudioProcessorEditor* MidiWahAudioProcessor::createEditor()

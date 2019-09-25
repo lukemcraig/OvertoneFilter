@@ -17,16 +17,14 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph),
       keyboard(ks, MidiKeyboardComponent::horizontalKeyboard), keyboardState(ks)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize(400, 300);
     centerFreqSlider.setSliderStyle(Slider::LinearHorizontal);
     centerFreqSlider.setTextBoxStyle(Slider::TextBoxLeft, false, 120, centerFreqSlider.getTextBoxHeight());
     centerFreqSlider.setPopupDisplayEnabled(true, false, this);
     centerFreqSlider.setTextValueSuffix("Hz");
 
     addAndMakeVisible(&centerFreqSlider);
-    centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ, centerFreqSlider));
+    centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ,
+                                                    centerFreqSlider));
     parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_CENTERFREQ, this);
 
     addAndMakeVisible(&qSlider);
@@ -54,20 +52,12 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     nameLabel.setText("Midi Wah - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
     addAndMakeVisible(nameLabel);
 
-    //setupLfoFreqSlider();
-
     setupSourceToggles();
-
-    //setupOffsets();
-
-    //setupDepthSlider();
-
-    //setupFLabels();
 
     addAndMakeVisible(keyboard);
     keyboardState.addListener(this);
 
-    freqGroup.setText("Modulation Frequency:");
+    freqGroup.setText("Filter Frequency:");
     freqGroup.setTextLabelPosition(Justification::centredLeft);
     addAndMakeVisible(freqGroup);
 
@@ -157,39 +147,21 @@ void MidiWahAudioProcessorEditor::resized()
         nPanes += 2;
     const auto paneAreaHeight = area.getHeight() / nPanes;
     const auto paneMargin = 5;
-    {
-        auto depthAndFLabelsArea = area.removeFromTop(paneAreaHeight).reduced(paneMargin);
-        //auto fLabelsArea = depthAndFLabelsArea.removeFromRight(300);
-        // layoutFLabels(fLabelsArea);
-        //auto depthArea = depthAndFLabelsArea.removeFromLeft(depthAndFLabelsArea.proportionOfWidth(0.5f));
-        depthGroup.setBounds(depthAndFLabelsArea);
-        depthSlider.setBounds(depthAndFLabelsArea.reduced(20, 20));
-    }
+
+    qSlider.setBounds(area.removeFromTop(60));
+    gainSlider.setBounds(area.removeFromTop(60));
+    driveSlider.setBounds(area.removeFromTop(60));
+
     freqGroup.setBounds(area);
     {
         auto freqArea = area.removeFromTop(paneAreaHeight).reduced(paneMargin);
         freqArea.removeFromTop(20);
         auto freqAreaTop = freqArea.removeFromTop(20);
-        lfoFreqSliderLabel.setBounds(freqAreaTop.removeFromLeft(60));
         midiSourceButton.setBounds(freqAreaTop.removeFromLeft(80));
         sliderSourceButton.setBounds(freqAreaTop.removeFromLeft(80));
 
-        lfoFreqSlider.setBounds(freqArea.reduced(20, 10));
+        centerFreqSlider.setBounds(freqArea.reduced(20, 10));
     }
-
-    if (midiVisible == 1.0f)
-    {
-        auto offsetsArea = area.removeFromTop(paneAreaHeight).reduced(10);
-        offsetsGroup.setBounds(offsetsArea);
-        offsetsArea.reduce(10, 10);
-        const auto nSliders = 4;
-        const auto sliderWidth = offsetsArea.proportionOfWidth(1.0f / nSliders);
-        offsetOctaveSlider.setBounds(offsetsArea.removeFromLeft(sliderWidth).reduced(20, 10));
-        offsetSemitoneSlider.setBounds(offsetsArea.removeFromLeft(sliderWidth).reduced(20, 10));
-        offsetCentsSlider.setBounds(offsetsArea.removeFromLeft(sliderWidth).reduced(20, 10));
-        standardSlider.setBounds(offsetsArea.removeFromLeft(sliderWidth).reduced(20, 10));
-    }
-
     {
         const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
         keyboard.setBounds(keyboardArea);
@@ -217,6 +189,7 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String& parameterID, fl
 
 void MidiWahAudioProcessorEditor::timerCallback()
 {
+    //TODO
     centerFreqSlider.setValue(processor.midiDebugNumber);
 }
 
