@@ -37,7 +37,7 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
         auto filter = ladderFilters[i].get();
         filter->reset();
         filter->prepare(processSpec);
-        filter->setMode(LadderFilter::Mode::LPF12);
+        filter->setMode(LadderFilter::Mode::LPF24);
         filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
 

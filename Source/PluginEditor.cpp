@@ -84,6 +84,7 @@ void MidiWahAudioProcessorEditor::setupSourceToggles()
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
+    keyboardState.removeListener(this);
     //TODO remove these?
     parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_CENTERFREQ, this);
 
