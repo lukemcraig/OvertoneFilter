@@ -170,9 +170,9 @@ void MidiWahAudioProcessorEditor::resized()
     const auto paneAreaHeight = area.getHeight() / nPanes;
     const auto paneMargin = 5;
 
-    qSlider.setBounds(area.removeFromTop(60).reduced(60,0));
-    gainSlider.setBounds(area.removeFromTop(60).reduced(60,0));
-    driveSlider.setBounds(area.removeFromTop(60).reduced(60,0));
+    qSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
+    gainSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
+    driveSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
 
     freqGroup.setBounds(area);
     {
@@ -192,9 +192,10 @@ void MidiWahAudioProcessorEditor::resized()
 
 void MidiWahAudioProcessorEditor::parameterChanged(const String& parameterID, float newValue)
 {
-    if (parameterID == parameterHelper.PID_CENTERFREQ) {
+    if (parameterID == parameterHelper.PID_CENTERFREQ)
+    {
         DBG("PID_CENTERFREQ changed");
-    //	processor.updateFilters();
+        //	processor.updateFilters();
     }
     if (parameterID == parameterHelper.PID_Q)
     {
@@ -213,13 +214,15 @@ void MidiWahAudioProcessorEditor::parameterChanged(const String& parameterID, fl
 void MidiWahAudioProcessorEditor::timerCallback()
 {
     //TODO
-    centerFreqSlider.setValue(processor.midiDebugNumber);
+    //centerFreqSlider.setValue(processor.midiDebugNumber);
 }
 
 void MidiWahAudioProcessorEditor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
                                                float velocity)
 {
     // TODO
+    const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
+    centerFreqSlider.setValue(newFreq);
 }
 
 void MidiWahAudioProcessorEditor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
