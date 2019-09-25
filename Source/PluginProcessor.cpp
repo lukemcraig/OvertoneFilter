@@ -37,7 +37,7 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
         auto filter = ladderFilters[i].get();
         filter->reset();
         filter->prepare(processSpec);
-        filter->setMode(LadderFilter::Mode::LPF24);
+        filter->setMode(LadderFilter::Mode::LPF12);
         filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
 
@@ -91,7 +91,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
-    keyboardState.processNextMidiBuffer(midiMessages,0,buffer.getNumSamples(),false);
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
 
     MidiMessage mResult;
     int mSamplePosition;
@@ -153,15 +153,18 @@ AudioProcessorEditor* MidiWahAudioProcessor::createEditor()
 //==============================================================================
 void MidiWahAudioProcessor::getStateInformation(MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = parameterHelper.valueTreeState.copyState();
+    std::unique_ptr<XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(parameterHelper.valueTreeState.state.getType()))
+            parameterHelper.valueTreeState.replaceState(ValueTree::fromXml(*xmlState));
 }
 
 //==============================================================================
