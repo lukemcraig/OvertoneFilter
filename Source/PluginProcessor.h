@@ -16,7 +16,8 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessor : public AudioProcessor
+class MidiWahAudioProcessor : public AudioProcessor,
+                              private MidiKeyboardStateListener
 {
 public:
     typedef dsp::LadderFilter<float> LadderFilter;
@@ -72,8 +73,12 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     //==============================================================================
+    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
 
-    // TODO
+    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
+
+    //==============================================================================
+    // TODO remove
     float midiDebugNumber;
 private:
     MidiKeyboardState keyboardState;

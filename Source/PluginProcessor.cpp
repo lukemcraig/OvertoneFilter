@@ -15,10 +15,13 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
     midiDebugNumber = 400.0f;
 
     inverseSampleRate = 1.0 / 44100.0;
+
+    keyboardState.addListener(this);
 }
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
 {
+    keyboardState.removeListener(this);
 }
 
 //==============================================================================
@@ -37,8 +40,8 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
         auto filter = ladderFilters[i].get();
         filter->reset();
         filter->prepare(processSpec);
-        filter->setMode(LadderFilter::Mode::LPF12);
-        filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
+        filter->setMode(LadderFilter::Mode::LPF24);
+        //filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
 
     inverseSampleRate = 1.0 / sampleRate;
@@ -93,34 +96,10 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
 
-    MidiMessage mResult;
-    int mSamplePosition;
-    for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(mResult, mSamplePosition);)
-    {
-        if (mResult.isNoteOn())
-        {
-            // convert the midi number to Hz, assuming A is 440Hz
-            const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(mResult.getNoteNumber()) - 69.0f) / 12.0f);
-            if (midiDebugNumber != newFreq)
-            {
-                midiDebugNumber = newFreq;
-                updateFilters();
-            }
-
-            //midiFreq_.setValue(midiDebugNumber_,nullptr);
-        }
-    }
     dsp::AudioBlock<float> block(buffer);
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        //auto* channelData = buffer.getWritePointer(channel);
-
-        // wah-wah: 2nd order IIR filter, typically band pass on guitar pedals,
-        // resonant low-pass on analog synths, and sometimes a peaking filter.
-        // center freq is 400-1200 Hz
-        //wahFilters_[channel]->processSamples(channelData, buffer.getNumSamples());
-
         auto blockChannel = block.getSingleChannelBlock(channel);
 
         ladderFilters[channel]->process(dsp::ProcessContextReplacing<float>(blockChannel));
@@ -165,6 +144,22 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(parameterHelper.valueTreeState.state.getType()))
             parameterHelper.valueTreeState.replaceState(ValueTree::fromXml(*xmlState));
+}
+
+void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
+{
+    const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
+    if (midiDebugNumber != newFreq)
+    {
+        midiDebugNumber = newFreq;
+        updateFilters();
+    }
+}
+
+void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
+                                          float velocity)
+{
+    DBG("note off");
 }
 
 //==============================================================================

@@ -192,9 +192,10 @@ void MidiWahAudioProcessorEditor::resized()
 
 void MidiWahAudioProcessorEditor::parameterChanged(const String& parameterID, float newValue)
 {
-    //if (parameterID == processor.PID_CENTERFREQ) {
+    if (parameterID == parameterHelper.PID_CENTERFREQ) {
+        DBG("PID_CENTERFREQ changed");
     //	processor.updateFilters();
-    //}
+    }
     if (parameterID == parameterHelper.PID_Q)
     {
         processor.updateFilters();
