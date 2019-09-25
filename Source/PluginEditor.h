@@ -7,9 +7,7 @@
 /**
 */
 class MidiWahAudioProcessorEditor : public AudioProcessorEditor,
-                                    public AudioProcessorValueTreeState::Listener,
-                                    private MidiKeyboardStateListener,
-                                    private Timer
+                                    private MidiKeyboardStateListener
 {
 public:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
@@ -24,10 +22,6 @@ public:
 
     void resized() override;
 
-    void parameterChanged(const String& parameterID, float newValue) override;
-
-    void timerCallback() override;
-
     //==============================================================================
     void setupSourceToggles();
 
@@ -37,6 +31,9 @@ private:
     MidiWahAudioProcessor& processor;
 
     ParameterHelper& parameterHelper;
+    MidiKeyboardState& keyboardState;
+
+    MidiKeyboardComponent keyboard;
 
     Slider centerFreqSlider;
     std::unique_ptr<SliderAttachment> centerFreqAttachment;
@@ -74,10 +71,7 @@ private:
     ToggleButton midiSourceButton;
     std::unique_ptr<ButtonAttachment> freqToggleAttachment;
 
-    ToggleButton sliderSourceButton;   
-
-    MidiKeyboardComponent keyboard;
-    MidiKeyboardState& keyboardState;   
+    ToggleButton sliderSourceButton;
 
     // Inherited via MidiKeyboardStateListener
     void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;

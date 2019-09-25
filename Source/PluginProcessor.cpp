@@ -11,8 +11,7 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 #endif
       parameterHelper(*this)
 {
-    //TODO remove this?
-    midiDebugNumber = 400.0f;
+    filterCutoff = 400.0f;
 
     inverseSampleRate = 1.0 / 44100.0;
 
@@ -112,7 +111,7 @@ void MidiWahAudioProcessor::updateFilters()
     for (int i = 0; i < numWahFilters; ++i)
     {
         auto filter = ladderFilters[i].get();
-        filter->setCutoffFrequencyHz(midiDebugNumber);
+        filter->setCutoffFrequencyHz(filterCutoff);
         filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
         filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
@@ -149,9 +148,9 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
 {
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    if (midiDebugNumber != newFreq)
+    if (filterCutoff != newFreq)
     {
-        midiDebugNumber = newFreq;
+        filterCutoff = newFreq;
         updateFilters();
     }
 }
@@ -160,6 +159,27 @@ void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiCha
                                           float velocity)
 {
     DBG("note off");
+}
+
+void MidiWahAudioProcessor::parameterChanged(const String& parameterID, float newValue)
+{
+    //if (parameterID == parameterHelper.PID_CENTERFREQ)
+    //{
+    //    DBG("PID_CENTERFREQ changed");
+    //    //	processor.updateFilters();
+    //}
+    if (parameterID == parameterHelper.PID_Q)
+    {
+        updateFilters();
+    }
+    //else if (parameterID == parameterHelper.PID_GAIN)
+    //{
+    //    processor.updateFilters();
+    //}
+    else if (parameterID == parameterHelper.PID_DRIVE)
+    {
+        updateFilters();
+    }
 }
 
 //==============================================================================

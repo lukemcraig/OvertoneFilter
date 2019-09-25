@@ -22,7 +22,7 @@ public:
 
     //==============================================================================
     //TODO rename these?
-    const String PID_CENTERFREQ = "center_freq";
+    //const String PID_CENTERFREQ = "center_freq";
     const String PID_Q = "q";
     const String PID_GAIN = "gain";
     const String PID_DRIVE = "drive";

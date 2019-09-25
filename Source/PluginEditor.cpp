@@ -14,8 +14,8 @@
 //==============================================================================
 MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& p, ParameterHelper& ph,
                                                          MidiKeyboardState& ks)
-    : AudioProcessorEditor(&p), processor(p), parameterHelper(ph),
-      keyboard(ks, MidiKeyboardComponent::horizontalKeyboard), keyboardState(ks)
+    : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
+      keyboard(ks, MidiKeyboardComponent::horizontalKeyboard)
 {
     {
         centerFreqSlider.setSliderStyle(Slider::LinearHorizontal);
@@ -24,9 +24,10 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
         centerFreqSlider.setTextValueSuffix("Hz");
 
         addAndMakeVisible(centerFreqSlider);
-        centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ,
-                                                        centerFreqSlider));
-        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_CENTERFREQ, this);
+
+        centerFreqSlider.setNormalisableRange(NormalisableRange<double>(20.0f, 19000.0f, 0, 0.5f));
+        //centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ,
+        //                                                centerFreqSlider));
 
         centerFreqLabel.setText("Frequency", dontSendNotification);
         centerFreqLabel.attachToComponent(&centerFreqSlider, true);
@@ -35,7 +36,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     {
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
-        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_Q, this);
 
         qLabel.setText("Q", dontSendNotification);
         qLabel.attachToComponent(&qSlider, true);
@@ -45,7 +45,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
         addAndMakeVisible(gainSlider);
         gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN,
                                                   gainSlider));
-        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_GAIN, this);
 
         gainLabel.setText("Gain", dontSendNotification);
         gainLabel.attachToComponent(&gainSlider, true);
@@ -55,7 +54,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
         addAndMakeVisible(driveSlider);
         driveAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_DRIVE,
                                                    driveSlider));
-        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_DRIVE, this);
 
         driveLabel.setText("Drive", dontSendNotification);
         driveLabel.attachToComponent(&driveSlider, true);
@@ -82,7 +80,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     freqGroup.setTextLabelPosition(Justification::centredLeft);
     addAndMakeVisible(freqGroup);
 
-    startTimerHz(30);
     setResizable(true, true);
     setResizeLimits(400, 400, 1680, 1050);
     setSize(800, 600);
@@ -106,12 +103,6 @@ void MidiWahAudioProcessorEditor::setupSourceToggles()
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
     keyboardState.removeListener(this);
-    //TODO remove these?
-    parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_CENTERFREQ, this);
-
-    parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_Q, this);
-    parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_GAIN, this);
-    parameterHelper.valueTreeState.removeParameterListener(parameterHelper.PID_DRIVE, this);
 }
 
 //==============================================================================
@@ -188,33 +179,6 @@ void MidiWahAudioProcessorEditor::resized()
         const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
         keyboard.setBounds(keyboardArea);
     }
-}
-
-void MidiWahAudioProcessorEditor::parameterChanged(const String& parameterID, float newValue)
-{
-    if (parameterID == parameterHelper.PID_CENTERFREQ)
-    {
-        DBG("PID_CENTERFREQ changed");
-        //	processor.updateFilters();
-    }
-    if (parameterID == parameterHelper.PID_Q)
-    {
-        processor.updateFilters();
-    }
-    else if (parameterID == parameterHelper.PID_GAIN)
-    {
-        processor.updateFilters();
-    }
-    else if (parameterID == parameterHelper.PID_DRIVE)
-    {
-        processor.updateFilters();
-    }
-}
-
-void MidiWahAudioProcessorEditor::timerCallback()
-{
-    //TODO
-    //centerFreqSlider.setValue(processor.midiDebugNumber);
 }
 
 void MidiWahAudioProcessorEditor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,

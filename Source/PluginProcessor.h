@@ -17,6 +17,7 @@
 /**
 */
 class MidiWahAudioProcessor : public AudioProcessor,
+                              public AudioProcessorValueTreeState::Listener,
                               private MidiKeyboardStateListener
 {
 public:
@@ -78,17 +79,19 @@ public:
     void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
 
     //==============================================================================
-    // TODO remove
-    float midiDebugNumber;
+    void parameterChanged(const String& parameterID, float newValue) override;
+
+    //==============================================================================
 private:
     MidiKeyboardState keyboardState;
+    ParameterHelper parameterHelper;
 
     dsp::ProcessSpec processSpec{};
-    int numWahFilters{};
-    std::vector<std::unique_ptr<LadderFilter>> ladderFilters;
-    double inverseSampleRate;
 
-    ParameterHelper parameterHelper;
+    std::vector<std::unique_ptr<LadderFilter>> ladderFilters;
+    int numWahFilters{};
+    double inverseSampleRate;
+    float filterCutoff;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)
