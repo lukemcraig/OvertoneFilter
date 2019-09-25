@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MyBandPass.h"
+#include "ParameterHelper.h"
 
 //==============================================================================
 /**
@@ -47,26 +47,26 @@ public:
     bool hasEditor() const override;
 
     //==============================================================================
-    const String getName() const override;
+    const String getName() const override { return JucePlugin_Name; }
 
-    bool acceptsMidi() const override;
+    bool acceptsMidi() const override { return true; }
 
-    bool producesMidi() const override;
+    bool producesMidi() const override { return false; }
 
-    bool isMidiEffect() const override;
+    bool isMidiEffect() const override { return false; }
 
-    double getTailLengthSeconds() const override;
+    double getTailLengthSeconds() const override { return 0.0; }
 
     //==============================================================================
-    int getNumPrograms() override;
+    int getNumPrograms() override { return 1; }
 
-    int getCurrentProgram() override;
+    int getCurrentProgram() override { return 0; }
 
-    void setCurrentProgram(int index) override;
+    void setCurrentProgram(int index) override { ; }
 
-    const String getProgramName(int index) override;
+    const String getProgramName(int index) override { return {}; }
 
-    void changeProgramName(int index, const String& newName) override;
+    void changeProgramName(int index, const String& newName) override { ; }
 
     //==============================================================================
     void getStateInformation(MemoryBlock& destData) override;
@@ -74,21 +74,17 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    const String PID_CENTERFREQ = "center_freq";
-    const String PID_Q = "q";
-    const String PID_GAIN = "gain";
-    const String PID_DRIVE = "drive";
-    const String PID_LADDER_TYPE = "ladder_type";
 
-    float midiDebugNumber_;
+    // TODO
+    float midiDebugNumber;
 private:
-    LadderFilter** ladderFilters_;
-    MyBandPass** wahFilters_;
-    int numWahFilters_;
-    double inverseSampleRate_;
-    //CachedValue<float> midiFreq_;
-
-    AudioProcessorValueTreeState parameters;
+    dsp::ProcessSpec processSpec{};
+    int numWahFilters{};
+    std::vector<std::unique_ptr<LadderFilter>> ladderFilters;
+    double inverseSampleRate;
+    MidiKeyboardState keyboardState;
+    ParameterHelper parameterHelper;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)
 };
