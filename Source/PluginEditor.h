@@ -40,18 +40,22 @@ private:
 
     Slider centerFreqSlider;
     std::unique_ptr<SliderAttachment> centerFreqAttachment;
+    Label centerFreqLabel;
 
     Slider qSlider;
     std::unique_ptr<SliderAttachment> qAttachment;
+    Label qLabel;
 
     Slider gainSlider;
     std::unique_ptr<SliderAttachment> gainAttachment;
+    Label gainLabel;
 
     Slider driveSlider;
     std::unique_ptr<SliderAttachment> driveAttachment;
+    Label driveLabel;
 
-    ComboBox ladderType;
-    std::unique_ptr<ComboBoxAttachment> ladderTypeAttachment;
+    /*ComboBox ladderType;
+    std::unique_ptr<ComboBoxAttachment> ladderTypeAttachment;*/
 
     // -----
     typedef AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;

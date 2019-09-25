@@ -17,29 +17,50 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph),
       keyboard(ks, MidiKeyboardComponent::horizontalKeyboard), keyboardState(ks)
 {
-    centerFreqSlider.setSliderStyle(Slider::LinearHorizontal);
-    centerFreqSlider.setTextBoxStyle(Slider::TextBoxLeft, false, 120, centerFreqSlider.getTextBoxHeight());
-    centerFreqSlider.setPopupDisplayEnabled(true, false, this);
-    centerFreqSlider.setTextValueSuffix("Hz");
+    {
+        centerFreqSlider.setSliderStyle(Slider::LinearHorizontal);
+        centerFreqSlider.setTextBoxStyle(Slider::TextBoxLeft, false, 120, centerFreqSlider.getTextBoxHeight());
+        centerFreqSlider.setPopupDisplayEnabled(true, false, this);
+        centerFreqSlider.setTextValueSuffix("Hz");
 
-    addAndMakeVisible(&centerFreqSlider);
-    centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ,
-                                                    centerFreqSlider));
-    parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_CENTERFREQ, this);
+        addAndMakeVisible(centerFreqSlider);
+        centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ,
+                                                        centerFreqSlider));
+        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_CENTERFREQ, this);
 
-    addAndMakeVisible(&qSlider);
-    qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
-    parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_Q, this);
+        centerFreqLabel.setText("Frequency", dontSendNotification);
+        centerFreqLabel.attachToComponent(&centerFreqSlider, true);
+        addAndMakeVisible(centerFreqLabel);
+    }
+    {
+        addAndMakeVisible(qSlider);
+        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
+        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_Q, this);
 
-    addAndMakeVisible(&gainSlider);
-    gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN, gainSlider));
-    parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_GAIN, this);
+        qLabel.setText("Q", dontSendNotification);
+        qLabel.attachToComponent(&qSlider, true);
+        addAndMakeVisible(qLabel);
+    }
+    {
+        addAndMakeVisible(gainSlider);
+        gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN,
+                                                  gainSlider));
+        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_GAIN, this);
 
-    addAndMakeVisible(&driveSlider);
-    driveAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_DRIVE, driveSlider));
-    parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_DRIVE, this);
+        gainLabel.setText("Gain", dontSendNotification);
+        gainLabel.attachToComponent(&gainSlider, true);
+        addAndMakeVisible(gainLabel);
+    }
+    {
+        addAndMakeVisible(driveSlider);
+        driveAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_DRIVE,
+                                                   driveSlider));
+        parameterHelper.valueTreeState.addParameterListener(parameterHelper.PID_DRIVE, this);
 
-    startTimerHz(30);
+        driveLabel.setText("Drive", dontSendNotification);
+        driveLabel.attachToComponent(&driveSlider, true);
+        addAndMakeVisible(driveLabel);
+    }
 
     // ----
     {
@@ -149,9 +170,9 @@ void MidiWahAudioProcessorEditor::resized()
     const auto paneAreaHeight = area.getHeight() / nPanes;
     const auto paneMargin = 5;
 
-    qSlider.setBounds(area.removeFromTop(60));
-    gainSlider.setBounds(area.removeFromTop(60));
-    driveSlider.setBounds(area.removeFromTop(60));
+    qSlider.setBounds(area.removeFromTop(60).reduced(60,0));
+    gainSlider.setBounds(area.removeFromTop(60).reduced(60,0));
+    driveSlider.setBounds(area.removeFromTop(60).reduced(60,0));
 
     freqGroup.setBounds(area);
     {
@@ -161,7 +182,7 @@ void MidiWahAudioProcessorEditor::resized()
         midiSourceButton.setBounds(freqAreaTop.removeFromLeft(80));
         sliderSourceButton.setBounds(freqAreaTop.removeFromLeft(80));
 
-        centerFreqSlider.setBounds(freqArea.reduced(20, 10));
+        centerFreqSlider.setBounds(freqArea.reduced(80, 10));
     }
     {
         const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
