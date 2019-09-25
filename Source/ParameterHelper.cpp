@@ -33,13 +33,13 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            "Wah Q",
                                                            NormalisableRange<float>(0.1f, 1.0f, 0, 1.0f),
                                                            0.5f));
-    params.push_back(std::make_unique<AudioParameterFloat>(PID_GAIN,
-                                                           "Makeup Gain",
-                                                           NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
-                                                           1.0f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_DRIVE,
                                                            "Drive",
                                                            NormalisableRange<float>(1.0f, 10.0f, 0, 1.0f),
+                                                           1.0f));
+    params.push_back(std::make_unique<AudioParameterFloat>(PID_GAIN,
+                                                           "Makeup Gain",
+                                                           NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
                                                            1.0f));
     return {params.begin(), params.end()};
 }
