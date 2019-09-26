@@ -112,14 +112,14 @@ void MidiWahAudioProcessor::updateFilters()
     {
         auto filter = ladderFilters[i].get();
         filter->setCutoffFrequencyHz(filterCutoff);
-        if (filterCutoff == 19000.0f)
-        {
-            filter->setResonance(0.1f);
-        }
-        else
-        {
-            filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
-        }
+        //if (filterCutoff == 19000.0f)
+        //{
+        //    filter->setResonance(0.1f);
+        //}
+        //else
+        //{
+        filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
+        //}
         filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
 }
@@ -165,8 +165,8 @@ void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChan
 void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
                                           float velocity)
 {
-    filterCutoff = 19000.0f;
-    updateFilters();
+    //filterCutoff = 19000.0f;
+    //updateFilters();
 }
 
 void MidiWahAudioProcessor::parameterChanged(const String& parameterID, float newValue)
