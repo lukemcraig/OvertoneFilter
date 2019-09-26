@@ -186,7 +186,7 @@ void MidiWahAudioProcessorEditor::handleNoteOn(MidiKeyboardState* source, int mi
 {
     // TODO
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    centerFreqSlider.setValue(newFreq);
+    //centerFreqSlider.setValue(newFreq);
 }
 
 void MidiWahAudioProcessorEditor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,

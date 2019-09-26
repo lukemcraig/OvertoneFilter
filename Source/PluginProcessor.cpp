@@ -30,15 +30,16 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     processSpec.maximumBlockSize = samplesPerBlock;
     processSpec.numChannels = getMainBusNumOutputChannels();
 
-    numWahFilters = getTotalNumInputChannels();
+    numFilters = getTotalNumInputChannels()*2;
 
-    ladderFilters.resize(numWahFilters);
-    for (auto i = 0; i < numWahFilters; ++i)
+    ladderFilters.resize(numFilters);
+    for (auto i = 0; i < numFilters; ++i)
     {
         ladderFilters[i].reset(new LadderFilter());
         auto filter = ladderFilters[i].get();
         filter->reset();
         filter->prepare(processSpec);
+        //TODO 12 or 24
         filter->setMode(LadderFilter::Mode::LPF24);
         //filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
@@ -101,14 +102,15 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     {
         auto blockChannel = block.getSingleChannelBlock(channel);
 
-        ladderFilters[channel]->process(dsp::ProcessContextReplacing<float>(blockChannel));
+        ladderFilters[channel*2]->process(dsp::ProcessContextReplacing<float>(blockChannel));
+        ladderFilters[channel*2+1]->process(dsp::ProcessContextReplacing<float>(blockChannel));
     }
     buffer.applyGain(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_GAIN));
 }
 
 void MidiWahAudioProcessor::updateFilters()
 {
-    for (int i = 0; i < numWahFilters; ++i)
+    for (int i = 0; i < numFilters; ++i)
     {
         auto filter = ladderFilters[i].get();
         filter->setCutoffFrequencyHz(filterCutoff);

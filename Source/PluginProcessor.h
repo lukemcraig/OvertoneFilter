@@ -89,7 +89,7 @@ private:
     dsp::ProcessSpec processSpec{};
 
     std::vector<std::unique_ptr<LadderFilter>> ladderFilters;
-    int numWahFilters{};
+    int numFilters{};
     double inverseSampleRate;
     float filterCutoff;
 
