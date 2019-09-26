@@ -30,7 +30,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
     //                                                       600.0f,
     //                                                       "Hz"));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_Q,
-                                                           "Wah Q",
+                                                           "Resonance",
                                                            NormalisableRange<float>(0.1f, 1.0f, 0, 1.0f),
                                                            0.5f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_DRIVE,
@@ -38,7 +38,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            NormalisableRange<float>(1.0f, 10.0f, 0, 1.0f),
                                                            1.0f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_GAIN,
-                                                           "Makeup Gain",
+                                                           "Out Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
                                                            1.0f));
     return {params.begin(), params.end()};

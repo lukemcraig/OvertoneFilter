@@ -30,7 +30,7 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     processSpec.maximumBlockSize = samplesPerBlock;
     processSpec.numChannels = getMainBusNumOutputChannels();
 
-    numFilters = getTotalNumInputChannels()*2;
+    numFilters = getTotalNumInputChannels() * 2;
 
     ladderFilters.resize(numFilters);
     for (auto i = 0; i < numFilters; ++i)
@@ -98,12 +98,26 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     dsp::AudioBlock<float> block(buffer);
 
+    for (int i = 0; i < numFilters; ++i)
+    {
+        auto filter = ladderFilters[i].get();
+
+        if (noteOn)
+        {
+            filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
+        }
+        else
+        {
+            filter->setResonance(0.1f);
+        }
+    }
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto blockChannel = block.getSingleChannelBlock(channel);
 
-        ladderFilters[channel*2]->process(dsp::ProcessContextReplacing<float>(blockChannel));
-        ladderFilters[channel*2+1]->process(dsp::ProcessContextReplacing<float>(blockChannel));
+        ladderFilters[channel * 2]->process(dsp::ProcessContextReplacing<float>(blockChannel));
+        ladderFilters[channel * 2 + 1]->process(dsp::ProcessContextReplacing<float>(blockChannel));
     }
     buffer.applyGain(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_GAIN));
 }
@@ -114,14 +128,14 @@ void MidiWahAudioProcessor::updateFilters()
     {
         auto filter = ladderFilters[i].get();
         filter->setCutoffFrequencyHz(filterCutoff);
-        //if (filterCutoff == 19000.0f)
-        //{
-        //    filter->setResonance(0.1f);
-        //}
-        //else
-        //{
-        filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
-        //}
+        if (noteOn)
+        {
+            filter->setResonance(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_Q));
+        }
+        else
+        {
+            filter->setResonance(0.1f);
+        }
         filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_DRIVE));
     }
 }
@@ -156,6 +170,7 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 
 void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
 {
+    noteOn = true;
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
     if (filterCutoff != newFreq)
     {
@@ -167,8 +182,15 @@ void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChan
 void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
                                           float velocity)
 {
+    noteOn = false;
     //filterCutoff = 19000.0f;
     //updateFilters();
+    for (int i = 0; i < numFilters; ++i)
+    {
+        auto filter = ladderFilters[i].get();
+
+        filter->setResonance(0.1f);
+    }
 }
 
 void MidiWahAudioProcessor::parameterChanged(const String& parameterID, float newValue)
