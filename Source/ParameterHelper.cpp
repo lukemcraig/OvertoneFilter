@@ -24,22 +24,17 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
 {
     std::vector<std::unique_ptr<RangedAudioParameter>> params;
 
-    //params.push_back(std::make_unique<AudioParameterFloat>(PID_CENTERFREQ,
-    //                                                       "Wah Center Frequency",
-    //                                                       NormalisableRange<float>(20.0f, 19000.0f, 0, 0.5f),
-    //                                                       600.0f,
-    //                                                       "Hz"));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_Q,
                                                            "Resonance",
                                                            NormalisableRange<float>(0.1f, 1.0f, 0, 1.0f),
-                                                           0.5f));
-    params.push_back(std::make_unique<AudioParameterFloat>(PID_DRIVE,
-                                                           "Drive",
-                                                           NormalisableRange<float>(1.0f, 10.0f, 0, 1.0f),
-                                                           1.0f));
+                                                           0.9f));
+    params.push_back(std::make_unique<AudioParameterFloat>(PID_WETDRY,
+                                                           "Wet Dry",
+                                                           NormalisableRange<float>(0.0f, 1.0f, 0, 1.0f),
+                                                           100.0f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_GAIN,
                                                            "Out Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
-                                                           1.0f));
+                                                           0.5f));
     return {params.begin(), params.end()};
 }

@@ -25,7 +25,7 @@ public:
     //const String PID_CENTERFREQ = "center_freq";
     const String PID_Q = "q";
     const String PID_GAIN = "gain";
-    const String PID_DRIVE = "drive";
+    const String PID_WETDRY = "drive";
     //TODO remove these?
     const String pidToggleMidiSource = "toggle";
 

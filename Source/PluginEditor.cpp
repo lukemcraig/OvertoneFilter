@@ -18,22 +18,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
       keyboard(ks, MidiKeyboardComponent::horizontalKeyboard)
 {
     {
-        centerFreqSlider.setSliderStyle(Slider::LinearHorizontal);
-        centerFreqSlider.setTextBoxStyle(Slider::TextBoxLeft, false, 120, centerFreqSlider.getTextBoxHeight());
-        centerFreqSlider.setPopupDisplayEnabled(true, false, this);
-        centerFreqSlider.setTextValueSuffix("Hz");
-
-        addAndMakeVisible(centerFreqSlider);
-
-        centerFreqSlider.setNormalisableRange(NormalisableRange<double>(20.0f, 19000.0f, 0, 0.5f));
-        //centerFreqAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_CENTERFREQ,
-        //                                                centerFreqSlider));
-
-        centerFreqLabel.setText("Frequency", dontSendNotification);
-        centerFreqLabel.attachToComponent(&centerFreqSlider, true);
-        addAndMakeVisible(centerFreqLabel);
-    }
-    {
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
 
@@ -51,13 +35,13 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
         addAndMakeVisible(gainLabel);
     }
     {
-        addAndMakeVisible(driveSlider);
-        driveAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_DRIVE,
-                                                   driveSlider));
+        addAndMakeVisible(wetDrySlider);
+        wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_WETDRY,
+                                                   wetDrySlider));
 
-        driveLabel.setText("Drive", dontSendNotification);
-        driveLabel.attachToComponent(&driveSlider, true);
-        addAndMakeVisible(driveLabel);
+        wetDryLabel.setText("Wet/Dry", dontSendNotification);
+        wetDryLabel.attachToComponent(&wetDrySlider, true);
+        addAndMakeVisible(wetDryLabel);
     }
 
     // ----
@@ -71,8 +55,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     nameLabel.setText("Midi Wah - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
     addAndMakeVisible(nameLabel);
 
-    setupSourceToggles();
-
     addAndMakeVisible(keyboard);
     keyboardState.addListener(this);
 
@@ -84,20 +66,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     setResizeLimits(400, 400, 1680, 1050);
     setSize(800, 600);
     // ----
-}
-
-void MidiWahAudioProcessorEditor::setupSourceToggles()
-{
-    midiSourceButton.setButtonText("Midi");
-    addAndMakeVisible(midiSourceButton);
-    freqToggleAttachment.reset(new ButtonAttachment(parameterHelper.valueTreeState, parameterHelper.pidToggleMidiSource,
-                                                    midiSourceButton));
-    midiSourceButton.setRadioGroupId(frequencySourceButtons);
-
-    sliderSourceButton.setButtonText("Slider");
-    addAndMakeVisible(sliderSourceButton);
-    sliderSourceButton.setRadioGroupId(frequencySourceButtons);
-    sliderSourceButton.setToggleState(!midiSourceButton.getToggleState(), dontSendNotification);
 }
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
@@ -163,18 +131,9 @@ void MidiWahAudioProcessorEditor::resized()
 
     qSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
     gainSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
-    driveSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
+    wetDrySlider.setBounds(area.removeFromTop(60).reduced(60, 0));
 
     freqGroup.setBounds(area);
-    {
-        auto freqArea = area.removeFromTop(paneAreaHeight).reduced(paneMargin);
-        freqArea.removeFromTop(20);
-        auto freqAreaTop = freqArea.removeFromTop(20);
-        midiSourceButton.setBounds(freqAreaTop.removeFromLeft(80));
-        sliderSourceButton.setBounds(freqAreaTop.removeFromLeft(80));
-
-        centerFreqSlider.setBounds(freqArea.reduced(80, 10));
-    }
     {
         const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
         keyboard.setBounds(keyboardArea);
