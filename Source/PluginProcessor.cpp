@@ -126,7 +126,11 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     }
 
     auto wetDry = *parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_WETDRY);
-    //wetMix.applyGain(wetDry);
+    if (!noteOn)
+    {
+        // TODO smooth
+        wetDry = 0.0f;
+    }
     buffer.applyGain(1.0f - wetDry);
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
