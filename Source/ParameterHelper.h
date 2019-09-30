@@ -21,18 +21,41 @@ public:
     ~ParameterHelper();
 
     //==============================================================================
+
+    void resetSmoothers(double sampleRate);
+
+    /**
+     * \brief setCurrentAndTargetValue for all the smoothers. 
+     * Called from the constructor and from setStateInformation
+     */
+    void instantlyUpdateSmoothers();
+
+    void updateSmoothers();
+
+    //==============================================================================
+    float getQ();
+
+    float getGain();
+
+    float getWetDry();
+
+    //==============================================================================
     //TODO rename these?
-    //const String PID_CENTERFREQ = "center_freq";
     const String PID_Q = "q";
     const String PID_GAIN = "gain";
-    const String PID_WETDRY = "drive";
-    //TODO remove these?
-    const String pidToggleMidiSource = "toggle";
+    const String PID_WETDRY = "wetdry";
 
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
+
 private:
 
+    typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
+    SmoothFloat smoothQ{};
+    SmoothFloat smoothGain{};
+    SmoothFloat smoothWetDry{};
+
+    //==============================================================================
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
 
     //==============================================================================

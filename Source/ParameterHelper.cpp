@@ -13,10 +13,48 @@
 ParameterHelper::ParameterHelper(AudioProcessor& processorToConnectTo): valueTreeState(
     processorToConnectTo, nullptr, "MidiWahParameters", createParameterLayout())
 {
+    instantlyUpdateSmoothers();
 }
 
 ParameterHelper::~ParameterHelper()
 {
+}
+
+void ParameterHelper::resetSmoothers(double sampleRate)
+{
+    smoothQ.reset(sampleRate, 0.1);
+    smoothGain.reset(sampleRate, 0.1);
+    smoothWetDry.reset(sampleRate, 0.1);
+}
+
+//==============================================================================
+void ParameterHelper::instantlyUpdateSmoothers()
+{
+    smoothQ.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
+    smoothGain.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
+    smoothWetDry.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
+}
+
+void ParameterHelper::updateSmoothers()
+{
+    smoothQ.setTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
+    smoothGain.setTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
+    smoothWetDry.setTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
+}
+
+float ParameterHelper::getQ()
+{
+    return smoothQ.getNextValue();
+}
+
+float ParameterHelper::getGain()
+{
+    return smoothGain.getNextValue();
+}
+
+float ParameterHelper::getWetDry()
+{
+    return smoothWetDry.getNextValue();
 }
 
 //==============================================================================
