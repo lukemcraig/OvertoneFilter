@@ -22,9 +22,9 @@ ParameterHelper::~ParameterHelper()
 
 void ParameterHelper::resetSmoothers(double sampleRate)
 {
-    smoothQ.reset(sampleRate, 0.1);
-    smoothGain.reset(sampleRate, 0.1);
-    smoothWetDry.reset(sampleRate, 0.1);
+    smoothQ.reset(sampleRate, 0.0);
+    smoothGain.reset(sampleRate, 0.0);
+    smoothWetDry.reset(sampleRate, 0.0);
 }
 
 //==============================================================================

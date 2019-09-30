@@ -43,11 +43,12 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     }
 
     inverseSampleRate = 1.0 / sampleRate;
+    parameterHelper.resetSmoothers(sampleRate);
 
     updateFilters();
 
     wetMix.setSize(getTotalNumInputChannels(), samplesPerBlock, false, false, false);
-    parameterHelper.resetSmoothers(sampleRate);
+    
 }
 
 void MidiWahAudioProcessor::releaseResources()
@@ -95,6 +96,8 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
+    parameterHelper.updateSmoothers();
+
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -128,7 +131,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     if (!noteOn)
     {
         // TODO smooth
-        wetDry = 0.0f;
+        //wetDry = 0.0f;
     }
     buffer.applyGain(1.0f - wetDry);
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
