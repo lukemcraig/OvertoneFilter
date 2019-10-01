@@ -125,7 +125,32 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
         for (auto i = 0; i < numSubBlocks; ++i)
         {
             const auto startSample = i * subBlockSize;
-            keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
+
+            {
+                MidiBuffer::Iterator iterator(midiMessages);
+                iterator.setNextSamplePosition(startSample);
+                MidiMessage message;
+                int sampleNumber;
+                while (iterator.getNextEvent(message, sampleNumber))
+                {
+                    if (sampleNumber > startSample + subBlockSize)
+                        break;
+                    if (message.isNoteOn())
+                    {
+                        parameterHelper.useParamWetDry(channel);
+
+                        const auto newFreq = 440.0f * pow(
+                            2.0f, (static_cast<float>(message.getNoteNumber()) - 69.0f) / 12.0f);
+                        filterCutoff[currentChannel] = newFreq;
+                    }
+
+                    else if (message.isNoteOff())
+                    {
+                        parameterHelper.useNoteOffWetDry(channel);
+                    }
+                }
+            }
+            //keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
             auto subBlock = blockChannel.getSubBlock(i * subBlockSize, subBlockSize);
             const auto resonance = parameterHelper.getQ(channel);
@@ -151,7 +176,32 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
         if (samplesLeft > 0)
         {
             const auto startSample = numSubBlocks * subBlockSize;
-            keyboardState.processNextMidiBuffer(midiMessages, startSample, samplesLeft, false);
+
+            {
+                MidiBuffer::Iterator iterator(midiMessages);
+                iterator.setNextSamplePosition(startSample);
+                MidiMessage message;
+                int sampleNumber;
+                while (iterator.getNextEvent(message, sampleNumber))
+                {
+                    if (sampleNumber > startSample + samplesLeft)
+                        break;
+                    if (message.isNoteOn())
+                    {
+                        parameterHelper.useParamWetDry(channel);
+
+                        const auto newFreq = 440.0f * pow(
+                            2.0f, (static_cast<float>(message.getNoteNumber()) - 69.0f) / 12.0f);
+                        filterCutoff[currentChannel] = newFreq;
+                    }
+
+                    else if (message.isNoteOff())
+                    {
+                        parameterHelper.useNoteOffWetDry(channel);
+                    }
+                }
+            }
+            //keyboardState.processNextMidiBuffer(midiMessages, startSample, samplesLeft, false);
 
             auto subBlock = blockChannel.getSubBlock(startSample, samplesLeft);
             const auto resonance = parameterHelper.getQ(channel);
@@ -212,16 +262,18 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 
 void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
 {
-    parameterHelper.useParamWetDry(currentChannel);
+    //todo
+    //parameterHelper.useParamWetDry(currentChannel);
 
-    const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    filterCutoff[currentChannel] = newFreq;
+    //const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
+    //filterCutoff[currentChannel] = newFreq;
 }
 
 void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
                                           float velocity)
 {
-    parameterHelper.useNoteOffWetDry(currentChannel);
+    //todo
+    //parameterHelper.useNoteOffWetDry(currentChannel);
 }
 
 //==============================================================================
