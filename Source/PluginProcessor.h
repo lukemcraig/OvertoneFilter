@@ -34,6 +34,9 @@ public:
 
 #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+
+    void processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages, int subBlockSize, int channel,
+                         dsp::AudioBlock<float> blockChannel, int startSample);
 #endif
 
     void processBlock(AudioBuffer<float>&, MidiBuffer&) override;

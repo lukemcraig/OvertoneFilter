@@ -89,6 +89,58 @@ bool MidiWahAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) c
 }
 #endif
 
+void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
+                                            const int subBlockSize, int channel, dsp::AudioBlock<float> blockChannel,
+                                            int startSample)
+{
+    {
+        MidiBuffer::Iterator iterator(midiMessages);
+        iterator.setNextSamplePosition(startSample);
+        MidiMessage message;
+        int sampleNumber;
+        while (iterator.getNextEvent(message, sampleNumber))
+        {
+            if (sampleNumber > startSample + subBlockSize)
+                break;
+            if (message.isNoteOn())
+            {
+                parameterHelper.useParamWetDry(channel);
+
+                const auto newFreq = 440.0f * pow(
+                    2.0f, (static_cast<float>(message.getNoteNumber()) - 69.0f) / 12.0f);
+                filterCutoff[currentChannel] = newFreq;
+            }
+
+            else if (message.isNoteOff())
+            {
+                parameterHelper.useNoteOffWetDry(channel);
+            }
+        }
+    }
+    //keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
+
+    auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+    const auto resonance = parameterHelper.getQ(channel);
+    for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
+    {
+        const auto filterIndex = channel * numFiltersPerChannel + filterN;
+        filters[filterIndex]->setCutoffFrequencyHz(filterCutoff[channel]);
+        filters[filterIndex]->setResonance(resonance);
+        filters[filterIndex]->process(
+            dsp::ProcessContextReplacing<float>(subBlock));
+    }
+    for (auto sample = 0; sample < subBlockSize; ++sample)
+    {
+        const auto wetDry = parameterHelper.getWetDry(channel);
+        buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
+        buffer.addFrom(channel, startSample + sample, wetMix, channel,
+                       startSample + sample, 1, wetDry);
+
+        const auto outGain = parameterHelper.getGain(channel);
+        buffer.applyGain(channel, startSample + sample, 1, outGain);
+    }
+}
+
 void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
@@ -125,104 +177,12 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
         for (auto i = 0; i < numSubBlocks; ++i)
         {
             const auto startSample = i * subBlockSize;
-
-            {
-                MidiBuffer::Iterator iterator(midiMessages);
-                iterator.setNextSamplePosition(startSample);
-                MidiMessage message;
-                int sampleNumber;
-                while (iterator.getNextEvent(message, sampleNumber))
-                {
-                    if (sampleNumber > startSample + subBlockSize)
-                        break;
-                    if (message.isNoteOn())
-                    {
-                        parameterHelper.useParamWetDry(channel);
-
-                        const auto newFreq = 440.0f * pow(
-                            2.0f, (static_cast<float>(message.getNoteNumber()) - 69.0f) / 12.0f);
-                        filterCutoff[currentChannel] = newFreq;
-                    }
-
-                    else if (message.isNoteOff())
-                    {
-                        parameterHelper.useNoteOffWetDry(channel);
-                    }
-                }
-            }
-            //keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
-
-            auto subBlock = blockChannel.getSubBlock(i * subBlockSize, subBlockSize);
-            const auto resonance = parameterHelper.getQ(channel);
-            for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
-            {
-                const auto filterIndex = channel * numFiltersPerChannel + filterN;
-                filters[filterIndex]->setCutoffFrequencyHz(filterCutoff[channel]);
-                filters[filterIndex]->setResonance(resonance);
-                filters[filterIndex]->process(
-                    dsp::ProcessContextReplacing<float>(subBlock));
-            }
-            for (auto sample = 0; sample < subBlockSize; ++sample)
-            {
-                const auto wetDry = parameterHelper.getWetDry(channel);
-                buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
-                buffer.addFrom(channel, startSample + sample, wetMix, channel,
-                               startSample + sample, 1, wetDry);
-
-                const auto outGain = parameterHelper.getGain(channel);
-                buffer.applyGain(channel, startSample + sample, 1, outGain);
-            }
+            processSubBlock(buffer, midiMessages, subBlockSize, channel, blockChannel, startSample);
         }
         if (samplesLeft > 0)
         {
             const auto startSample = numSubBlocks * subBlockSize;
-
-            {
-                MidiBuffer::Iterator iterator(midiMessages);
-                iterator.setNextSamplePosition(startSample);
-                MidiMessage message;
-                int sampleNumber;
-                while (iterator.getNextEvent(message, sampleNumber))
-                {
-                    if (sampleNumber > startSample + samplesLeft)
-                        break;
-                    if (message.isNoteOn())
-                    {
-                        parameterHelper.useParamWetDry(channel);
-
-                        const auto newFreq = 440.0f * pow(
-                            2.0f, (static_cast<float>(message.getNoteNumber()) - 69.0f) / 12.0f);
-                        filterCutoff[currentChannel] = newFreq;
-                    }
-
-                    else if (message.isNoteOff())
-                    {
-                        parameterHelper.useNoteOffWetDry(channel);
-                    }
-                }
-            }
-            //keyboardState.processNextMidiBuffer(midiMessages, startSample, samplesLeft, false);
-
-            auto subBlock = blockChannel.getSubBlock(startSample, samplesLeft);
-            const auto resonance = parameterHelper.getQ(channel);
-            for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
-            {
-                const auto filterIndex = channel * numFiltersPerChannel + filterN;
-                filters[filterIndex]->setCutoffFrequencyHz(filterCutoff[channel]);
-                filters[filterIndex]->setResonance(resonance);
-                filters[filterIndex]->process(
-                    dsp::ProcessContextReplacing<float>(subBlock));
-            }
-            for (auto sample = 0; sample < samplesLeft; ++sample)
-            {
-                const auto wetDry = parameterHelper.getWetDry(channel);
-                buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
-                buffer.addFrom(channel, startSample + sample, wetMix, channel,
-                               startSample + sample, 1, wetDry);
-
-                const auto outGain = parameterHelper.getGain(channel);
-                buffer.applyGain(channel, startSample + sample, 1, outGain);
-            }
+            processSubBlock(buffer, midiMessages, samplesLeft, channel, blockChannel, startSample);
         }
     }
 }
