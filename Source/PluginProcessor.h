@@ -88,8 +88,9 @@ private:
 
     dsp::ProcessSpec processSpec{};
 
-    std::vector<std::unique_ptr<LadderFilter>> ladderFilters;
+    std::vector<std::unique_ptr<LadderFilter>> filters;
     int numFilters{};
+    const int numFiltersPerChannel = 2;
     double inverseSampleRate;
     float filterCutoff;
     bool noteOn{};

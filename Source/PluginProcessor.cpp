@@ -30,13 +30,13 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     processSpec.maximumBlockSize = samplesPerBlock;
     processSpec.numChannels = getMainBusNumOutputChannels();
 
-    numFilters = getTotalNumInputChannels() * 2;
+    numFilters = getTotalNumInputChannels() * numFiltersPerChannel;
 
-    ladderFilters.resize(numFilters);
+    filters.resize(numFilters);
     for (auto i = 0; i < numFilters; ++i)
     {
-        ladderFilters[i].reset(new LadderFilter());
-        auto filter = ladderFilters[i].get();
+        filters[i].reset(new LadderFilter());
+        auto filter = filters[i].get();
         filter->reset();
         filter->prepare(processSpec);
         filter->setMode(LadderFilter::Mode::LPF24);
@@ -48,7 +48,6 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     updateFilters();
 
     wetMix.setSize(getTotalNumInputChannels(), samplesPerBlock, false, false, false);
-    
 }
 
 void MidiWahAudioProcessor::releaseResources()
@@ -107,7 +106,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     for (int i = 0; i < numFilters; ++i)
     {
-        auto filter = ladderFilters[i].get();
+        auto filter = filters[i].get();
 
         if (noteOn)
         {
@@ -122,9 +121,8 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto blockChannel = block.getSingleChannelBlock(channel);
-
-        ladderFilters[channel * 2]->process(dsp::ProcessContextReplacing<float>(blockChannel));
-        ladderFilters[channel * 2 + 1]->process(dsp::ProcessContextReplacing<float>(blockChannel));
+        for (int i = 0; i < numFiltersPerChannel; ++i)
+            filters[channel * numFiltersPerChannel + i]->process(dsp::ProcessContextReplacing<float>(blockChannel));
     }
 
     auto wetDry = parameterHelper.getWetDry();
@@ -145,7 +143,7 @@ void MidiWahAudioProcessor::updateFilters()
 {
     for (int i = 0; i < numFilters; ++i)
     {
-        auto filter = ladderFilters[i].get();
+        auto filter = filters[i].get();
 
         filter->setCutoffFrequencyHz(filterCutoff);
 
