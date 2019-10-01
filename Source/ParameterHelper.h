@@ -21,37 +21,41 @@ public:
     ~ParameterHelper();
 
     //==============================================================================
+    /**
+     * \brief Resizes each vector of smoothers to match the number of channels
+     */
+    void prepare(int numChannels);
 
     void resetSmoothers(double sampleRate);
 
     /**
      * \brief setCurrentAndTargetValue for all the smoothers. 
-     * Called from the constructor and from setStateInformation
      */
     void instantlyUpdateSmoothers();
 
     void updateSmoothers();
 
     //==============================================================================
-    float getQ();
+    float getQ(int channel);
 
-    float getGain();
+    float getGain(int channel);
 
-    float getWetDry();
+    float getWetDry(int channel);
 
-    void setWetDryTarget(float target);
+    void setWetDryTarget(int channel, float target);
 
-    float getCurrentWetDry();
+    float getCurrentWetDry(int channel);
 
-    void setCurrentWetDry(const float currentWetDry);
+    void setCurrentWetDry(int channel, const float currentWetDry);
 
-    float getCurrentGain();
+    float getCurrentGain(int channel);
 
-    void setCurrentGain(const float currentGain);
+    void setCurrentGain(int channel, const float currentGain);
 
-    void useNoteOffWetDry();
+    //==============================================================================
+    void useNoteOffWetDry(int channel);
 
-    void useParamWetDry();
+    void useParamWetDry(int channel);
 
     //==============================================================================
     //TODO rename these?
@@ -65,11 +69,11 @@ public:
 private:
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
-    SmoothFloat smoothQ{};
-    SmoothFloat smoothGain{};
-    SmoothFloat smoothWetDry{};
+    std::vector<SmoothFloat> smoothQ{};
+    std::vector<SmoothFloat> smoothGain{};
+    std::vector<SmoothFloat> smoothWetDry{};
     //==============================================================================
-    bool useInternalWetDry{};
+    std::vector<bool> useInternalWetDry{};
 
     //==============================================================================
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;

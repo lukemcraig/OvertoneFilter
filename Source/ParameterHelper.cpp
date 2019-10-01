@@ -13,86 +13,104 @@
 ParameterHelper::ParameterHelper(AudioProcessor& processorToConnectTo): valueTreeState(
     processorToConnectTo, nullptr, "MidiWahParameters", createParameterLayout())
 {
-    instantlyUpdateSmoothers();
 }
 
 ParameterHelper::~ParameterHelper()
 {
 }
 
-void ParameterHelper::resetSmoothers(double sampleRate)
+//==============================================================================
+void ParameterHelper::prepare(const int numChannels)
 {
-    smoothQ.reset(sampleRate, 0.0);
-    smoothGain.reset(sampleRate, 0.0);
-    smoothWetDry.reset(sampleRate, 0.2);
+    smoothQ.resize(numChannels);
+    smoothGain.resize(numChannels);
+    smoothWetDry.resize(numChannels);
+    useInternalWetDry.resize(numChannels);
 }
 
-//==============================================================================
+void ParameterHelper::resetSmoothers(const double sampleRate)
+{
+    for (auto smoother : smoothQ)
+        smoother.reset(sampleRate, 0.0);
+    for (auto smoother : smoothGain)
+        smoother.reset(sampleRate, 0.0);
+    for (auto smoother : smoothWetDry)
+        smoother.reset(sampleRate, 0.2);
+}
+
 void ParameterHelper::instantlyUpdateSmoothers()
 {
-    smoothQ.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
-    smoothGain.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
-    smoothWetDry.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
+    for (auto smoother : smoothQ)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
+    for (auto smoother : smoothGain)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
+    for (auto smoother : smoothWetDry)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
 }
 
 void ParameterHelper::updateSmoothers()
 {
-    smoothQ.setTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
-    smoothGain.setTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
-    if (!useInternalWetDry)
-        smoothWetDry.setTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
+    for (auto smoother : smoothQ)
+        smoother.setTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
+    for (auto smoother : smoothGain)
+        smoother.setTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
+    for (auto i = 0; i < smoothWetDry.size(); ++i)
+    {
+        if (!useInternalWetDry[i])
+            smoothWetDry[i].setTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
+    }
 }
 
-float ParameterHelper::getQ()
+float ParameterHelper::getQ(const int channel)
 {
-    return smoothQ.getNextValue();
+    return smoothQ[channel].getNextValue();
 }
 
-float ParameterHelper::getGain()
+float ParameterHelper::getGain(const int channel)
 {
-    return smoothGain.getNextValue();
+    return smoothGain[channel].getNextValue();
 }
 
-float ParameterHelper::getWetDry()
+float ParameterHelper::getWetDry(const int channel)
 {
-    return smoothWetDry.getNextValue();
+    return smoothWetDry[channel].getNextValue();
 }
 
-void ParameterHelper::setWetDryTarget(float target)
+void ParameterHelper::setWetDryTarget(const int channel, const float target)
 {
-    smoothWetDry.setTargetValue(target);
+    smoothWetDry[channel].setTargetValue(target);
 }
 
-float ParameterHelper::getCurrentWetDry()
+float ParameterHelper::getCurrentWetDry(const int channel)
 {
-    return smoothWetDry.getCurrentValue();
+    return smoothWetDry[channel].getCurrentValue();
 }
 
-void ParameterHelper::setCurrentWetDry(const float currentWetDry)
+void ParameterHelper::setCurrentWetDry(const int channel, const float currentWetDry)
 {
-    smoothWetDry.setCurrentAndTargetValue(currentWetDry);
+    smoothWetDry[channel].setCurrentAndTargetValue(currentWetDry);
 }
 
-float ParameterHelper::getCurrentGain()
+float ParameterHelper::getCurrentGain(const int channel)
 {
-    return smoothGain.getCurrentValue();
+    return smoothGain[channel].getCurrentValue();
 }
 
-void ParameterHelper::setCurrentGain(const float currentGain)
+void ParameterHelper::setCurrentGain(const int channel, const float currentGain)
 {
-    smoothGain.setCurrentAndTargetValue(currentGain);
+    smoothGain[channel].setCurrentAndTargetValue(currentGain);
 }
 
-void ParameterHelper::useNoteOffWetDry()
+void ParameterHelper::useNoteOffWetDry(const int channel)
 {
-    useInternalWetDry = true;
-    setWetDryTarget(0.0f);
+    useInternalWetDry[channel] = true;
+    setWetDryTarget(channel, 0.0f);
 }
 
-void ParameterHelper::useParamWetDry()
+void ParameterHelper::useParamWetDry(const int channel)
 {
-    useInternalWetDry = false;
-    setWetDryTarget(*valueTreeState.getRawParameterValue(PID_WETDRY));
+    useInternalWetDry[channel] = false;
+    setWetDryTarget(channel, *valueTreeState.getRawParameterValue(PID_WETDRY));
 }
 
 //==============================================================================
