@@ -30,29 +30,29 @@ void ParameterHelper::prepare(const int numChannels)
 
 void ParameterHelper::resetSmoothers(const double sampleRate)
 {
-    for (auto smoother : smoothQ)
+    for (auto& smoother : smoothQ)
         smoother.reset(sampleRate, 0.0);
-    for (auto smoother : smoothGain)
+    for (auto& smoother : smoothGain)
         smoother.reset(sampleRate, 0.0);
-    for (auto smoother : smoothWetDry)
+    for (auto& smoother : smoothWetDry)
         smoother.reset(sampleRate, 0.2);
 }
 
 void ParameterHelper::instantlyUpdateSmoothers()
 {
-    for (auto smoother : smoothQ)
+    for (auto& smoother : smoothQ)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
-    for (auto smoother : smoothGain)
+    for (auto& smoother : smoothGain)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
-    for (auto smoother : smoothWetDry)
+    for (auto& smoother : smoothWetDry)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
 }
 
 void ParameterHelper::updateSmoothers()
 {
-    for (auto smoother : smoothQ)
+    for (auto& smoother : smoothQ)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
-    for (auto smoother : smoothGain)
+    for (auto& smoother : smoothGain)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
     for (auto i = 0; i < smoothWetDry.size(); ++i)
     {

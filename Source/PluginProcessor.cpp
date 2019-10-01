@@ -114,6 +114,8 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        currentChannel = channel;
+
         auto blockChannel = block.getSingleChannelBlock(channel);
 
         for (auto i = 0; i < numSubBlocks; ++i)
@@ -171,19 +173,6 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     }
 }
 
-void MidiWahAudioProcessor::updateFilters()
-{
-    DBG("updateFilters");
-    //for (int i = 0; i < numFilters; ++i)
-    //{
-    //    auto filter = filters[i].get();
-
-    //    filter->setCutoffFrequencyHz(filterCutoff);
-
-    //    filter->setResonance(parameterHelper.getQ());
-    //}
-}
-
 //==============================================================================
 bool MidiWahAudioProcessor::hasEditor() const
 {
@@ -222,11 +211,7 @@ void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChan
     parameterHelper.useParamWetDry(currentChannel);
 
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    if (filterCutoff[currentChannel] != newFreq)
-    {
-        filterCutoff[currentChannel] = newFreq;
-        updateFilters();
-    }
+    filterCutoff[currentChannel] = newFreq;
 }
 
 void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
