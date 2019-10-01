@@ -18,6 +18,15 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard)
 {
     {
+        addAndMakeVisible(standardSlider);
+        standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
+                                                      parameterHelper.PID_PITCH_STANDARD, standardSlider));
+
+        standardLabel.setText("Pitch Standard", dontSendNotification);
+        standardLabel.attachToComponent(&standardSlider, true);
+        addAndMakeVisible(standardLabel);
+    }
+    {
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
 
@@ -63,7 +72,7 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 
     setResizable(true, true);
     setResizeLimits(400, 400, 1680, 1050);
-    setSize(800, 600);
+    setSize(800, 400);
     // ----
 }
 
@@ -83,6 +92,7 @@ void MidiWahAudioProcessorEditor::paint(Graphics& g)
 
 void MidiWahAudioProcessorEditor::resized()
 {
+    //TODO clean all this up
     {
         const auto bounds = getBounds().toFloat();
         RectanglePlacement placement(RectanglePlacement::fillDestination);
@@ -127,9 +137,10 @@ void MidiWahAudioProcessorEditor::resized()
     const auto paneAreaHeight = area.getHeight() / nPanes;
     const auto paneMargin = 5;
 
-    qSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
-    gainSlider.setBounds(area.removeFromTop(60).reduced(60, 0));
-    wetDrySlider.setBounds(area.removeFromTop(60).reduced(60, 0));
+    standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
+    qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
+    gainSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
+    wetDrySlider.setBounds(area.removeFromTop(60).reduced(100, 0));
 
     freqGroup.setBounds(area);
     {

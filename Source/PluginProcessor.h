@@ -100,7 +100,6 @@ private:
     int numInputChannels{};
     int numFilters{};
     const int numFiltersPerChannel = 2;
-    double inverseSampleRate;
     std::vector<float> filterCutoff{};
 
     AudioBuffer<float> wetMix;

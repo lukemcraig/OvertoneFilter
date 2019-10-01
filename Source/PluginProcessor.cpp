@@ -11,7 +11,6 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 #endif
       parameterHelper(*this)
 {
-    inverseSampleRate = 1.0 / 44100.0;
 }
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
@@ -37,8 +36,6 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
         filter->prepare(processSpec);
         filter->setMode(LadderFilter::Mode::LPF24);
     }
-
-    inverseSampleRate = 1.0 / sampleRate;
 
     parameterHelper.prepare(numInputChannels);
     parameterHelper.resetSmoothers(sampleRate);
@@ -96,8 +93,9 @@ void MidiWahAudioProcessor::handleNoteOn(const float noteNumber)
 void MidiWahAudioProcessor::handleNoteOn(int channel, const float noteNumber)
 {
     parameterHelper.useParamWetDry(channel);
-    //todo tuning standard
-    const auto newFreq = 440.0f * pow(2.0f, (noteNumber - 69.0f) / 12.0f);
+    // todo it might make more sense to store the current note number and calculate the filterCutoff at even intervals instead
+    const auto standard = parameterHelper.getCurrentPitchStandard(channel);
+    const auto newFreq = standard * pow(2.0f, (noteNumber - 69.0f) / 12.0f);
     filterCutoff[channel] = newFreq;
 }
 
@@ -141,6 +139,7 @@ void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuff
     keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+    //TODO this isn't called per sample so need to skip
     const auto resonance = parameterHelper.getQ(channel);
     for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
     {
@@ -160,6 +159,7 @@ void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuff
         const auto outGain = parameterHelper.getGain(channel);
         buffer.applyGain(channel, startSample + sample, 1, outGain);
     }
+    parameterHelper.skipPitchStandard(channel, subBlockSize);
 }
 
 void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -191,7 +191,6 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
-
         auto blockChannel = block.getSingleChannelBlock(channel);
 
         for (auto i = 0; i < numSubBlocks; ++i)

@@ -29,6 +29,10 @@ private:
 
     MyMidiKeyboardComponent keyboard;
 
+    Slider standardSlider;
+    std::unique_ptr<SliderAttachment> standardAttachment;
+    Label standardLabel;
+
     Slider qSlider;
     std::unique_ptr<SliderAttachment> qAttachment;
     Label qLabel;

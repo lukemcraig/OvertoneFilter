@@ -36,6 +36,10 @@ public:
     void updateSmoothers();
 
     //==============================================================================
+    float getCurrentPitchStandard(int channel);
+
+    void skipPitchStandard(int channel, int numSamples);
+
     float getQ(int channel);
 
     float getGain(int channel);
@@ -62,6 +66,7 @@ public:
     const String PID_Q = "q";
     const String PID_GAIN = "gain";
     const String PID_WETDRY = "wetdry";
+    const String PID_PITCH_STANDARD = "standard";
 
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
@@ -69,6 +74,7 @@ public:
 private:
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
+        std::vector<SmoothFloat> smoothStandard{};
     std::vector<SmoothFloat> smoothQ{};
     std::vector<SmoothFloat> smoothGain{};
     std::vector<SmoothFloat> smoothWetDry{};
