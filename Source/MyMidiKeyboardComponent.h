@@ -25,6 +25,8 @@ public:
     ~MyMidiKeyboardComponent();
 
 protected:
+    bool mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e) override;
+
     bool mouseDownOnKey(int midiNoteNumber, const MouseEvent& e) override;
 
     void mouseUpOnKey(int midiNoteNumber, const MouseEvent& e) override;

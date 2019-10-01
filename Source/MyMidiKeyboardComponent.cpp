@@ -22,6 +22,13 @@ MyMidiKeyboardComponent::~MyMidiKeyboardComponent()
 {
 }
 
+//==============================================================================
+bool MyMidiKeyboardComponent::mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e)
+{
+    processor.handleNoteOn(static_cast<float>(midiNoteNumber));
+    return false;
+}
+
 bool MyMidiKeyboardComponent::mouseDownOnKey(int midiNoteNumber, const MouseEvent& e)
 {
     processor.handleNoteOn(static_cast<float>(midiNoteNumber));
