@@ -83,6 +83,18 @@ void ParameterHelper::setCurrentGain(const float currentGain)
     smoothGain.setCurrentAndTargetValue(currentGain);
 }
 
+void ParameterHelper::useNoteOffWetDry()
+{
+    useInternalWetDry = true;
+    setWetDryTarget(0.0f);
+}
+
+void ParameterHelper::useParamWetDry()
+{
+    useInternalWetDry = false;
+    setWetDryTarget(*valueTreeState.getRawParameterValue(PID_WETDRY));
+}
+
 //==============================================================================
 AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLayout() const
 {

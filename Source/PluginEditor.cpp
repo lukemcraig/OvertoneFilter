@@ -37,7 +37,7 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     {
         addAndMakeVisible(wetDrySlider);
         wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_WETDRY,
-                                                   wetDrySlider));
+                                                    wetDrySlider));
 
         wetDryLabel.setText("Wet/Dry", dontSendNotification);
         wetDryLabel.attachToComponent(&wetDrySlider, true);
@@ -66,6 +66,7 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     setResizeLimits(400, 400, 1680, 1050);
     setSize(800, 600);
     // ----
+  
 }
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()

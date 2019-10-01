@@ -49,6 +49,10 @@ public:
 
     void setCurrentGain(const float currentGain);
 
+    void useNoteOffWetDry();
+
+    void useParamWetDry();
+
     //==============================================================================
     //TODO rename these?
     const String PID_Q = "q";
@@ -58,14 +62,14 @@ public:
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
 
-    bool useInternalWetDry{};
-
 private:
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
     SmoothFloat smoothQ{};
     SmoothFloat smoothGain{};
     SmoothFloat smoothWetDry{};
+    //==============================================================================
+    bool useInternalWetDry{};
 
     //==============================================================================
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;

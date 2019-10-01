@@ -11,7 +11,7 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 #endif
       parameterHelper(*this)
 {
-    filterCutoff = 10000.0f;
+    filterCutoff = 1000.0f;
 
     inverseSampleRate = 1.0 / 44100.0;
 
@@ -105,29 +105,21 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     for (int i = 0; i < numFilters; ++i)
     {
-        //todo remove all this
         auto filter = filters[i].get();
-
-        if (noteOn)
-        {
-            filter->setResonance(parameterHelper.getQ());
-        }
-        else
-        {
-            filter->setResonance(parameterHelper.getQ() * 0.75f);
-        }
+        filter->setResonance(parameterHelper.getQ());
     }
     const auto subBlockSize = 16;
     const int numSubBlocks = buffer.getNumSamples() / subBlockSize;
     const int samplesLeft = buffer.getNumSamples() - (numSubBlocks * subBlockSize);
 
-    const auto currentWetDry = parameterHelper.getCurrentWetDry();
-    const auto currentGain = parameterHelper.getCurrentGain();
+    // const auto currentWetDry = parameterHelper.getCurrentWetDry();
+
+    // const auto currentGain = parameterHelper.getCurrentGain();
 
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        parameterHelper.setCurrentWetDry(currentWetDry);
-        parameterHelper.setCurrentGain(currentGain);
+        //  parameterHelper.setCurrentWetDry(currentWetDry);
+        //  parameterHelper.setCurrentGain(currentGain);
         auto blockChannel = block.getSingleChannelBlock(channel);
 
         for (auto i = 0; i < numSubBlocks; ++i)
@@ -149,12 +141,14 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
                                startSample + sample, 1, wetDry);
 
                 const auto outGain = parameterHelper.getGain();
-                buffer.applyGain(channel,startSample + sample, 1, outGain);
+                buffer.applyGain(channel, startSample + sample, 1, outGain);
             }
         }
         if (samplesLeft > 0)
         {
             const auto startSample = numSubBlocks * subBlockSize;
+            keyboardState.processNextMidiBuffer(midiMessages, startSample, samplesLeft, false);
+
             auto subBlock = blockChannel.getSubBlock(startSample, samplesLeft);
             for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
@@ -169,7 +163,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
                                startSample + sample, 1, wetDry);
 
                 const auto outGain = parameterHelper.getGain();
-                buffer.applyGain(channel,startSample + sample, 1, outGain);
+                buffer.applyGain(channel, startSample + sample, 1, outGain);
             }
         }
     }
@@ -196,15 +190,7 @@ void MidiWahAudioProcessor::updateFilters()
 
         filter->setCutoffFrequencyHz(filterCutoff);
 
-        if (noteOn)
-        {
-            filter->setResonance(parameterHelper.getQ());
-        }
-        else
-        {
-            //todo remove
-            filter->setResonance(parameterHelper.getQ() * 0.75f);
-        }
+        filter->setResonance(parameterHelper.getQ());
     }
 }
 
@@ -243,9 +229,8 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 
 void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
 {
-    noteOn = true;
-    parameterHelper.useInternalWetDry = false;
-    parameterHelper.updateSmoothers();
+    parameterHelper.useParamWetDry();
+
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
     if (filterCutoff != newFreq)
     {
@@ -257,38 +242,15 @@ void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChan
 void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
                                           float velocity)
 {
-    noteOn = false;
-    parameterHelper.useInternalWetDry = true;
-    parameterHelper.setWetDryTarget(0.0f);
-    //filterCutoff = 19000.0f;
-    //updateFilters();
-    //for (int i = 0; i < numFilters; ++i)
-    //{
-    //    auto filter = ladderFilters[i].get();
-
-    //    filter->setResonance(parameterHelper.getQ() * 0.75f);
-    //}
+    parameterHelper.useNoteOffWetDry();
 }
 
 void MidiWahAudioProcessor::parameterChanged(const String& parameterID, float newValue)
 {
-    //if (parameterID == parameterHelper.PID_CENTERFREQ)
-    //{
-    //    DBG("PID_CENTERFREQ changed");
-    //    //	processor.updateFilters();
-    //}
     if (parameterID == parameterHelper.PID_Q)
     {
         updateFilters();
     }
-    //else if (parameterID == parameterHelper.PID_GAIN)
-    //{
-    //    processor.updateFilters();
-    //}
-    //else if (parameterID == parameterHelper.PID_WETDRY)
-    //{
-    //    updateFilters();
-    //}
 }
 
 //==============================================================================

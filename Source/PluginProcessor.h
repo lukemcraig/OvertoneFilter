@@ -93,7 +93,7 @@ private:
     const int numFiltersPerChannel = 2;
     double inverseSampleRate;
     float filterCutoff;
-    bool noteOn{};
+   
     AudioBuffer<float> wetMix;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)
