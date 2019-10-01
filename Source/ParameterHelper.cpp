@@ -39,7 +39,8 @@ void ParameterHelper::updateSmoothers()
 {
     smoothQ.setTargetValue(*valueTreeState.getRawParameterValue(PID_Q));
     smoothGain.setTargetValue(*valueTreeState.getRawParameterValue(PID_GAIN));
-    smoothWetDry.setTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
+    if (!useInternalWetDry)
+        smoothWetDry.setTargetValue(*valueTreeState.getRawParameterValue(PID_WETDRY));
 }
 
 float ParameterHelper::getQ()
@@ -55,6 +56,11 @@ float ParameterHelper::getGain()
 float ParameterHelper::getWetDry()
 {
     return smoothWetDry.getNextValue();
+}
+
+void ParameterHelper::setWetDryTarget(float target)
+{
+    smoothWetDry.setTargetValue(target);
 }
 
 //==============================================================================

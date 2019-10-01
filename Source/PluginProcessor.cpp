@@ -97,7 +97,6 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     parameterHelper.updateSmoothers();
 
-    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         wetMix.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
@@ -106,6 +105,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     for (int i = 0; i < numFilters; ++i)
     {
+        //todo remove all this
         auto filter = filters[i].get();
 
         if (noteOn)
@@ -118,43 +118,67 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
         }
     }
     const auto subBlockSize = 16;
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto blockChannel = block.getSingleChannelBlock(channel);
-        int numSubBlocks = blockChannel.getNumSamples() / subBlockSize;
-        int samplesLeft = blockChannel.getNumSamples() - (numSubBlocks * subBlockSize);
-        for (int i = 0; i < numSubBlocks; ++i)
+        const int numSubBlocks = blockChannel.getNumSamples() / subBlockSize;
+        const int samplesLeft = blockChannel.getNumSamples() - (numSubBlocks * subBlockSize);
+        for (auto i = 0; i < numSubBlocks; ++i)
         {
+            const auto startSample = i * subBlockSize;
+            keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
+
             auto subBlock = blockChannel.getSubBlock(i * subBlockSize, subBlockSize);
-            for (int filterN = 0; filterN < numFiltersPerChannel; ++filterN)
+            for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
                 filters[channel * numFiltersPerChannel + filterN]->process(
                     dsp::ProcessContextReplacing<float>(subBlock));
+            }
+            for (auto sample = 0; sample < subBlockSize; ++sample)
+            {
+                const auto wetDry = parameterHelper.getWetDry();
+                buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
+                buffer.addFrom(channel, startSample + sample, wetMix, channel,
+                               startSample + sample, 1, wetDry);
+
+                const auto outGain = parameterHelper.getGain();
+                buffer.applyGain(startSample + sample, 1, outGain);
             }
         }
         if (samplesLeft > 0)
         {
-            auto subBlock = blockChannel.getSubBlock(numSubBlocks * subBlockSize, samplesLeft);
-            for (int filterN = 0; filterN < numFiltersPerChannel; ++filterN)
+            const auto startSample = numSubBlocks * subBlockSize;
+            auto subBlock = blockChannel.getSubBlock(startSample, samplesLeft);
+            for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
                 filters[channel * numFiltersPerChannel + filterN]->process(
                     dsp::ProcessContextReplacing<float>(subBlock));
             }
+            for (auto sample = 0; sample < samplesLeft; ++sample)
+            {
+                const auto wetDry = parameterHelper.getWetDry();
+                buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
+                buffer.addFrom(channel, startSample + sample, wetMix, channel,
+                               startSample + sample, 1, wetDry);
+
+                const auto outGain = parameterHelper.getGain();
+                buffer.applyGain(startSample + sample, 1, outGain);
+            }
         }
     }
 
-    auto wetDry = parameterHelper.getWetDry();
-    if (!noteOn)
-    {
-        // TODO smooth
-        //wetDry = 0.0f;
-    }
-    buffer.applyGain(1.0f - wetDry);
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        buffer.addFrom(channel, 0, wetMix, channel, 0, wetMix.getNumSamples(), wetDry);
-    }
-    buffer.applyGain(parameterHelper.getGain());
+    //auto wetDry = parameterHelper.getWetDry();
+    //if (!noteOn)
+    //{
+    //    // TODO smooth
+    //    //wetDry = 0.0f;
+    //}
+    //buffer.applyGain(1.0f - wetDry);
+    //for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    //{
+    //    buffer.addFrom(channel, 0, wetMix, channel, 0, wetMix.getNumSamples(), wetDry);
+    //}
+    //buffer.applyGain(parameterHelper.getGain());
 }
 
 void MidiWahAudioProcessor::updateFilters()
@@ -171,9 +195,9 @@ void MidiWahAudioProcessor::updateFilters()
         }
         else
         {
+            //todo remove
             filter->setResonance(parameterHelper.getQ() * 0.75f);
         }
-        //filter->setDrive(*parameterHelper.valueTreeState.getRawParameterValue(parameterHelper.PID_WETDRY));
     }
 }
 
@@ -213,6 +237,8 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
 {
     noteOn = true;
+    parameterHelper.useInternalWetDry = false;
+    parameterHelper.updateSmoothers();
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
     if (filterCutoff != newFreq)
     {
@@ -225,6 +251,8 @@ void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiCha
                                           float velocity)
 {
     noteOn = false;
+    parameterHelper.useInternalWetDry = true;
+    parameterHelper.setWetDryTarget(0.0f);
     //filterCutoff = 19000.0f;
     //updateFilters();
     //for (int i = 0; i < numFilters; ++i)

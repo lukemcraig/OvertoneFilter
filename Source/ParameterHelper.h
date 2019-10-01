@@ -39,6 +39,8 @@ public:
 
     float getWetDry();
 
+    void setWetDryTarget(float target);
+
     //==============================================================================
     //TODO rename these?
     const String PID_Q = "q";
@@ -47,6 +49,8 @@ public:
 
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
+
+    bool useInternalWetDry{};
 
 private:
 
