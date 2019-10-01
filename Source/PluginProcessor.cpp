@@ -16,7 +16,6 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
 {
-
 }
 
 //==============================================================================
@@ -26,7 +25,8 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     processSpec.maximumBlockSize = samplesPerBlock;
     processSpec.numChannels = getMainBusNumOutputChannels();
 
-    numFilters = getTotalNumInputChannels() * numFiltersPerChannel;
+    numInputChannels = getTotalNumInputChannels();
+    numFilters = numInputChannels * numFiltersPerChannel;
 
     filters.resize(numFilters);
     for (auto i = 0; i < numFilters; ++i)
@@ -40,15 +40,15 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
 
     inverseSampleRate = 1.0 / sampleRate;
 
-    parameterHelper.prepare(getTotalNumInputChannels());
+    parameterHelper.prepare(numInputChannels);
     parameterHelper.resetSmoothers(sampleRate);
     parameterHelper.instantlyUpdateSmoothers();
 
-    filterCutoff.resize(getTotalNumInputChannels());
+    filterCutoff.resize(numInputChannels);
     for (auto&& cutoff : filterCutoff)
         cutoff = 500.0f;
 
-    wetMix.setSize(getTotalNumInputChannels(), samplesPerBlock, false, false, false);
+    wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
 }
 
 void MidiWahAudioProcessor::releaseResources()
@@ -59,7 +59,7 @@ void MidiWahAudioProcessor::releaseResources()
 
 void MidiWahAudioProcessor::reset()
 {
-    for (int i = 0; i < getTotalNumInputChannels(); ++i)
+    for (int i = 0; i < numInputChannels; ++i)
         parameterHelper.useNoteOffWetDry(i);
 }
 
@@ -87,6 +87,31 @@ bool MidiWahAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) c
 }
 #endif
 
+void MidiWahAudioProcessor::handleNoteOn(const float noteNumber)
+{
+    for (auto i = 0; i < numInputChannels; ++i)
+        handleNoteOn(i, noteNumber);
+}
+
+void MidiWahAudioProcessor::handleNoteOn(int channel, const float noteNumber)
+{
+    parameterHelper.useParamWetDry(channel);
+    //todo tuning standard
+    const auto newFreq = 440.0f * pow(2.0f, (noteNumber - 69.0f) / 12.0f);
+    filterCutoff[channel] = newFreq;
+}
+
+void MidiWahAudioProcessor::handleNoteOff()
+{
+    for (auto i = 0; i < numInputChannels; ++i)
+        handleNoteOff(i);
+}
+
+void MidiWahAudioProcessor::handleNoteOff(int channel)
+{
+    parameterHelper.useNoteOffWetDry(channel);
+}
+
 void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
                                             const int subBlockSize, int channel, dsp::AudioBlock<float> blockChannel,
                                             int startSample)
@@ -102,19 +127,17 @@ void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuff
                 break;
             if (message.isNoteOn())
             {
-                parameterHelper.useParamWetDry(channel);
-
-                const auto newFreq = 440.0f * pow(
-                    2.0f, (static_cast<float>(message.getNoteNumber()) - 69.0f) / 12.0f);
-                filterCutoff[currentChannel] = newFreq;
+                const auto noteNumber = static_cast<float>(message.getNoteNumber());
+                handleNoteOn(channel, noteNumber);
             }
 
             else if (message.isNoteOff())
             {
-                parameterHelper.useNoteOffWetDry(channel);
+                handleNoteOff(channel);
             }
         }
     }
+    //todo move this out of subblock loop?
     keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
@@ -168,7 +191,6 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        currentChannel = channel;
 
         auto blockChannel = block.getSingleChannelBlock(channel);
 

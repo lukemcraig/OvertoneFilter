@@ -34,6 +34,21 @@ public:
 #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 
+    /**
+     * \brief Handles note on for all channels (called from the GUI)
+     * \param noteNumber 
+     */
+    void handleNoteOn(float noteNumber);
+
+    void handleNoteOn(int channel, float noteNumber);
+
+    /**
+     * \brief Handles note off for all channels (called from the GUI)
+     */
+    void handleNoteOff();
+
+    void handleNoteOff(int channel);
+
     void processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages, int subBlockSize, int channel,
                          dsp::AudioBlock<float> blockChannel, int startSample);
 #endif
@@ -82,11 +97,11 @@ private:
     typedef dsp::LadderFilter<float> LadderFilter;
     std::vector<std::unique_ptr<LadderFilter>> filters;
 
+    int numInputChannels{};
     int numFilters{};
     const int numFiltersPerChannel = 2;
     double inverseSampleRate;
     std::vector<float> filterCutoff{};
-    int currentChannel{};
 
     AudioBuffer<float> wetMix;
     //==============================================================================

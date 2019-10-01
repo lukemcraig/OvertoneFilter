@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "PluginProcessor.h"
 
 //==============================================================================
 /*
@@ -18,7 +19,7 @@
 class MyMidiKeyboardComponent : public MidiKeyboardComponent
 {
 public:
-    MyMidiKeyboardComponent(MidiKeyboardState& state,
+    MyMidiKeyboardComponent(MidiWahAudioProcessor& p, MidiKeyboardState& state,
                             Orientation orientation);
 
     ~MyMidiKeyboardComponent();
@@ -29,5 +30,7 @@ protected:
     void mouseUpOnKey(int midiNoteNumber, const MouseEvent& e) override;
 
 private:
+    MidiWahAudioProcessor& processor;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MyMidiKeyboardComponent)
 };

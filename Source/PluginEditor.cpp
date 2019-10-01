@@ -15,7 +15,7 @@
 MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& p, ParameterHelper& ph,
                                                          MidiKeyboardState& ks)
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
-      keyboard(ks, MidiKeyboardComponent::horizontalKeyboard)
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard)
 {
     {
         addAndMakeVisible(qSlider);
@@ -57,7 +57,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 
     addAndMakeVisible(keyboard);
 
-
     freqGroup.setText("Filter Frequency:");
     freqGroup.setTextLabelPosition(Justification::centredLeft);
     addAndMakeVisible(freqGroup);
@@ -70,7 +69,6 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
-
 }
 
 //==============================================================================
