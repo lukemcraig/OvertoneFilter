@@ -11,8 +11,6 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 #endif
       parameterHelper(*this)
 {
-    filterCutoff = 1000.0f;
-
     inverseSampleRate = 1.0 / 44100.0;
 
     keyboardState.addListener(this);
@@ -43,9 +41,15 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     }
 
     inverseSampleRate = 1.0 / sampleRate;
+
     parameterHelper.prepare(getTotalNumInputChannels());
     parameterHelper.resetSmoothers(sampleRate);
     parameterHelper.instantlyUpdateSmoothers();
+
+    filterCutoff.resize(getTotalNumInputChannels());
+    for (auto&& cutoff : filterCutoff)
+        cutoff = 500.0f;
+
     updateFilters();
 
     wetMix.setSize(getTotalNumInputChannels(), samplesPerBlock, false, false, false);
@@ -104,11 +108,6 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     }
     dsp::AudioBlock<float> block(wetMix);
 
-    for (int i = 0; i < numFilters; ++i)
-    {
-        auto filter = filters[i].get();
-        filter->setResonance(parameterHelper.getQ());
-    }
     const auto subBlockSize = 16;
     const int numSubBlocks = buffer.getNumSamples() / subBlockSize;
     const int samplesLeft = buffer.getNumSamples() - (numSubBlocks * subBlockSize);
@@ -123,19 +122,23 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
             keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
             auto subBlock = blockChannel.getSubBlock(i * subBlockSize, subBlockSize);
+            auto resonance = parameterHelper.getQ(channel);
             for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
-                filters[channel * numFiltersPerChannel + filterN]->process(
+                const auto filterIndex = channel * numFiltersPerChannel + filterN;
+                filters[filterIndex]->setCutoffFrequencyHz(filterCutoff[channel]);
+                filters[filterIndex]->setResonance(resonance);
+                filters[filterIndex]->process(
                     dsp::ProcessContextReplacing<float>(subBlock));
             }
             for (auto sample = 0; sample < subBlockSize; ++sample)
             {
-                const auto wetDry = parameterHelper.getWetDry();
+                const auto wetDry = parameterHelper.getWetDry(channel);
                 buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
                 buffer.addFrom(channel, startSample + sample, wetMix, channel,
                                startSample + sample, 1, wetDry);
 
-                const auto outGain = parameterHelper.getGain();
+                const auto outGain = parameterHelper.getGain(channel);
                 buffer.applyGain(channel, startSample + sample, 1, outGain);
             }
         }
@@ -145,19 +148,23 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
             keyboardState.processNextMidiBuffer(midiMessages, startSample, samplesLeft, false);
 
             auto subBlock = blockChannel.getSubBlock(startSample, samplesLeft);
+            auto resonance = parameterHelper.getQ(channel);
             for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
-                filters[channel * numFiltersPerChannel + filterN]->process(
+                const auto filterIndex = channel * numFiltersPerChannel + filterN;
+                filters[filterIndex]->setCutoffFrequencyHz(filterCutoff[channel]);
+                filters[filterIndex]->setResonance(resonance);
+                filters[filterIndex]->process(
                     dsp::ProcessContextReplacing<float>(subBlock));
             }
             for (auto sample = 0; sample < samplesLeft; ++sample)
             {
-                const auto wetDry = parameterHelper.getWetDry();
+                const auto wetDry = parameterHelper.getWetDry(channel);
                 buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
                 buffer.addFrom(channel, startSample + sample, wetMix, channel,
                                startSample + sample, 1, wetDry);
 
-                const auto outGain = parameterHelper.getGain();
+                const auto outGain = parameterHelper.getGain(channel);
                 buffer.applyGain(channel, startSample + sample, 1, outGain);
             }
         }
@@ -166,14 +173,15 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
 void MidiWahAudioProcessor::updateFilters()
 {
-    for (int i = 0; i < numFilters; ++i)
-    {
-        auto filter = filters[i].get();
+    DBG("updateFilters");
+    //for (int i = 0; i < numFilters; ++i)
+    //{
+    //    auto filter = filters[i].get();
 
-        filter->setCutoffFrequencyHz(filterCutoff);
+    //    filter->setCutoffFrequencyHz(filterCutoff);
 
-        filter->setResonance(parameterHelper.getQ());
-    }
+    //    filter->setResonance(parameterHelper.getQ());
+    //}
 }
 
 //==============================================================================
@@ -211,12 +219,12 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 
 void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
 {
-    parameterHelper.useParamWetDry();
+    parameterHelper.useParamWetDry(currentChannel);
 
     const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    if (filterCutoff != newFreq)
+    if (filterCutoff[currentChannel] != newFreq)
     {
-        filterCutoff = newFreq;
+        filterCutoff[currentChannel] = newFreq;
         updateFilters();
     }
 }
@@ -224,7 +232,7 @@ void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChan
 void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
                                           float velocity)
 {
-    parameterHelper.useNoteOffWetDry();
+    parameterHelper.useNoteOffWetDry(currentChannel);
 }
 
 void MidiWahAudioProcessor::parameterChanged(const String& parameterID, float newValue)
