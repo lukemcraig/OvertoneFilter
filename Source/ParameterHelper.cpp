@@ -24,7 +24,7 @@ void ParameterHelper::resetSmoothers(double sampleRate)
 {
     smoothQ.reset(sampleRate, 0.0);
     smoothGain.reset(sampleRate, 0.0);
-    smoothWetDry.reset(sampleRate, 0.0);
+    smoothWetDry.reset(sampleRate, 0.1);
 }
 
 //==============================================================================
@@ -71,6 +71,16 @@ float ParameterHelper::getCurrentWetDry()
 void ParameterHelper::setCurrentWetDry(const float currentWetDry)
 {
     smoothWetDry.setCurrentAndTargetValue(currentWetDry);
+}
+
+float ParameterHelper::getCurrentGain()
+{
+    return smoothGain.getCurrentValue();
+}
+
+void ParameterHelper::setCurrentGain(const float currentGain)
+{
+    smoothGain.setCurrentAndTargetValue(currentGain);
 }
 
 //==============================================================================

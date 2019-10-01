@@ -122,9 +122,12 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
     const int samplesLeft = buffer.getNumSamples() - (numSubBlocks * subBlockSize);
 
     const auto currentWetDry = parameterHelper.getCurrentWetDry();
+    const auto currentGain = parameterHelper.getCurrentGain();
+
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
         parameterHelper.setCurrentWetDry(currentWetDry);
+        parameterHelper.setCurrentGain(currentGain);
         auto blockChannel = block.getSingleChannelBlock(channel);
 
         for (auto i = 0; i < numSubBlocks; ++i)

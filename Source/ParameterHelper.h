@@ -45,6 +45,10 @@ public:
 
     void setCurrentWetDry(const float currentWetDry);
 
+    float getCurrentGain();
+
+    void setCurrentGain(const float currentGain);
+
     //==============================================================================
     //TODO rename these?
     const String PID_Q = "q";
