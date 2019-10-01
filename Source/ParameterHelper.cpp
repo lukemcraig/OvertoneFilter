@@ -63,6 +63,16 @@ void ParameterHelper::setWetDryTarget(float target)
     smoothWetDry.setTargetValue(target);
 }
 
+float ParameterHelper::getCurrentWetDry()
+{
+    return smoothWetDry.getCurrentValue();
+}
+
+void ParameterHelper::setCurrentWetDry(const float currentWetDry)
+{
+    smoothWetDry.setCurrentAndTargetValue(currentWetDry);
+}
+
 //==============================================================================
 AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLayout() const
 {

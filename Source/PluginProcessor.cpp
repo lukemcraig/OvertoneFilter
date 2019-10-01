@@ -118,11 +118,15 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
         }
     }
     const auto subBlockSize = 16;
+    const int numSubBlocks = buffer.getNumSamples() / subBlockSize;
+    const int samplesLeft = buffer.getNumSamples() - (numSubBlocks * subBlockSize);
+
+    const auto currentWetDry = parameterHelper.getCurrentWetDry();
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        parameterHelper.setCurrentWetDry(currentWetDry);
         auto blockChannel = block.getSingleChannelBlock(channel);
-        const int numSubBlocks = blockChannel.getNumSamples() / subBlockSize;
-        const int samplesLeft = blockChannel.getNumSamples() - (numSubBlocks * subBlockSize);
+
         for (auto i = 0; i < numSubBlocks; ++i)
         {
             const auto startSample = i * subBlockSize;
@@ -142,7 +146,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
                                startSample + sample, 1, wetDry);
 
                 const auto outGain = parameterHelper.getGain();
-                buffer.applyGain(startSample + sample, 1, outGain);
+                buffer.applyGain(channel,startSample + sample, 1, outGain);
             }
         }
         if (samplesLeft > 0)
@@ -162,7 +166,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
                                startSample + sample, 1, wetDry);
 
                 const auto outGain = parameterHelper.getGain();
-                buffer.applyGain(startSample + sample, 1, outGain);
+                buffer.applyGain(channel,startSample + sample, 1, outGain);
             }
         }
     }
