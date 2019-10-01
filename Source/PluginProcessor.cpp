@@ -59,6 +59,12 @@ void MidiWahAudioProcessor::releaseResources()
     // spare memory, etc.
 }
 
+void MidiWahAudioProcessor::reset()
+{
+    for (int i = 0; i < getTotalNumInputChannels(); ++i)
+        parameterHelper.useNoteOffWetDry(i);
+}
+
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool MidiWahAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
@@ -122,7 +128,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
             keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
             auto subBlock = blockChannel.getSubBlock(i * subBlockSize, subBlockSize);
-            auto resonance = parameterHelper.getQ(channel);
+            const auto resonance = parameterHelper.getQ(channel);
             for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
                 const auto filterIndex = channel * numFiltersPerChannel + filterN;
@@ -148,7 +154,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
             keyboardState.processNextMidiBuffer(midiMessages, startSample, samplesLeft, false);
 
             auto subBlock = blockChannel.getSubBlock(startSample, samplesLeft);
-            auto resonance = parameterHelper.getQ(channel);
+            const auto resonance = parameterHelper.getQ(channel);
             for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
             {
                 const auto filterIndex = channel * numFiltersPerChannel + filterN;

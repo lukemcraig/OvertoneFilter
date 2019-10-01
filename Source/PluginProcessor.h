@@ -30,6 +30,8 @@ public:
 
     void releaseResources() override;
 
+    void reset() override;
+
 #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 #endif
