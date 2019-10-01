@@ -116,7 +116,7 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 
     // const auto currentGain = parameterHelper.getCurrentGain();
 
-    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
+    for (auto channel = 0; channel < 1; ++channel)
     {
         //  parameterHelper.setCurrentWetDry(currentWetDry);
         //  parameterHelper.setCurrentGain(currentGain);
@@ -167,19 +167,10 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
             }
         }
     }
-
-    //auto wetDry = parameterHelper.getWetDry();
-    //if (!noteOn)
-    //{
-    //    // TODO smooth
-    //    //wetDry = 0.0f;
-    //}
-    //buffer.applyGain(1.0f - wetDry);
-    //for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    //{
-    //    buffer.addFrom(channel, 0, wetMix, channel, 0, wetMix.getNumSamples(), wetDry);
-    //}
-    //buffer.applyGain(parameterHelper.getGain());
+    for (auto channel = 1; channel < totalNumOutputChannels; ++channel)
+    {
+        buffer.copyFrom(channel, 0, buffer, 0, 0, buffer.getNumSamples());
+    }
 }
 
 void MidiWahAudioProcessor::updateFilters()
