@@ -16,8 +16,7 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessor : public AudioProcessor,
-                              private MidiKeyboardStateListener
+class MidiWahAudioProcessor : public AudioProcessor
 {
 public:
     //==============================================================================
@@ -72,11 +71,6 @@ public:
     void getStateInformation(MemoryBlock& destData) override;
 
     void setStateInformation(const void* data, int sizeInBytes) override;
-
-    //==============================================================================
-    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
-
-    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
 
     //==============================================================================
 private:

@@ -2,12 +2,12 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "MyMidiKeyboardComponent.h"
 
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessorEditor : public AudioProcessorEditor,
-                                    private MidiKeyboardStateListener
+class MidiWahAudioProcessorEditor : public AudioProcessorEditor
 {
 public:
     MidiWahAudioProcessorEditor(MidiWahAudioProcessor&, ParameterHelper&, MidiKeyboardState&);
@@ -19,7 +19,6 @@ public:
 
     void resized() override;
 
-
 private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
@@ -28,7 +27,7 @@ private:
     ParameterHelper& parameterHelper;
     MidiKeyboardState& keyboardState;
 
-    MidiKeyboardComponent keyboard;
+    MyMidiKeyboardComponent keyboard;
 
     Slider qSlider;
     std::unique_ptr<SliderAttachment> qAttachment;
@@ -50,12 +49,6 @@ private:
     Label nameLabel;
 
     GroupComponent freqGroup;
-
-    // Inherited via MidiKeyboardStateListener
-    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
-
-    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
-
     // -----
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)

@@ -12,13 +12,11 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
       parameterHelper(*this)
 {
     inverseSampleRate = 1.0 / 44100.0;
-
-    keyboardState.addListener(this);
 }
 
 MidiWahAudioProcessor::~MidiWahAudioProcessor()
 {
-    keyboardState.removeListener(this);
+
 }
 
 //==============================================================================
@@ -117,7 +115,7 @@ void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuff
             }
         }
     }
-    //keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
+    keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
     const auto resonance = parameterHelper.getQ(channel);
@@ -218,22 +216,6 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
             parameterHelper.instantlyUpdateSmoothers();
         }
     }
-}
-
-void MidiWahAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
-{
-    //todo
-    //parameterHelper.useParamWetDry(currentChannel);
-
-    //const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    //filterCutoff[currentChannel] = newFreq;
-}
-
-void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
-                                          float velocity)
-{
-    //todo
-    //parameterHelper.useNoteOffWetDry(currentChannel);
 }
 
 //==============================================================================

@@ -8,12 +8,14 @@
               buildAAX="0" enableIAA="0">
   <MAINGROUP id="uOFHnM" name="MidiWah">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
+      <FILE id="lCTtY5" name="MyMidiKeyboardComponent.cpp" compile="1" resource="0"
+            file="Source/MyMidiKeyboardComponent.cpp"/>
+      <FILE id="adCX7G" name="MyMidiKeyboardComponent.h" compile="0" resource="0"
+            file="Source/MyMidiKeyboardComponent.h"/>
       <FILE id="ys226C" name="ParameterHelper.cpp" compile="1" resource="0"
             file="Source/ParameterHelper.cpp"/>
       <FILE id="LdGv9r" name="ParameterHelper.h" compile="0" resource="0"
             file="Source/ParameterHelper.h"/>
-      <FILE id="Pcr7fN" name="MyBandPass.h" compile="0" resource="0" file="Source/MyBandPass.h"/>
-      <FILE id="bDX1UO" name="MyBandPass.cpp" compile="1" resource="0" file="Source/MyBandPass.cpp"/>
       <FILE id="hxzAR3" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="zfHvuy" name="PluginProcessor.h" compile="0" resource="0"

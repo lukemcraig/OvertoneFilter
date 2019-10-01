@@ -56,7 +56,7 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     addAndMakeVisible(nameLabel);
 
     addAndMakeVisible(keyboard);
-    keyboardState.addListener(this);
+
 
     freqGroup.setText("Filter Frequency:");
     freqGroup.setTextLabelPosition(Justification::centredLeft);
@@ -66,12 +66,11 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     setResizeLimits(400, 400, 1680, 1050);
     setSize(800, 600);
     // ----
-  
 }
 
 MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
 {
-    keyboardState.removeListener(this);
+
 }
 
 //==============================================================================
@@ -139,18 +138,4 @@ void MidiWahAudioProcessorEditor::resized()
         const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
         keyboard.setBounds(keyboardArea);
     }
-}
-
-void MidiWahAudioProcessorEditor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
-                                               float velocity)
-{
-    // TODO
-    const auto newFreq = 440.0f * pow(2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-    //centerFreqSlider.setValue(newFreq);
-}
-
-void MidiWahAudioProcessorEditor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber,
-                                                float velocity)
-{
-    // TODO
 }
