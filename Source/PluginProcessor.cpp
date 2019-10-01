@@ -46,6 +46,7 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
         cutoff = 500.0f;
 
     wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
+    wetMix.clear();
 }
 
 void MidiWahAudioProcessor::releaseResources()
@@ -151,13 +152,15 @@ void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuff
     }
     for (auto sample = 0; sample < subBlockSize; ++sample)
     {
+        const auto outGain = parameterHelper.getGain(channel);
+        // apply the output gain to the wet signal
+        wetMix.applyGain(channel, startSample + sample, 1, outGain);
+
         const auto wetDry = parameterHelper.getWetDry(channel);
+        // blend the wet mix and the dry mix
         buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
         buffer.addFrom(channel, startSample + sample, wetMix, channel,
                        startSample + sample, 1, wetDry);
-
-        const auto outGain = parameterHelper.getGain(channel);
-        buffer.applyGain(channel, startSample + sample, 1, outGain);
     }
     parameterHelper.skipPitchStandard(channel, subBlockSize);
 }
