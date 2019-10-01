@@ -117,12 +117,30 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
             filter->setResonance(parameterHelper.getQ() * 0.75f);
         }
     }
-
+    const auto subBlockSize = 16;
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto blockChannel = block.getSingleChannelBlock(channel);
-        for (int i = 0; i < numFiltersPerChannel; ++i)
-            filters[channel * numFiltersPerChannel + i]->process(dsp::ProcessContextReplacing<float>(blockChannel));
+        int numSubBlocks = blockChannel.getNumSamples() / subBlockSize;
+        int samplesLeft = blockChannel.getNumSamples() - (numSubBlocks * subBlockSize);
+        for (int i = 0; i < numSubBlocks; ++i)
+        {
+            auto subBlock = blockChannel.getSubBlock(i * subBlockSize, subBlockSize);
+            for (int filterN = 0; filterN < numFiltersPerChannel; ++filterN)
+            {
+                filters[channel * numFiltersPerChannel + filterN]->process(
+                    dsp::ProcessContextReplacing<float>(subBlock));
+            }
+        }
+        if (samplesLeft > 0)
+        {
+            auto subBlock = blockChannel.getSubBlock(numSubBlocks * subBlockSize, samplesLeft);
+            for (int filterN = 0; filterN < numFiltersPerChannel; ++filterN)
+            {
+                filters[channel * numFiltersPerChannel + filterN]->process(
+                    dsp::ProcessContextReplacing<float>(subBlock));
+            }
+        }
     }
 
     auto wetDry = parameterHelper.getWetDry();
