@@ -50,8 +50,6 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     for (auto&& cutoff : filterCutoff)
         cutoff = 500.0f;
 
-    updateFilters();
-
     wetMix.setSize(getTotalNumInputChannels(), samplesPerBlock, false, false, false);
 }
 
@@ -218,14 +216,6 @@ void MidiWahAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiCha
                                           float velocity)
 {
     parameterHelper.useNoteOffWetDry(currentChannel);
-}
-
-void MidiWahAudioProcessor::parameterChanged(const String& parameterID, float newValue)
-{
-    if (parameterID == parameterHelper.PID_Q)
-    {
-        updateFilters();
-    }
 }
 
 //==============================================================================

@@ -17,12 +17,9 @@
 /**
 */
 class MidiWahAudioProcessor : public AudioProcessor,
-                              public AudioProcessorValueTreeState::Listener,
                               private MidiKeyboardStateListener
 {
 public:
-    typedef dsp::LadderFilter<float> LadderFilter;
-
     //==============================================================================
     MidiWahAudioProcessor();
 
@@ -38,8 +35,6 @@ public:
 #endif
 
     void processBlock(AudioBuffer<float>&, MidiBuffer&) override;
-
-    void updateFilters();
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -79,22 +74,21 @@ public:
     void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
 
     //==============================================================================
-    void parameterChanged(const String& parameterID, float newValue) override;
-
-    //==============================================================================
 private:
     MidiKeyboardState keyboardState;
     ParameterHelper parameterHelper;
 
     dsp::ProcessSpec processSpec{};
 
+    typedef dsp::LadderFilter<float> LadderFilter;
     std::vector<std::unique_ptr<LadderFilter>> filters;
+
     int numFilters{};
     const int numFiltersPerChannel = 2;
     double inverseSampleRate;
     std::vector<float> filterCutoff{};
     int currentChannel{};
-   
+
     AudioBuffer<float> wetMix;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)

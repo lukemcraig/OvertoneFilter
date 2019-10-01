@@ -33,9 +33,9 @@ void ParameterHelper::resetSmoothers(const double sampleRate)
     for (auto& smoother : smoothQ)
         smoother.reset(sampleRate, 0.0);
     for (auto& smoother : smoothGain)
-        smoother.reset(sampleRate, 0.0);
+        smoother.reset(sampleRate, 0.1);
     for (auto& smoother : smoothWetDry)
-        smoother.reset(sampleRate, 0.2);
+        smoother.reset(sampleRate, 0.1);
 }
 
 void ParameterHelper::instantlyUpdateSmoothers()
