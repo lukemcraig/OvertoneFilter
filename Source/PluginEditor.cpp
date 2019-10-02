@@ -42,18 +42,17 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, Para
         wetDryLabel.attachToComponent(&wetDrySlider, true);
         addAndMakeVisible(wetDryLabel);
     }
-
-    // ----
     {
         borderPath.setFill(Colours::transparentBlack);
         borderPath.setStrokeType(PathStrokeType(1));
         borderPath.setStrokeFill(Colours::white);
         addAndMakeVisible(borderPath);
     }
-
-    nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
-    addAndMakeVisible(nameLabel);
-
+    {
+        nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
+        addAndMakeVisible(nameLabel);
+    }
+    addAndMakeVisible(levelMeter);
     addAndMakeVisible(keyboard);
 
     setResizable(true, true);
@@ -116,8 +115,10 @@ void OvertoneFilterEditor::resized()
     }
     area.reduce(10, 10);
     auto nPanes = 2;
-   
+
     const auto paneAreaHeight = area.getHeight() / nPanes;
+
+    levelMeter.setBounds(area.removeFromLeft(60));
 
     standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
     qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
@@ -126,4 +127,6 @@ void OvertoneFilterEditor::resized()
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     keyboard.setBounds(keyboardArea);
+
+    
 }

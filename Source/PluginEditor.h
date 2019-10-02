@@ -3,6 +3,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "MyMidiKeyboardComponent.h"
+#include "LevelMeter.h"
 
 //==============================================================================
 /**
@@ -44,6 +45,9 @@ private:
     Slider wetDrySlider;
     std::unique_ptr<SliderAttachment> wetDryAttachment;
     Label wetDryLabel;
+
+    // -----
+    LevelMeter levelMeter;
 
     // -----
 
