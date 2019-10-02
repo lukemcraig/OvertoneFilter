@@ -114,8 +114,9 @@ void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
 }
 
 void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
-                                            const int subBlockSize, int channel, dsp::AudioBlock<float> blockChannel,
-                                            int startSample)
+                                                   const int subBlockSize, int channel,
+                                                   dsp::AudioBlock<float> blockChannel,
+                                                   int startSample)
 {
     {
         MidiBuffer::Iterator iterator(midiMessages);
@@ -209,6 +210,9 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
             processSubBlock(buffer, midiMessages, samplesLeft, channel, blockChannel, startSample);
         }
     }
+
+    auto minMax = buffer.findMinMax(0, 0, buffer.getNumSamples());
+    level = jmax(abs(minMax.getStart()), minMax.getEnd());
 }
 
 //==============================================================================
@@ -219,7 +223,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, level);
 }
 
 //==============================================================================

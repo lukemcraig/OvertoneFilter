@@ -15,15 +15,22 @@
 //==============================================================================
 /*
 */
-class LevelMeter    : public Component
+class LevelMeter : public Component,
+                   public Timer
 {
 public:
-    LevelMeter();
+    LevelMeter(float&);
+
     ~LevelMeter();
 
-    void paint (Graphics&) override;
+    void paint(Graphics&) override;
+
     void resized() override;
 
+    void timerCallback() override;
+
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LevelMeter)
+    float& level;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

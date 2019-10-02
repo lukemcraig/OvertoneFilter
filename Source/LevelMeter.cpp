@@ -12,10 +12,9 @@
 #include "LevelMeter.h"
 
 //==============================================================================
-LevelMeter::LevelMeter()
+LevelMeter::LevelMeter(float& l) : level(l)
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
+    startTimer(100);
 }
 
 LevelMeter::~LevelMeter()
@@ -28,8 +27,7 @@ void LevelMeter::paint(Graphics& g)
     //getLookAndFeel().drawLevelMeter(g,getWidth(),getHeight(),1.0f);
 
     const auto width = getWidth();
-    const auto height = getHeight();
-    const auto level = JUCE_LIVE_CONSTANT(0.65f);
+    const auto height = getHeight();    
 
     const auto outerCornerSize = 3.0f;
     const auto outerBorderWidth = 2.0f;
@@ -60,7 +58,7 @@ void LevelMeter::paint(Graphics& g)
             g.setColour(i < totalBlocks - 1 ? c : Colours::red);
 
         g.fillRoundedRectangle(outerBorderWidth,
-                               outerBorderWidth + ((totalBlocks-i-1) * blockHeight) + blockRectSpacing,
+                               outerBorderWidth + ((totalBlocks - i - 1) * blockHeight) + blockRectSpacing,
                                blockWidth,
                                blockRectHeight,
                                blockCornerSize);
@@ -71,4 +69,9 @@ void LevelMeter::resized()
 {
     // This method is where you should set the bounds of any child
     // components that your component contains..
+}
+
+void LevelMeter::timerCallback()
+{
+    repaint();
 }
