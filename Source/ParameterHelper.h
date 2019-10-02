@@ -3,7 +3,7 @@
 
     ParameterHelper.h
     Created: 25 Sep 2019 12:18:36pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */

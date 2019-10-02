@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -16,13 +6,13 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessor : public AudioProcessor
+class OvertoneFilterAudioProcessor : public AudioProcessor
 {
 public:
     //==============================================================================
-    MidiWahAudioProcessor();
+    OvertoneFilterAudioProcessor();
 
-    ~MidiWahAudioProcessor();
+    ~OvertoneFilterAudioProcessor();
 
     //==============================================================================
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -104,5 +94,5 @@ private:
 
     AudioBuffer<float> wetMix;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)
 };

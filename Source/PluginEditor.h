@@ -7,12 +7,12 @@
 //==============================================================================
 /**
 */
-class MidiWahAudioProcessorEditor : public AudioProcessorEditor
+class OvertoneFilterEditor : public AudioProcessorEditor
 {
 public:
-    MidiWahAudioProcessorEditor(MidiWahAudioProcessor&, ParameterHelper&, MidiKeyboardState&);
+    OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&);
 
-    ~MidiWahAudioProcessorEditor();
+    ~OvertoneFilterEditor();
 
     //==============================================================================
     void paint(Graphics&) override;
@@ -23,7 +23,7 @@ private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
 
-    MidiWahAudioProcessor& processor;
+    OvertoneFilterAudioProcessor& processor;
     ParameterHelper& parameterHelper;
     MidiKeyboardState& keyboardState;
 
@@ -46,14 +46,11 @@ private:
     Label wetDryLabel;
 
     // -----
-    typedef AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 
     DrawablePath bgPath;
     DrawablePath borderPath;
     Label nameLabel;
-
-    GroupComponent freqGroup;
     // -----
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiWahAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterEditor)
 };

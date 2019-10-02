@@ -1,19 +1,9 @@
-/*
-  ==============================================================================
-
-	This file was auto-generated!
-
-	It contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
 //==============================================================================
-MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& p, ParameterHelper& ph,
-                                                         MidiKeyboardState& ks)
+OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, ParameterHelper& ph,
+                                           MidiKeyboardState& ks)
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard)
 {
@@ -61,14 +51,10 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
         addAndMakeVisible(borderPath);
     }
 
-    nameLabel.setText("Midi Wah - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
+    nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
     addAndMakeVisible(nameLabel);
 
     addAndMakeVisible(keyboard);
-
-    freqGroup.setText("Filter Frequency:");
-    freqGroup.setTextLabelPosition(Justification::centredLeft);
-    addAndMakeVisible(freqGroup);
 
     setResizable(true, true);
     setResizeLimits(400, 400, 1680, 1050);
@@ -76,12 +62,12 @@ MidiWahAudioProcessorEditor::MidiWahAudioProcessorEditor(MidiWahAudioProcessor& 
     // ----
 }
 
-MidiWahAudioProcessorEditor::~MidiWahAudioProcessorEditor()
+OvertoneFilterEditor::~OvertoneFilterEditor()
 {
 }
 
 //==============================================================================
-void MidiWahAudioProcessorEditor::paint(Graphics& g)
+void OvertoneFilterEditor::paint(Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
@@ -90,7 +76,7 @@ void MidiWahAudioProcessorEditor::paint(Graphics& g)
     g.setFont(15.0f);
 }
 
-void MidiWahAudioProcessorEditor::resized()
+void OvertoneFilterEditor::resized()
 {
     //TODO clean all this up
     {
@@ -130,21 +116,14 @@ void MidiWahAudioProcessorEditor::resized()
     }
     area.reduce(10, 10);
     auto nPanes = 2;
-    //const auto midiVisible = *parameterHelper.valueTreeState.getRawParameterValue(pidToggleMidiSource);
-    const auto midiVisible = 1.0f;
-    if (midiVisible == 1.0f)
-        nPanes += 2;
+   
     const auto paneAreaHeight = area.getHeight() / nPanes;
-    const auto paneMargin = 5;
 
     standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
     qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
     gainSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
     wetDrySlider.setBounds(area.removeFromTop(60).reduced(100, 0));
 
-    freqGroup.setBounds(area);
-    {
-        const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
-        keyboard.setBounds(keyboardArea);
-    }
+    const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
+    keyboard.setBounds(keyboardArea);
 }

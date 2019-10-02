@@ -3,7 +3,7 @@
 
     MyMidiKeyboardComponent.cpp
     Created: 1 Oct 2019 4:28:55pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
@@ -12,7 +12,7 @@
 #include "MyMidiKeyboardComponent.h"
 
 //==============================================================================
-MyMidiKeyboardComponent::MyMidiKeyboardComponent(MidiWahAudioProcessor& p, MidiKeyboardState& state,
+MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p, MidiKeyboardState& state,
                                                  Orientation orientation) : MidiKeyboardComponent(state, orientation),
                                                                             processor(p)
 {

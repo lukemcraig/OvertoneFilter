@@ -2,7 +2,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-MidiWahAudioProcessor::MidiWahAudioProcessor()
+OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations //TODO remove this ifndef
     : AudioProcessor(BusesProperties()
                      .withInput("Input", AudioChannelSet::stereo(), true)
@@ -13,12 +13,12 @@ MidiWahAudioProcessor::MidiWahAudioProcessor()
 {
 }
 
-MidiWahAudioProcessor::~MidiWahAudioProcessor()
+OvertoneFilterAudioProcessor::~OvertoneFilterAudioProcessor()
 {
 }
 
 //==============================================================================
-void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     processSpec.sampleRate = sampleRate;
     processSpec.maximumBlockSize = samplesPerBlock;
@@ -41,6 +41,8 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     parameterHelper.resetSmoothers(sampleRate);
     parameterHelper.instantlyUpdateSmoothers();
 
+    handleNoteOff();
+
     filterCutoff.resize(numInputChannels);
     for (auto&& cutoff : filterCutoff)
         cutoff = 500.0f;
@@ -49,20 +51,20 @@ void MidiWahAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock
     wetMix.clear();
 }
 
-void MidiWahAudioProcessor::releaseResources()
+void OvertoneFilterAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
-void MidiWahAudioProcessor::reset()
+void OvertoneFilterAudioProcessor::reset()
 {
     for (int i = 0; i < numInputChannels; ++i)
         parameterHelper.useNoteOffWetDry(i);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool MidiWahAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+bool OvertoneFilterAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
 #if JucePlugin_IsMidiEffect
 	ignoreUnused(layouts);
@@ -85,13 +87,13 @@ bool MidiWahAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) c
 }
 #endif
 
-void MidiWahAudioProcessor::handleNoteOn(const float noteNumber)
+void OvertoneFilterAudioProcessor::handleNoteOn(const float noteNumber)
 {
     for (auto i = 0; i < numInputChannels; ++i)
         handleNoteOn(i, noteNumber);
 }
 
-void MidiWahAudioProcessor::handleNoteOn(int channel, const float noteNumber)
+void OvertoneFilterAudioProcessor::handleNoteOn(int channel, const float noteNumber)
 {
     parameterHelper.useParamWetDry(channel);
     // todo it might make more sense to store the current note number and calculate the filterCutoff at even intervals instead
@@ -100,18 +102,18 @@ void MidiWahAudioProcessor::handleNoteOn(int channel, const float noteNumber)
     filterCutoff[channel] = newFreq;
 }
 
-void MidiWahAudioProcessor::handleNoteOff()
+void OvertoneFilterAudioProcessor::handleNoteOff()
 {
     for (auto i = 0; i < numInputChannels; ++i)
         handleNoteOff(i);
 }
 
-void MidiWahAudioProcessor::handleNoteOff(int channel)
+void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
 {
     parameterHelper.useNoteOffWetDry(channel);
 }
 
-void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
+void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
                                             const int subBlockSize, int channel, dsp::AudioBlock<float> blockChannel,
                                             int startSample)
 {
@@ -165,7 +167,7 @@ void MidiWahAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuff
     parameterHelper.skipPitchStandard(channel, subBlockSize);
 }
 
-void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
@@ -210,25 +212,25 @@ void MidiWahAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&
 }
 
 //==============================================================================
-bool MidiWahAudioProcessor::hasEditor() const
+bool OvertoneFilterAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* MidiWahAudioProcessor::createEditor()
+AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new MidiWahAudioProcessorEditor(*this, parameterHelper, keyboardState);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState);
 }
 
 //==============================================================================
-void MidiWahAudioProcessor::getStateInformation(MemoryBlock& destData)
+void OvertoneFilterAudioProcessor::getStateInformation(MemoryBlock& destData)
 {
     auto state = parameterHelper.valueTreeState.copyState();
     std::unique_ptr<XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
 
-void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+void OvertoneFilterAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
@@ -246,5 +248,5 @@ void MidiWahAudioProcessor::setStateInformation(const void* data, int sizeInByte
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new MidiWahAudioProcessor();
+    return new OvertoneFilterAudioProcessor();
 }

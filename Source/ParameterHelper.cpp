@@ -3,7 +3,7 @@
 
     ParameterHelper.cpp
     Created: 25 Sep 2019 12:18:36pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
@@ -137,16 +137,16 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
 
     params.push_back(std::make_unique<AudioParameterFloat>(PID_Q,
                                                            "Resonance",
-                                                           NormalisableRange<float>(0.1f, 1.0f, 0, 1.0f),
-                                                           0.9f));
+                                                           NormalisableRange<float>(0.1f, 0.95f, 0, 1.0f),
+                                                           0.85f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_WETDRY,
                                                            "Wet Dry",
                                                            NormalisableRange<float>(0.0f, 1.0f, 0, 1.0f),
-                                                           90.0f));
+                                                           0.8f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_GAIN,
                                                            "Out Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
-                                                           0.5f));
+                                                           0.75f));
     params.push_back(std::make_unique<AudioParameterFloat>(PID_PITCH_STANDARD,
                                                            "Pitch Standard",
                                                            NormalisableRange<float>(392.0f, 493.88f, 0, 1.0f),
