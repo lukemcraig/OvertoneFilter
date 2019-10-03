@@ -31,14 +31,17 @@ void LevelMeter::paint(Graphics& g)
 
     const auto outerCornerSize = 3.0f;
     const auto outerBorderWidth = 2.0f;
-    const auto totalBlocks = 32;
+    const auto totalBlocks = 5;
     const auto spacingFraction = 0.03f;
 
     g.setColour(findColour(ResizableWindow::backgroundColourId));
     g.fillRoundedRectangle(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), outerCornerSize);
 
     const auto doubleOuterBorderWidth = 2.0f * outerBorderWidth;
-    const auto numBlocks = roundToInt(totalBlocks * std::sqrt(level / static_cast<float>(rmsWindowLength)));
+    const auto rms = 1.4125375446227544f * std::sqrt(level / static_cast<float>(rmsWindowLength));
+    DBG(Decibels::gainToDecibels(rms));
+    //DBG(Decibels::decibelsToGain(3.0f));
+    const auto numBlocks = roundToInt(totalBlocks * rms);
 
     const auto blockWidth = width - doubleOuterBorderWidth;
     const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks);
