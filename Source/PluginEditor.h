@@ -11,7 +11,7 @@
 class OvertoneFilterEditor : public AudioProcessorEditor
 {
 public:
-    OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, float&);
+    OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, float&, int&);
 
     ~OvertoneFilterEditor();
 

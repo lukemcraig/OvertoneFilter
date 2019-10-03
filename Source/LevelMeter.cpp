@@ -12,7 +12,7 @@
 #include "LevelMeter.h"
 
 //==============================================================================
-LevelMeter::LevelMeter(float& l) : level(l)
+LevelMeter::LevelMeter(float& l, int& rmsWindowLength) : level(l), rmsWindowLength(rmsWindowLength)
 {
     startTimer(100);
 }
@@ -27,18 +27,18 @@ void LevelMeter::paint(Graphics& g)
     //getLookAndFeel().drawLevelMeter(g,getWidth(),getHeight(),1.0f);
 
     const auto width = getWidth();
-    const auto height = getHeight();    
+    const auto height = getHeight();
 
     const auto outerCornerSize = 3.0f;
     const auto outerBorderWidth = 2.0f;
-    const auto totalBlocks = 16;
+    const auto totalBlocks = 32;
     const auto spacingFraction = 0.03f;
 
     g.setColour(findColour(ResizableWindow::backgroundColourId));
     g.fillRoundedRectangle(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), outerCornerSize);
 
     const auto doubleOuterBorderWidth = 2.0f * outerBorderWidth;
-    const auto numBlocks = roundToInt(totalBlocks * level);
+    const auto numBlocks = roundToInt(totalBlocks * std::sqrt(level / static_cast<float>(rmsWindowLength)));
 
     const auto blockWidth = width - doubleOuterBorderWidth;
     const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks);

@@ -19,7 +19,7 @@ class LevelMeter : public Component,
                    public Timer
 {
 public:
-    LevelMeter(float&);
+    LevelMeter(float&,int&);
 
     ~LevelMeter();
 
@@ -31,6 +31,6 @@ public:
 
 private:
     float& level;
-
+    int& rmsWindowLength;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

@@ -3,9 +3,9 @@
 
 //==============================================================================
 OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, ParameterHelper& ph,
-                                           MidiKeyboardState& ks, float& level)
+                                           MidiKeyboardState& ks, float& level, int& rmsWindowLength)
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), levelMeter(level)
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), levelMeter(level, rmsWindowLength)
 {
     {
         addAndMakeVisible(standardSlider);
@@ -127,6 +127,4 @@ void OvertoneFilterEditor::resized()
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     keyboard.setBounds(keyboardArea);
-
-    
 }

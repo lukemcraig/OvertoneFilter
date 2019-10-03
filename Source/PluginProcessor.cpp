@@ -49,6 +49,11 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
 
     wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
     wetMix.clear();
+    //--------
+    rmsWindow.resize(static_cast<int>(sampleRate * .4));
+    rmsWindowLength = rmsWindow.size();
+    rmsWindowRead = 0;
+    rmsWindowWrite = 0;
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()
@@ -143,6 +148,24 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+    // input rms
+    if (channel == 0)
+    {
+        for (auto sample = 0; sample < subBlockSize; ++sample)
+        {
+            auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
+            runningSum += squaredSample;
+            rmsWindow[rmsWindowWrite] = squaredSample;
+            ++rmsWindowWrite;
+            if (rmsWindowWrite == rmsWindowLength)
+            {
+                rmsWindowWrite = 0;
+            }
+            // remove the oldest sample from the total
+            runningSum -= rmsWindow[rmsWindowWrite];
+        }
+    }
+
     //TODO this isn't called per sample so need to skip
     const auto resonance = parameterHelper.getQ(channel);
     for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
@@ -175,13 +198,12 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    // channels that didn't contain input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
+
+    auto minMax = buffer.findMinMax(0, 0, buffer.getNumSamples());
+    level = jmax(abs(minMax.getStart()), minMax.getEnd());
 
     parameterHelper.updateSmoothers();
 
@@ -210,9 +232,6 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
             processSubBlock(buffer, midiMessages, samplesLeft, channel, blockChannel, startSample);
         }
     }
-
-    auto minMax = buffer.findMinMax(0, 0, buffer.getNumSamples());
-    level = jmax(abs(minMax.getStart()), minMax.getEnd());
 }
 
 //==============================================================================
@@ -223,7 +242,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, level);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, runningSum, rmsWindowLength);
 }
 
 //==============================================================================

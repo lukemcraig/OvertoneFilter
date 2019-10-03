@@ -93,7 +93,13 @@ private:
     std::vector<float> filterCutoff{};
 
     AudioBuffer<float> wetMix;
+    //==============================================================================
     float level{};
+    std::vector<float> rmsWindow{};
+    int rmsWindowLength{};
+    int rmsWindowRead{};
+    int rmsWindowWrite{};
+    float runningSum{};
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)
 };
