@@ -43,15 +43,24 @@ private:
     std::unique_ptr<SliderAttachment> qAttachment;
     Label qLabel;
 
-    Slider gainSlider;
-    std::unique_ptr<SliderAttachment> gainAttachment;
-    Label gainLabel;
-
     Slider wetDrySlider;
     std::unique_ptr<SliderAttachment> wetDryAttachment;
     Label wetDryLabel;
 
     // -----
+    Slider inputGainSlider;
+    std::unique_ptr<SliderAttachment> inputGainAttachment;
+    Label inputGainLabel;
+
+    Slider wetGainSlider;
+    std::unique_ptr<SliderAttachment> wetGainAttachment;
+    Label wetGainLabel;
+
+    Slider outputGainSlider;
+    std::unique_ptr<SliderAttachment> outputGainAttachment;
+    Label outputGainLabel;
+    // -----
+
     LevelMeter inputMeter;
     LevelMeter wetMixMeter;
     LevelMeter outputMeter;
@@ -60,7 +69,6 @@ private:
     Label wetMixMeterLabel;
     Label outputMeterLabel;
     // -----
-
     DrawablePath bgPath;
     DrawablePath borderPath;
     Label nameLabel;

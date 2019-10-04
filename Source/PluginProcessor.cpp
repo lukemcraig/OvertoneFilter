@@ -168,7 +168,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     }
     for (auto sample = 0; sample < subBlockSize; ++sample)
     {
-        const auto outGain = parameterHelper.getGain(channel);
+        const auto outGain = parameterHelper.getWetGain(channel);
         // apply the output gain to the wet signal
         wetMix.applyGain(channel, startSample + sample, 1, outGain);
         // wetMix meter

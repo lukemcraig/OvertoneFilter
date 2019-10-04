@@ -23,7 +23,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         standardSlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(standardSlider);
         standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
-                                                      parameterHelper.PID_PITCH_STANDARD, standardSlider));
+                                                      parameterHelper.pidPitchStandard, standardSlider));
 
         standardLabel.setText("Pitch Standard", dontSendNotification);
         standardLabel.attachToComponent(&standardSlider, false);
@@ -33,34 +33,59 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         qSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
         qSlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(qSlider);
-        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
+        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
 
         qLabel.setText("Resonance", dontSendNotification);
         qLabel.attachToComponent(&qSlider, false);
         addAndMakeVisible(qLabel);
     }
     {
-        gainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
-        gainSlider.setSliderStyle(Slider::Rotary);
-        addAndMakeVisible(gainSlider);
-        gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN,
-                                                  gainSlider));
-
-        gainLabel.setText("Wet Gain", dontSendNotification);
-        gainLabel.attachToComponent(&gainSlider, false);
-        addAndMakeVisible(gainLabel);
-    }
-    {
         wetDrySlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
         wetDrySlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(wetDrySlider);
-        wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_WETDRY,
+        wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetMix,
                                                     wetDrySlider));
 
         wetDryLabel.setText("Wet/Dry", dontSendNotification);
         wetDryLabel.attachToComponent(&wetDrySlider, false);
         addAndMakeVisible(wetDryLabel);
     }
+
+    {
+        inputGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        inputGainSlider.setSliderStyle(Slider::Rotary);
+        addAndMakeVisible(inputGainSlider);
+        inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
+                                                       inputGainSlider));
+
+        inputGainLabel.setText("Input Gain", dontSendNotification);
+        inputGainLabel.attachToComponent(&inputGainSlider, false);
+        addAndMakeVisible(inputGainLabel);
+    }
+    {
+        wetGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        wetGainSlider.setSliderStyle(Slider::Rotary);
+        addAndMakeVisible(wetGainSlider);
+        wetGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetGain,
+                                                     wetGainSlider));
+
+        wetGainLabel.setText("Wet Gain", dontSendNotification);
+        wetGainLabel.attachToComponent(&wetGainSlider, false);
+        addAndMakeVisible(wetGainLabel);
+    }
+    {
+        //todo
+        outputGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        outputGainSlider.setSliderStyle(Slider::Rotary);
+        addAndMakeVisible(outputGainSlider);
+        outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
+                                                        outputGainSlider));
+
+        outputGainLabel.setText("Wet Gain", dontSendNotification);
+        outputGainLabel.attachToComponent(&outputGainSlider, false);
+        addAndMakeVisible(outputGainLabel);
+    }
+
     {
         borderPath.setFill(Colours::transparentBlack);
         borderPath.setStrokeType(PathStrokeType(1));
@@ -94,7 +119,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
         makeLabelUpperCase(standardLabel);
         makeLabelUpperCase(qLabel);
-        makeLabelUpperCase(gainLabel);
+        makeLabelUpperCase(wetGainLabel);
         makeLabelUpperCase(wetDryLabel);
 
         makeLabelUpperCase(inputMeterLabel);
@@ -180,12 +205,15 @@ void OvertoneFilterEditor::resized()
     auto sliderArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     sliderArea.removeFromTop(16);
 
-    const auto nSliders = 4;
+    const auto nSliders = 6;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
     standardSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
     qSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
-    gainSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
     wetDrySlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+
+    inputGainSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    wetGainSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    outputGainSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     keyboard.setBounds(keyboardArea);

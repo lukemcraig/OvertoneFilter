@@ -40,10 +40,17 @@ public:
 
     void skipPitchStandard(int channel, int numSamples);
 
+    //==============================================================================
     float getQ(int channel);
 
-    float getGain(int channel);
+    //==============================================================================
+    float getWetGain(int channel);
 
+    float getCurrentWetGain(int channel);
+
+    void setCurrentWetGain(int channel, const float currentGain);
+
+    //==============================================================================
     float getWetDry(int channel);
 
     void setWetDryTarget(int channel, float target);
@@ -52,31 +59,28 @@ public:
 
     void setCurrentWetDry(int channel, const float currentWetDry);
 
-    float getCurrentGain(int channel);
-
-    void setCurrentGain(int channel, const float currentGain);
-
     //==============================================================================
     void useNoteOffWetDry(int channel);
 
     void useParamWetDry(int channel);
 
     //==============================================================================
-    //TODO rename these?
-    const String PID_Q = "q";
-    const String PID_GAIN = "gain";
-    const String PID_WETDRY = "wetdry";
-    const String PID_PITCH_STANDARD = "standard";
 
+    const String pidInputGain = "inputGain";
+    const String pidWetGain = "wetGain";
+    const String pidOutputGain = "outputGain";
+    const String pidWetMix = "wetMix";
+    const String pidPitchStandard = "standard";
+    const String pidQ = "q";
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
 
 private:
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
-        std::vector<SmoothFloat> smoothStandard{};
+    std::vector<SmoothFloat> smoothStandard{};
     std::vector<SmoothFloat> smoothQ{};
-    std::vector<SmoothFloat> smoothGain{};
+    std::vector<SmoothFloat> smoothWetGain{};
     std::vector<SmoothFloat> smoothWetDry{};
     //==============================================================================
     std::vector<bool> useInternalWetDry{};
