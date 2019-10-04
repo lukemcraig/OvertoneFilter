@@ -73,7 +73,7 @@ float ParameterHelper::getCurrentPitchStandard(int channel)
     return smoothStandard[channel].getCurrentValue();
 }
 
-void ParameterHelper::skipPitchStandard(int channel,int numSamples)
+void ParameterHelper::skipPitchStandard(int channel, int numSamples)
 {
     smoothStandard[channel].skip(numSamples);
 }
@@ -143,10 +143,18 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            "Wet Dry",
                                                            NormalisableRange<float>(0.0f, 1.0f, 0, 1.0f),
                                                            0.8f));
+    params.push_back(std::make_unique<AudioParameterFloat>(pidInputGain,
+                                                           "In Gain",
+                                                           NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
+                                                           1.0f));
     params.push_back(std::make_unique<AudioParameterFloat>(pidWetGain,
-                                                           "Out Gain",
+                                                           "Wet Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
                                                            0.75f));
+    params.push_back(std::make_unique<AudioParameterFloat>(pidOutputGain,
+                                                           "Out Gain",
+                                                           NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
+                                                           1.0f));
     params.push_back(std::make_unique<AudioParameterFloat>(pidPitchStandard,
                                                            "Pitch Standard",
                                                            NormalisableRange<float>(392.0f, 493.88f, 0, 1.0f),

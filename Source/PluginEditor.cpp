@@ -58,7 +58,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
                                                        inputGainSlider));
 
-        inputGainLabel.setText("Input Gain", dontSendNotification);
+        inputGainLabel.setText("In Gain", dontSendNotification);
         inputGainLabel.attachToComponent(&inputGainSlider, false);
         addAndMakeVisible(inputGainLabel);
     }
@@ -81,7 +81,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
                                                         outputGainSlider));
 
-        outputGainLabel.setText("Wet Gain", dontSendNotification);
+        outputGainLabel.setText("Out Gain", dontSendNotification);
         outputGainLabel.attachToComponent(&outputGainSlider, false);
         addAndMakeVisible(outputGainLabel);
     }
@@ -119,8 +119,10 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
         makeLabelUpperCase(standardLabel);
         makeLabelUpperCase(qLabel);
-        makeLabelUpperCase(wetGainLabel);
         makeLabelUpperCase(wetDryLabel);
+        makeLabelUpperCase(inputGainLabel);
+        makeLabelUpperCase(wetGainLabel);
+        makeLabelUpperCase(outputGainLabel);
 
         makeLabelUpperCase(inputMeterLabel);
         makeLabelUpperCase(wetMixMeterLabel);
