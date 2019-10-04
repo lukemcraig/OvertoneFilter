@@ -31,7 +31,7 @@ void LevelMeter::paint(Graphics& g)
 
     const auto outerCornerSize = 3.0f;
     const auto outerBorderWidth = 2.0f;
-    const auto totalBlocks = 5;
+    const auto totalBlocks = 50;
     const auto spacingFraction = 0.03f;
 
     g.setColour(findColour(ResizableWindow::backgroundColourId));
@@ -45,10 +45,21 @@ void LevelMeter::paint(Graphics& g)
     //auto db = Decibels::gainToDecibels(rms);
     //DBG(db);    
     //const auto numBlocks = roundToInt(totalBlocks * level);
+
+    const auto db = Decibels::gainToDecibels(rms);
+
+
     //const auto numBlocks = roundToInt(totalBlocks * rms);
     //const auto numBlocks = roundToInt(totalBlocks * ((db + 60.0f) / 60.0f));
-    const auto numBlocks = static_cast<int>(std::floor(4.0f - std::log2(std::log2(1.0f / rms))));
-
+    //const auto numBlocks = static_cast<int>(std::floor(4.0f - std::log2(std::log2(1.0f / rms))));
+    DBG(db);
+    //const auto dbGatedPercent = std::max(0.0f, db + 48.0f) / 48.0f;
+    const auto noiseFloor = -60.0f;
+    auto dbGatedPercent = std::max(0.0f, db - noiseFloor);
+    const auto a = (totalBlocks - 1.0f) / (noiseFloor * noiseFloor);
+    dbGatedPercent = static_cast<int>(std::ceil(a * dbGatedPercent * dbGatedPercent));
+    DBG(dbGatedPercent);
+    const auto numBlocks = dbGatedPercent; //roundToInt(totalBlocks * dbGatedPercent);
     const auto blockWidth = width - doubleOuterBorderWidth;
     const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks);
 
