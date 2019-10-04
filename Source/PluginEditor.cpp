@@ -30,7 +30,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
 
-        qLabel.setText("Q", dontSendNotification);
+        qLabel.setText("Resonance", dontSendNotification);
         qLabel.attachToComponent(&qSlider, true);
         addAndMakeVisible(qLabel);
     }
@@ -79,11 +79,24 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(wetMixMeterLabel);
         addAndMakeVisible(outputMeterLabel);
     }
+
+    {
+        makeLabelUpperCase(nameLabel);
+
+        makeLabelUpperCase(standardLabel);
+        makeLabelUpperCase(qLabel);
+        makeLabelUpperCase(gainLabel);
+        makeLabelUpperCase(wetDryLabel);
+
+        makeLabelUpperCase(inputMeterLabel);
+        makeLabelUpperCase(wetMixMeterLabel);
+        makeLabelUpperCase(outputMeterLabel);
+    }
+
     addAndMakeVisible(keyboard);
     setResizable(true, true);
     setResizeLimits(400, 400, 1680, 1050);
     setSize(800, 400);
-    // ----
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -165,4 +178,10 @@ void OvertoneFilterEditor::resized()
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     keyboard.setBounds(keyboardArea);
+}
+
+//==============================================================================
+void OvertoneFilterEditor::makeLabelUpperCase(Label& label)
+{
+    label.setText(label.getText().toUpperCase(), dontSendNotification);
 }

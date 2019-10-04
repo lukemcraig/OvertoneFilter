@@ -11,6 +11,7 @@
 class OvertoneFilterEditor : public AudioProcessorEditor
 {
 public:
+
     OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, LevelMeterAudioSource&,
                          LevelMeterAudioSource&, LevelMeterAudioSource&);
 
@@ -20,6 +21,9 @@ public:
     void paint(Graphics&) override;
 
     void resized() override;
+
+    //==============================================================================
+    void makeLabelUpperCase(Label& label);
 
 private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
