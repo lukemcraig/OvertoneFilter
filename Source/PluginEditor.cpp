@@ -39,7 +39,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN,
                                                   gainSlider));
 
-        gainLabel.setText("Gain", dontSendNotification);
+        gainLabel.setText("Wet Gain", dontSendNotification);
         gainLabel.attachToComponent(&gainSlider, true);
         addAndMakeVisible(gainLabel);
     }
@@ -127,18 +127,21 @@ void OvertoneFilterEditor::resized()
         borderPath.setPath(roundPath);
     }
     area.reduce(10, 10);
-    auto nPanes = 2;
-
-    const auto paneAreaHeight = area.getHeight() / nPanes;
 
     outputMeter.setBounds(area.removeFromRight(60));
     wetMixMeter.setBounds(area.removeFromRight(60));
     inputMeter.setBounds(area.removeFromRight(60));
 
-    standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
-    qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
-    gainSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
-    wetDrySlider.setBounds(area.removeFromTop(60).reduced(100, 0));
+    const auto nPanes = 2;
+    const auto paneAreaHeight = area.getHeight() / nPanes;
+
+    auto sliderArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
+    const auto nSliders = 4;
+    auto sliderHeight = sliderArea.getHeight()/nSliders;
+    standardSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
+    qSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
+    gainSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
+    wetDrySlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     keyboard.setBounds(keyboardArea);

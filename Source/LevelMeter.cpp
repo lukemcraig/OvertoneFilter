@@ -44,10 +44,11 @@ void LevelMeter::paint(Graphics& g)
     const auto noiseFloor = -60.0f;
     const auto a = (totalBlocks - 1.0f) / (noiseFloor * noiseFloor);
     const auto dbGated = std::max(0.0f, db - noiseFloor);
+
     const auto numBlocks = static_cast<int>(std::ceil(a * dbGated * dbGated));
+
     const auto blockWidth = width - doubleOuterBorderWidth;
     const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks);
-
     const auto blockRectHeight = (1.0f - 2.0f * spacingFraction) * blockHeight;
     const auto blockRectSpacing = spacingFraction * blockHeight;
 
