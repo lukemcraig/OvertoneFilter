@@ -50,10 +50,12 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
     wetMix.clear();
     //--------
-    rmsWindow.resize(static_cast<int>(sampleRate * .4));
+    rmsWindow.resize(static_cast<int>(sampleRate * .1));
     rmsWindowLength = rmsWindow.size();
     rmsWindowRead = 0;
     rmsWindowWrite = 0;
+    //--------
+    levelMeterAudioSource.prepare(0.010f, sampleRate);
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()
@@ -153,7 +155,9 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     {
         for (auto sample = 0; sample < subBlockSize; ++sample)
         {
-            auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
+            const auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
+            levelMeterAudioSource.pushSample(squaredSample);
+            //-----
             runningSum += squaredSample;
             rmsWindow[rmsWindowWrite] = squaredSample;
             ++rmsWindowWrite;
@@ -242,7 +246,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, runningSum, rmsWindowLength);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, levelMeterAudioSource);
 }
 
 //==============================================================================

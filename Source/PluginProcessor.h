@@ -2,6 +2,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ParameterHelper.h"
+#include "LevelMeterAudioSource.h"
 
 //==============================================================================
 /**
@@ -94,6 +95,7 @@ private:
 
     AudioBuffer<float> wetMix;
     //==============================================================================
+    LevelMeterAudioSource levelMeterAudioSource;
     float level{};
     std::vector<float> rmsWindow{};
     int rmsWindowLength{};

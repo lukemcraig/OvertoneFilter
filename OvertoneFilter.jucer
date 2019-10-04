@@ -10,6 +10,10 @@
               pluginManufacturerCode="LMCA" pluginCode="LCOF" aaxIdentifier="com.lukemcraig.overtonefilter">
   <MAINGROUP id="uOFHnM" name="Overtone Filter">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
+      <FILE id="GNIWGQ" name="LevelMeterAudioSource.cpp" compile="1" resource="0"
+            file="Source/LevelMeterAudioSource.cpp"/>
+      <FILE id="SFq2od" name="LevelMeterAudioSource.h" compile="0" resource="0"
+            file="Source/LevelMeterAudioSource.h"/>
       <FILE id="YSeQk5" name="LevelMeter.cpp" compile="1" resource="0" file="Source/LevelMeter.cpp"/>
       <FILE id="UbNUYI" name="LevelMeter.h" compile="0" resource="0" file="Source/LevelMeter.h"/>
       <FILE id="lCTtY5" name="MyMidiKeyboardComponent.cpp" compile="1" resource="0"

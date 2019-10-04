@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LevelMeterAudioSource.h"
 
 //==============================================================================
 /*
@@ -19,7 +20,7 @@ class LevelMeter : public Component,
                    public Timer
 {
 public:
-    LevelMeter(float&,int&);
+    LevelMeter(LevelMeterAudioSource&);
 
     ~LevelMeter();
 
@@ -30,7 +31,8 @@ public:
     void timerCallback() override;
 
 private:
-    float& level;
-    int& rmsWindowLength;
+    LevelMeterAudioSource& levelMeterAudioSource;
+    //float& level;
+    //int& rmsWindowLength;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

@@ -3,9 +3,9 @@
 
 //==============================================================================
 OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, ParameterHelper& ph,
-                                           MidiKeyboardState& ks, float& level, int& rmsWindowLength)
+                                           MidiKeyboardState& ks, LevelMeterAudioSource& levelMeterAudioSource)
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), levelMeter(level, rmsWindowLength)
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), levelMeter(levelMeterAudioSource)
 {
     {
         addAndMakeVisible(standardSlider);

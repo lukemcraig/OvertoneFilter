@@ -12,9 +12,9 @@
 #include "LevelMeter.h"
 
 //==============================================================================
-LevelMeter::LevelMeter(float& l, int& rmsWindowLength) : level(l), rmsWindowLength(rmsWindowLength)
+LevelMeter::LevelMeter(LevelMeterAudioSource& lmas) : levelMeterAudioSource(lmas)
 {
-    startTimer(100);
+    startTimer(10);
 }
 
 LevelMeter::~LevelMeter()
@@ -38,10 +38,13 @@ void LevelMeter::paint(Graphics& g)
     g.fillRoundedRectangle(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), outerCornerSize);
 
     const auto doubleOuterBorderWidth = 2.0f * outerBorderWidth;
-    const auto rms = 1.4125375446227544f * std::sqrt(level / static_cast<float>(rmsWindowLength));
+
+    const auto rms = 1.4125375446227544f * levelMeterAudioSource.getLevel();
+    DBG(rms);
+    //const auto rms = 1.4125375446227544f * std::sqrt(level / static_cast<float>(rmsWindowLength));
     //auto db = Decibels::gainToDecibels(rms);
     //DBG(db);    
-
+    //const auto numBlocks = roundToInt(totalBlocks * level);
     //const auto numBlocks = roundToInt(totalBlocks * rms);
     //const auto numBlocks = roundToInt(totalBlocks * ((db + 60.0f) / 60.0f));
     const auto numBlocks = static_cast<int>(std::floor(4.0f - std::log2(std::log2(1.0f / rms))));
