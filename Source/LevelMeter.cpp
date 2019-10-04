@@ -12,7 +12,7 @@
 #include "LevelMeter.h"
 
 //==============================================================================
-LevelMeter::LevelMeter(LevelMeterAudioSource& lmas) : levelMeterAudioSource(lmas)
+LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, Colour c) : levelMeterAudioSource(lmas), clipColour(c)
 {
     startTimer(10);
 }
@@ -60,7 +60,7 @@ void LevelMeter::paint(Graphics& g)
         if (i >= numBlocks)
             g.setColour(c.withAlpha(0.5f));
         else
-            g.setColour(i < totalBlocks - 1 ? c : Colours::red);
+            g.setColour(i < totalBlocks - 1 ? c : clipColour);
 
         g.fillRoundedRectangle(outerBorderWidth,
                                outerBorderWidth + ((totalBlocks - i - 1) * blockHeight) + blockRectSpacing,

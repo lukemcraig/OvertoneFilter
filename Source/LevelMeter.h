@@ -20,7 +20,7 @@ class LevelMeter : public Component,
                    public Timer
 {
 public:
-    LevelMeter(LevelMeterAudioSource&);
+    LevelMeter(LevelMeterAudioSource&, Colour c = Colours::red);
 
     ~LevelMeter();
 
@@ -32,6 +32,7 @@ public:
 
 private:
     LevelMeterAudioSource& levelMeterAudioSource;
+    Colour clipColour;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

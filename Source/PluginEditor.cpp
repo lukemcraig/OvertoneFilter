@@ -13,8 +13,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       parameterHelper(ph),
       keyboardState(ks),
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard),
-      inputMeter(inputLevel),
-      wetMixMeter(wetMixLevel),
+      inputMeter(inputLevel, Colours::blueviolet),
+      wetMixMeter(wetMixLevel, Colours::blueviolet),
       outputMeter(outputLevel)
 {
     {
