@@ -64,8 +64,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         addAndMakeVisible(inputMeter);
-        addAndMakeVisible(outputMeter);
         addAndMakeVisible(wetMixMeter);
+        addAndMakeVisible(outputMeter);
     }
     addAndMakeVisible(keyboard);
     setResizable(true, true);
@@ -131,9 +131,9 @@ void OvertoneFilterEditor::resized()
 
     const auto paneAreaHeight = area.getHeight() / nPanes;
 
-    inputMeter.setBounds(area.removeFromRight(60));
-    wetMixMeter.setBounds(area.removeFromRight(60));
     outputMeter.setBounds(area.removeFromRight(60));
+    wetMixMeter.setBounds(area.removeFromRight(60));
+    inputMeter.setBounds(area.removeFromRight(60));
 
     standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
     qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));

@@ -27,7 +27,7 @@ void LevelMeterAudioSource::prepare(float timeConstant, float sampleRate)
 
 void LevelMeterAudioSource::pushSample(float sample)
 {
-    yPrevious = alpha * yPrevious + (1.0f - alpha) * sample;
+    yPrevious = alpha * yPrevious + (1.0f - alpha) * (sample*sample);
 }
 
 float LevelMeterAudioSource::getLevel() const
