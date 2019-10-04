@@ -32,7 +32,6 @@ public:
 
 private:
     LevelMeterAudioSource& levelMeterAudioSource;
-    //float& level;
-    //int& rmsWindowLength;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

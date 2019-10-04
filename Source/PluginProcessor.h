@@ -95,13 +95,8 @@ private:
 
     AudioBuffer<float> wetMix;
     //==============================================================================
-    LevelMeterAudioSource levelMeterAudioSource;
-    float level{};
-    std::vector<float> rmsWindow{};
-    int rmsWindowLength{};
-    int rmsWindowRead{};
-    int rmsWindowWrite{};
-    float runningSum{};
+    LevelMeterAudioSource inputLevel;
+    LevelMeterAudioSource outputLevel;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)
 };

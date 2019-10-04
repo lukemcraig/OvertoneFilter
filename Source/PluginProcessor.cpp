@@ -50,12 +50,7 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
     wetMix.clear();
     //--------
-    rmsWindow.resize(static_cast<int>(sampleRate * .1));
-    rmsWindowLength = rmsWindow.size();
-    rmsWindowRead = 0;
-    rmsWindowWrite = 0;
-    //--------
-    levelMeterAudioSource.prepare(0.010f, sampleRate);
+    inputLevel.prepare(0.010f, sampleRate);
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()
@@ -150,23 +145,13 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
-    // input rms
+    // input meter
     if (channel == 0)
     {
         for (auto sample = 0; sample < subBlockSize; ++sample)
         {
             const auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
-            levelMeterAudioSource.pushSample(squaredSample);
-            //-----
-            runningSum += squaredSample;
-            rmsWindow[rmsWindowWrite] = squaredSample;
-            ++rmsWindowWrite;
-            if (rmsWindowWrite == rmsWindowLength)
-            {
-                rmsWindowWrite = 0;
-            }
-            // remove the oldest sample from the total
-            runningSum -= rmsWindow[rmsWindowWrite];
+            inputLevel.pushSample(squaredSample);            
         }
     }
 
@@ -206,9 +191,6 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
-    auto minMax = buffer.findMinMax(0, 0, buffer.getNumSamples());
-    level = jmax(abs(minMax.getStart()), minMax.getEnd());
-
     parameterHelper.updateSmoothers();
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
@@ -246,7 +228,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, levelMeterAudioSource);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel);
 }
 
 //==============================================================================
