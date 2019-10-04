@@ -17,39 +17,48 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       wetMixMeter(wetMixLevel, Colours::blueviolet),
       outputMeter(outputLevel)
 {
+    const auto textEntryBoxWidth = 64;
     {
+        standardSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        standardSlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(standardSlider);
         standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
                                                       parameterHelper.PID_PITCH_STANDARD, standardSlider));
 
         standardLabel.setText("Pitch Standard", dontSendNotification);
-        standardLabel.attachToComponent(&standardSlider, true);
+        standardLabel.attachToComponent(&standardSlider, false);
         addAndMakeVisible(standardLabel);
     }
     {
+        qSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        qSlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
 
         qLabel.setText("Resonance", dontSendNotification);
-        qLabel.attachToComponent(&qSlider, true);
+        qLabel.attachToComponent(&qSlider, false);
         addAndMakeVisible(qLabel);
     }
     {
+        gainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        gainSlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(gainSlider);
         gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN,
                                                   gainSlider));
 
         gainLabel.setText("Wet Gain", dontSendNotification);
-        gainLabel.attachToComponent(&gainSlider, true);
+        gainLabel.attachToComponent(&gainSlider, false);
         addAndMakeVisible(gainLabel);
     }
     {
+        wetDrySlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        wetDrySlider.setSliderStyle(Slider::Rotary);
         addAndMakeVisible(wetDrySlider);
         wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_WETDRY,
                                                     wetDrySlider));
 
         wetDryLabel.setText("Wet/Dry", dontSendNotification);
-        wetDryLabel.attachToComponent(&wetDrySlider, true);
+        wetDryLabel.attachToComponent(&wetDrySlider, false);
         addAndMakeVisible(wetDryLabel);
     }
     {
@@ -169,12 +178,14 @@ void OvertoneFilterEditor::resized()
     const auto paneAreaHeight = area.getHeight() / nPanes;
 
     auto sliderArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
+    sliderArea.removeFromTop(16);
+
     const auto nSliders = 4;
-    auto sliderHeight = sliderArea.getHeight() / nSliders;
-    standardSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
-    qSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
-    gainSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
-    wetDrySlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
+    auto sliderHeight = sliderArea.getWidth() / nSliders;
+    standardSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    qSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    gainSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    wetDrySlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     keyboard.setBounds(keyboardArea);
