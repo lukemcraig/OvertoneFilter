@@ -174,10 +174,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         // wetMix meter
         if (channel == 0)
         {
-            for (auto sample = 0; sample < subBlockSize; ++sample)
-            {
-                wetMixLevel.pushSample(subBlock.getSample(0, sample));
-            }
+            wetMixLevel.pushSample(subBlock.getSample(0, sample));
         }
 
         const auto wetDry = parameterHelper.getWetDry(channel);
@@ -190,10 +187,8 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         if (channel == 0)
         {
             auto brp = buffer.getReadPointer(0);
-            for (auto sample = 0; sample < subBlockSize; ++sample)
-            {
-                outputLevel.pushSample(brp[startSample+sample]);
-            }
+
+            outputLevel.pushSample(brp[startSample + sample]);
         }
     }
     parameterHelper.skipPitchStandard(channel, subBlockSize);
