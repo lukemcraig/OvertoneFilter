@@ -51,6 +51,7 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     wetMix.clear();
     //--------
     inputLevel.prepare(0.010f, sampleRate);
+    outputLevel.prepare(0.010f, sampleRate);
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()
@@ -151,7 +152,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         for (auto sample = 0; sample < subBlockSize; ++sample)
         {
             const auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
-            inputLevel.pushSample(squaredSample);            
+            inputLevel.pushSample(squaredSample);
         }
     }
 
@@ -170,6 +171,15 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         const auto outGain = parameterHelper.getGain(channel);
         // apply the output gain to the wet signal
         wetMix.applyGain(channel, startSample + sample, 1, outGain);
+        // output meter
+        if (channel == 0)
+        {
+            for (auto sample = 0; sample < subBlockSize; ++sample)
+            {
+                const auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
+                outputLevel.pushSample(squaredSample);
+            }
+        }
 
         const auto wetDry = parameterHelper.getWetDry(channel);
         // blend the wet mix and the dry mix
@@ -228,7 +238,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, outputLevel);
 }
 
 //==============================================================================

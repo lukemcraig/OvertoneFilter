@@ -3,9 +3,10 @@
 
 //==============================================================================
 OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, ParameterHelper& ph,
-                                           MidiKeyboardState& ks, LevelMeterAudioSource& levelMeterAudioSource)
+                                           MidiKeyboardState& ks, LevelMeterAudioSource& inputLevel,
+                                           LevelMeterAudioSource& outputLevel)
     : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), levelMeter(levelMeterAudioSource)
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), inputMeter(inputLevel), outputMeter(outputLevel)
 {
     {
         addAndMakeVisible(standardSlider);
@@ -52,7 +53,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, Para
         nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
         addAndMakeVisible(nameLabel);
     }
-    addAndMakeVisible(levelMeter);
+    addAndMakeVisible(inputMeter);
+    addAndMakeVisible(outputMeter);
     addAndMakeVisible(keyboard);
 
     setResizable(true, true);
@@ -118,7 +120,8 @@ void OvertoneFilterEditor::resized()
 
     const auto paneAreaHeight = area.getHeight() / nPanes;
 
-    levelMeter.setBounds(area.removeFromLeft(60));
+    inputMeter.setBounds(area.removeFromLeft(60));
+    outputMeter.setBounds(area.removeFromRight(60));
 
     standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
     qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));

@@ -11,7 +11,8 @@
 class OvertoneFilterEditor : public AudioProcessorEditor
 {
 public:
-    OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, LevelMeterAudioSource&);
+    OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, LevelMeterAudioSource&,
+                         LevelMeterAudioSource&);
 
     ~OvertoneFilterEditor();
 
@@ -47,8 +48,8 @@ private:
     Label wetDryLabel;
 
     // -----
-    LevelMeter levelMeter;
-
+    LevelMeter inputMeter;
+     LevelMeter outputMeter;
     // -----
 
     DrawablePath bgPath;

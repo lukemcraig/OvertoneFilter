@@ -23,9 +23,10 @@ public:
 
     void pushSample(float sample);
 
-    float getLevel() const { return std::sqrt(yPrevious); }
+    float getLevel() const;
 
 private:
+    bool prepared{};
     float alpha{};
     float yPrevious{};
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeterAudioSource)
