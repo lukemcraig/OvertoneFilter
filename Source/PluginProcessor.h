@@ -96,6 +96,7 @@ private:
     AudioBuffer<float> wetMix;
     //==============================================================================
     LevelMeterAudioSource inputLevel;
+    LevelMeterAudioSource wetMixLevel;
     LevelMeterAudioSource outputLevel;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)

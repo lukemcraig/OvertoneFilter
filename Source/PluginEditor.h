@@ -12,7 +12,7 @@ class OvertoneFilterEditor : public AudioProcessorEditor
 {
 public:
     OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, LevelMeterAudioSource&,
-                         LevelMeterAudioSource&);
+                         LevelMeterAudioSource&, LevelMeterAudioSource&);
 
     ~OvertoneFilterEditor();
 
@@ -49,7 +49,8 @@ private:
 
     // -----
     LevelMeter inputMeter;
-     LevelMeter outputMeter;
+    LevelMeter wetMixMeter;
+    LevelMeter outputMeter;
     // -----
 
     DrawablePath bgPath;

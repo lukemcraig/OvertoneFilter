@@ -51,6 +51,7 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     wetMix.clear();
     //--------
     inputLevel.prepare(0.010f, sampleRate);
+    wetMixLevel.prepare(0.010f, sampleRate);
     outputLevel.prepare(0.010f, sampleRate);
 }
 
@@ -171,6 +172,22 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         const auto outGain = parameterHelper.getGain(channel);
         // apply the output gain to the wet signal
         wetMix.applyGain(channel, startSample + sample, 1, outGain);
+        // wetMix meter
+        if (channel == 0)
+        {
+            for (auto sample = 0; sample < subBlockSize; ++sample)
+            {
+                const auto squaredSample = subBlock.getSample(0, sample) * subBlock.getSample(0, sample);
+                wetMixLevel.pushSample(squaredSample);
+            }
+        }
+
+        const auto wetDry = parameterHelper.getWetDry(channel);
+        // blend the wet mix and the dry mix
+        buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
+        buffer.addFrom(channel, startSample + sample, wetMix, channel,
+                       startSample + sample, 1, wetDry);
+
         // output meter
         if (channel == 0)
         {
@@ -180,12 +197,6 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
                 outputLevel.pushSample(squaredSample);
             }
         }
-
-        const auto wetDry = parameterHelper.getWetDry(channel);
-        // blend the wet mix and the dry mix
-        buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
-        buffer.addFrom(channel, startSample + sample, wetMix, channel,
-                       startSample + sample, 1, wetDry);
     }
     parameterHelper.skipPitchStandard(channel, subBlockSize);
 }
@@ -238,7 +249,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, outputLevel);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel,outputLevel);
 }
 
 //==============================================================================

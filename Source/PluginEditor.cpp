@@ -2,11 +2,20 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, ParameterHelper& ph,
-                                           MidiKeyboardState& ks, LevelMeterAudioSource& inputLevel,
+OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
+                                           ParameterHelper& ph,
+                                           MidiKeyboardState& ks,
+                                           LevelMeterAudioSource& inputLevel,
+                                           LevelMeterAudioSource& wetMixLevel,
                                            LevelMeterAudioSource& outputLevel)
-    : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard), inputMeter(inputLevel), outputMeter(outputLevel)
+    : AudioProcessorEditor(&p),
+      processor(p),
+      parameterHelper(ph),
+      keyboardState(ks),
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard),
+      inputMeter(inputLevel),
+      wetMixMeter(wetMixLevel),
+      outputMeter(outputLevel)
 {
     {
         addAndMakeVisible(standardSlider);
@@ -53,10 +62,12 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, Para
         nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
         addAndMakeVisible(nameLabel);
     }
-    addAndMakeVisible(inputMeter);
-    addAndMakeVisible(outputMeter);
+    {
+        addAndMakeVisible(inputMeter);
+        addAndMakeVisible(outputMeter);
+        addAndMakeVisible(wetMixMeter);
+    }
     addAndMakeVisible(keyboard);
-
     setResizable(true, true);
     setResizeLimits(400, 400, 1680, 1050);
     setSize(800, 400);
@@ -120,7 +131,8 @@ void OvertoneFilterEditor::resized()
 
     const auto paneAreaHeight = area.getHeight() / nPanes;
 
-    inputMeter.setBounds(area.removeFromLeft(60));
+    inputMeter.setBounds(area.removeFromRight(60));
+    wetMixMeter.setBounds(area.removeFromRight(60));
     outputMeter.setBounds(area.removeFromRight(60));
 
     standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
