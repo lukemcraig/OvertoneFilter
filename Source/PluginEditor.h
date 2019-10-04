@@ -51,6 +51,10 @@ private:
     LevelMeter inputMeter;
     LevelMeter wetMixMeter;
     LevelMeter outputMeter;
+
+    Label inputMeterLabel;
+    Label wetMixMeterLabel;
+    Label outputMeterLabel;
     // -----
 
     DrawablePath bgPath;

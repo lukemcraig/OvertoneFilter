@@ -66,6 +66,18 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(inputMeter);
         addAndMakeVisible(wetMixMeter);
         addAndMakeVisible(outputMeter);
+
+        inputMeterLabel.setText("Input", dontSendNotification);
+        wetMixMeterLabel.setText("Wet", dontSendNotification);
+        outputMeterLabel.setText("Output", dontSendNotification);
+
+        inputMeterLabel.setJustificationType(Justification::centred);
+        wetMixMeterLabel.setJustificationType(Justification::centred);
+        outputMeterLabel.setJustificationType(Justification::centred);
+
+        addAndMakeVisible(inputMeterLabel);
+        addAndMakeVisible(wetMixMeterLabel);
+        addAndMakeVisible(outputMeterLabel);
     }
     addAndMakeVisible(keyboard);
     setResizable(true, true);
@@ -128,16 +140,24 @@ void OvertoneFilterEditor::resized()
     }
     area.reduce(10, 10);
 
-    outputMeter.setBounds(area.removeFromRight(60));
-    wetMixMeter.setBounds(area.removeFromRight(60));
-    inputMeter.setBounds(area.removeFromRight(60));
+    auto outputMeterArea = area.removeFromRight(60);
+    auto wetMixMeterArea = area.removeFromRight(60);
+    auto inputMeterArea = area.removeFromRight(60);
+
+    outputMeterLabel.setBounds(outputMeterArea.removeFromTop(16));
+    wetMixMeterLabel.setBounds(wetMixMeterArea.removeFromTop(16));
+    inputMeterLabel.setBounds(inputMeterArea.removeFromTop(16));
+
+    outputMeter.setBounds(outputMeterArea);
+    wetMixMeter.setBounds(wetMixMeterArea);
+    inputMeter.setBounds(inputMeterArea);
 
     const auto nPanes = 2;
     const auto paneAreaHeight = area.getHeight() / nPanes;
 
     auto sliderArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     const auto nSliders = 4;
-    auto sliderHeight = sliderArea.getHeight()/nSliders;
+    auto sliderHeight = sliderArea.getHeight() / nSliders;
     standardSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
     qSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
     gainSlider.setBounds(sliderArea.removeFromTop(sliderHeight).reduced(100, 0));
