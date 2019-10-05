@@ -20,7 +20,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     const auto textEntryBoxWidth = 64;
     {
         standardSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
-        standardSlider.setSliderStyle(Slider::Rotary);
+        standardSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         addAndMakeVisible(standardSlider);
         standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
                                                       parameterHelper.pidPitchStandard, standardSlider));
@@ -31,7 +31,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        qSlider.setSliderStyle(Slider::Rotary);
+        qSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         qSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
@@ -42,7 +42,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         wetDrySlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        wetDrySlider.setSliderStyle(Slider::LinearHorizontal);
+        wetDrySlider.setSliderStyle(Slider::LinearVertical);
         wetDrySlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(wetDrySlider);
         wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetMix,
@@ -55,7 +55,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
     {
         inputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        inputGainSlider.setSliderStyle(Slider::Rotary);
+        inputGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         inputGainSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(inputGainSlider);
         inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
@@ -63,7 +63,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         wetGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        wetGainSlider.setSliderStyle(Slider::Rotary);
+        wetGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         wetGainSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(wetGainSlider);
         wetGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetGain,
@@ -71,7 +71,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         outputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        outputGainSlider.setSliderStyle(Slider::Rotary);
+        outputGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         outputGainSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(outputGainSlider);
         outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
@@ -183,30 +183,38 @@ void OvertoneFilterEditor::resized()
     }
     area.reduce(10, 10);
 
-    wetDrySlider.setBounds(area.removeFromTop(64));
+    auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
+    auto rightArea = area;
 
-    auto meterWidth = 128;
+    // right area
 
-    auto outputMeterArea = area.removeFromRight(meterWidth);
-    auto wetMixMeterArea = area.removeFromRight(meterWidth);
-    auto inputMeterArea = area.removeFromRight(meterWidth);
+    auto meterWidth = rightArea.proportionOfWidth(1.0 / 3.0);
+    auto outputMeterArea = rightArea.removeFromRight(meterWidth);
 
+    outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
     outputMeterLabel.setBounds(outputMeterArea.removeFromTop(16));
-    wetMixMeterLabel.setBounds(wetMixMeterArea.removeFromTop(16));
-    inputMeterLabel.setBounds(inputMeterArea.removeFromTop(16));
-
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
-    wetGainSlider.setBounds(wetMixMeterArea.removeFromTop(meterWidth));
-    inputGainSlider.setBounds(inputMeterArea.removeFromTop(meterWidth));
+    outputMeter.setBounds(outputMeterArea.removeFromTop(32));
 
-    outputMeter.setBounds(outputMeterArea);
-    wetMixMeter.setBounds(wetMixMeterArea);
-    inputMeter.setBounds(inputMeterArea);
+    wetDrySlider.setBounds(rightArea.removeFromRight(64).withTrimmedTop(16));
+
+    auto inputMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
+    auto wetMixMeterArea = rightArea;
+
+    inputMeterLabel.setBounds(inputMeterArea.removeFromTop(16));
+    inputMeter.setBounds(inputMeterArea.removeFromBottom(32));
+    inputGainSlider.setBounds(inputMeterArea);
+
+    wetMixMeterLabel.setBounds(wetMixMeterArea.removeFromTop(16));
+    wetMixMeter.setBounds(wetMixMeterArea.removeFromBottom(32));
+    wetGainSlider.setBounds(wetMixMeterArea);
+
+    // left area
 
     const auto nPanes = 2;
-    const auto paneAreaHeight = area.getHeight() / nPanes;
+    const auto paneAreaHeight = leftArea.getHeight() / nPanes;
 
-    auto sliderArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
+    auto sliderArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 10);
     sliderArea.removeFromTop(16);
 
     const auto nSliders = 2;
@@ -214,7 +222,7 @@ void OvertoneFilterEditor::resized()
     standardSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
     qSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
 
-    const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 0);
+    const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
     keyboard.setBounds(keyboardArea);
 }
 
