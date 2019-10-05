@@ -44,6 +44,11 @@ public:
     float getQ(int channel);
 
     //==============================================================================
+    float getInputGain(int channel);
+
+    float getOutGain(int channel);
+
+    //==============================================================================
     float getWetGain(int channel);
 
     float getCurrentWetGain(int channel);
@@ -80,7 +85,9 @@ private:
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
     std::vector<SmoothFloat> smoothStandard{};
     std::vector<SmoothFloat> smoothQ{};
+    std::vector<SmoothFloat> smoothInGain{};
     std::vector<SmoothFloat> smoothWetGain{};
+    std::vector<SmoothFloat> smoothOutGain{};
     std::vector<SmoothFloat> smoothWetDry{};
     //==============================================================================
     std::vector<bool> useInternalWetDry{};

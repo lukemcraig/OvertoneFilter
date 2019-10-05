@@ -58,9 +58,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
                                                        inputGainSlider));
 
-        //inputGainLabel.setText("In Gain", dontSendNotification);
-        //inputGainLabel.attachToComponent(&inputGainSlider, false);
-        //addAndMakeVisible(inputGainLabel);
     }
     {
         wetGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
@@ -69,9 +66,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         wetGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetGain,
                                                      wetGainSlider));
 
-        //wetGainLabel.setText("Wet Gain", dontSendNotification);
-        //wetGainLabel.attachToComponent(&wetGainSlider, false);
-        //addAndMakeVisible(wetGainLabel);
     }
     {
         outputGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
@@ -80,9 +74,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
                                                         outputGainSlider));
 
-        //outputGainLabel.setText("Out Gain", dontSendNotification);
-        //outputGainLabel.attachToComponent(&outputGainSlider, false);
-        //addAndMakeVisible(outputGainLabel);
     }
 
     {

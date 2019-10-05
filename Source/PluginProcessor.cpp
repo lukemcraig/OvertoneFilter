@@ -122,6 +122,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
                                                    dsp::AudioBlock<float> blockChannel,
                                                    int startSample)
 {
+    //todo rename parameters
     {
         MidiBuffer::Iterator iterator(midiMessages);
         iterator.setNextSamplePosition(startSample);
@@ -146,7 +147,14 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     //todo move this out of subblock loop?
     keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
+    // apply gain to the input (wetMix has already been copied, so this doesn't apply to it)
+    for (auto sample = 0; sample < subBlockSize; ++sample)
+    {
+        buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getInputGain(channel));
+    }
+
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+
     // input meter
     if (channel == 0)
     {
@@ -168,9 +176,9 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     }
     for (auto sample = 0; sample < subBlockSize; ++sample)
     {
-        const auto outGain = parameterHelper.getWetGain(channel);
-        // apply the output gain to the wet signal
-        wetMix.applyGain(channel, startSample + sample, 1, outGain);
+        // apply the gain to the wet signal
+        wetMix.applyGain(channel, startSample + sample, 1, parameterHelper.getWetGain(channel));
+
         // wetMix meter
         if (channel == 0)
         {
@@ -183,10 +191,13 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         buffer.addFrom(channel, startSample + sample, wetMix, channel,
                        startSample + sample, 1, wetDry);
 
+        // apply the gain to the blended output signal
+        buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getOutGain(channel));
+
         // output meter
         if (channel == 0)
         {
-            auto brp = buffer.getReadPointer(0);
+            const auto brp = buffer.getReadPointer(0);
 
             outputLevel.pushSample(brp[startSample + sample]);
         }

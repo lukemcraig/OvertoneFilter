@@ -14,7 +14,7 @@
 //==============================================================================
 LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, Colour c) : levelMeterAudioSource(lmas), clipColour(c)
 {
-    startTimer(10);
+    startTimer(50);
 }
 
 LevelMeter::~LevelMeter()
@@ -48,7 +48,7 @@ void LevelMeter::paint(Graphics& g)
     const auto numBlocks = static_cast<int>(std::ceil(a * dbGated * dbGated));
 
     const auto blockWidth = width - doubleOuterBorderWidth;
-    const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks);
+    const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks); 
     const auto blockRectHeight = (1.0f - 2.0f * spacingFraction) * blockHeight;
     const auto blockRectSpacing = spacingFraction * blockHeight;
 

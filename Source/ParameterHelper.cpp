@@ -24,8 +24,12 @@ void ParameterHelper::prepare(const int numChannels)
 {
     smoothStandard.resize(numChannels);
     smoothQ.resize(numChannels);
-    smoothWetGain.resize(numChannels);
     smoothWetDry.resize(numChannels);
+
+    smoothInGain.resize(numChannels);
+    smoothWetGain.resize(numChannels);
+    smoothOutGain.resize(numChannels);
+
     useInternalWetDry.resize(numChannels);
 }
 
@@ -35,9 +39,14 @@ void ParameterHelper::resetSmoothers(const double sampleRate)
         smoother.reset(sampleRate, 0.0);
     for (auto& smoother : smoothQ)
         smoother.reset(sampleRate, 0.0);
+    for (auto& smoother : smoothWetDry)
+        smoother.reset(sampleRate, 0.1);
+
+    for (auto& smoother : smoothInGain)
+        smoother.reset(sampleRate, 0.1);
     for (auto& smoother : smoothWetGain)
         smoother.reset(sampleRate, 0.1);
-    for (auto& smoother : smoothWetDry)
+    for (auto& smoother : smoothOutGain)
         smoother.reset(sampleRate, 0.1);
 }
 
@@ -47,10 +56,15 @@ void ParameterHelper::instantlyUpdateSmoothers()
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidPitchStandard));
     for (auto& smoother : smoothQ)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidQ));
-    for (auto& smoother : smoothWetGain)
-        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidWetGain));
     for (auto& smoother : smoothWetDry)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidWetMix));
+
+    for (auto& smoother : smoothInGain)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidInputGain));
+    for (auto& smoother : smoothWetGain)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidWetGain));
+    for (auto& smoother : smoothOutGain)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidOutputGain));
 }
 
 void ParameterHelper::updateSmoothers()
@@ -59,8 +73,14 @@ void ParameterHelper::updateSmoothers()
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidPitchStandard));
     for (auto& smoother : smoothQ)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidQ));
+
+    for (auto& smoother : smoothInGain)
+        smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidInputGain));
     for (auto& smoother : smoothWetGain)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidWetGain));
+    for (auto& smoother : smoothOutGain)
+        smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidOutputGain));
+
     for (auto i = 0; i < smoothWetDry.size(); ++i)
     {
         if (!useInternalWetDry[i])
@@ -81,6 +101,16 @@ void ParameterHelper::skipPitchStandard(int channel, int numSamples)
 float ParameterHelper::getQ(const int channel)
 {
     return smoothQ[channel].getNextValue();
+}
+
+float ParameterHelper::getInputGain(int channel)
+{
+    return smoothInGain[channel].getNextValue();
+}
+
+float ParameterHelper::getOutGain(int channel)
+{
+     return smoothOutGain[channel].getNextValue();
 }
 
 float ParameterHelper::getWetGain(const int channel)
