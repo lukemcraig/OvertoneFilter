@@ -12,7 +12,7 @@
 #include "LevelMeter.h"
 
 //==============================================================================
-LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, Colour c) : levelMeterAudioSource(lmas), clipColour(c)
+LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, Colour c, int numLEDs) : levelMeterAudioSource(lmas), clipColour(c), numLEDs(numLEDs)
 {
     startTimer(50);
 }
@@ -31,7 +31,6 @@ void LevelMeter::paint(Graphics& g)
 
     const auto outerCornerSize = 3.0f;
     const auto outerBorderWidth = 2.0f;
-    const auto totalBlocks = 32;
     const auto spacingFraction = 0.03f;
 
     g.setColour(findColour(ResizableWindow::backgroundColourId));
@@ -42,13 +41,13 @@ void LevelMeter::paint(Graphics& g)
     const auto rms = 1.4125375446227544f * levelMeterAudioSource.getLevel();
     const auto db = Decibels::gainToDecibels(rms);
     const auto noiseFloor = -60.0f;
-    const auto a = (totalBlocks - 1.0f) / (noiseFloor * noiseFloor);
+    const auto a = (numLEDs - 1.0f) / (noiseFloor * noiseFloor);
     const auto dbGated = std::max(0.0f, db - noiseFloor);
 
     const auto numBlocks = static_cast<int>(std::ceil(a * dbGated * dbGated));
 
     const auto blockWidth = width - doubleOuterBorderWidth;
-    const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(totalBlocks); 
+    const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(numLEDs); 
     const auto blockRectHeight = (1.0f - 2.0f * spacingFraction) * blockHeight;
     const auto blockRectSpacing = spacingFraction * blockHeight;
 
@@ -56,15 +55,15 @@ void LevelMeter::paint(Graphics& g)
 
     const auto c = findColour(Slider::thumbColourId);
 
-    for (auto i = 0; i < totalBlocks; ++i)
+    for (auto i = 0; i < numLEDs; ++i)
     {
         if (i >= numBlocks)
             g.setColour(c.withAlpha(0.5f));
         else
-            g.setColour(i < totalBlocks - 1 ? c : clipColour);
+            g.setColour(i < numLEDs - 1 ? c : clipColour);
 
         g.fillRoundedRectangle(outerBorderWidth,
-                               outerBorderWidth + ((totalBlocks - i - 1) * blockHeight) + blockRectSpacing,
+                               outerBorderWidth + ((numLEDs - i - 1) * blockHeight) + blockRectSpacing,
                                blockWidth,
                                blockRectHeight,
                                blockCornerSize);

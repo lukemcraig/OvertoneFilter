@@ -30,8 +30,9 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(standardLabel);
     }
     {
-        qSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         qSlider.setSliderStyle(Slider::Rotary);
+        qSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(qSlider);
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
 
@@ -40,40 +41,41 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(qLabel);
     }
     {
-        wetDrySlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
-        wetDrySlider.setSliderStyle(Slider::Rotary);
+        wetDrySlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        wetDrySlider.setSliderStyle(Slider::LinearHorizontal);
+        wetDrySlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(wetDrySlider);
         wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetMix,
                                                     wetDrySlider));
 
-        wetDryLabel.setText("Wet/Dry", dontSendNotification);
+        wetDryLabel.setText("Dry/Wet", dontSendNotification);
         wetDryLabel.attachToComponent(&wetDrySlider, false);
         addAndMakeVisible(wetDryLabel);
     }
 
     {
-        inputGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        inputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         inputGainSlider.setSliderStyle(Slider::Rotary);
+        inputGainSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(inputGainSlider);
         inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
                                                        inputGainSlider));
-
     }
     {
-        wetGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        wetGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         wetGainSlider.setSliderStyle(Slider::Rotary);
+        wetGainSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(wetGainSlider);
         wetGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetGain,
                                                      wetGainSlider));
-
     }
     {
-        outputGainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        outputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         outputGainSlider.setSliderStyle(Slider::Rotary);
+        outputGainSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(outputGainSlider);
         outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
                                                         outputGainSlider));
-
     }
 
     {
@@ -91,7 +93,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(wetMixMeter);
         addAndMakeVisible(outputMeter);
 
-        inputMeterLabel.setText("Input", dontSendNotification);
+        inputMeterLabel.setText("Dry", dontSendNotification);
         wetMixMeterLabel.setText("Wet", dontSendNotification);
         outputMeterLabel.setText("Output", dontSendNotification);
 
@@ -141,7 +143,6 @@ void OvertoneFilterEditor::paint(Graphics& g)
 
 void OvertoneFilterEditor::resized()
 {
-
     //TODO clean all this up
     {
         const auto bounds = getBounds().toFloat();
@@ -182,6 +183,8 @@ void OvertoneFilterEditor::resized()
     }
     area.reduce(10, 10);
 
+    wetDrySlider.setBounds(area.removeFromTop(64));
+
     auto meterWidth = 128;
 
     auto outputMeterArea = area.removeFromRight(meterWidth);
@@ -206,11 +209,10 @@ void OvertoneFilterEditor::resized()
     auto sliderArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
     sliderArea.removeFromTop(16);
 
-    const auto nSliders = 3;
+    const auto nSliders = 2;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
     standardSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
     qSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
-    wetDrySlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
 
     const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 0);
     keyboard.setBounds(keyboardArea);
