@@ -41,16 +41,16 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(qLabel);
     }
     {
-        wetDrySlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        wetDrySlider.setSliderStyle(Slider::LinearVertical);
-        wetDrySlider.setPopupDisplayEnabled(true, true, this);
-        addAndMakeVisible(wetDrySlider);
-        wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetMix,
-                                                    wetDrySlider));
+        mixSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        mixSlider.setSliderStyle(Slider::LinearVertical);
+        mixSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(mixSlider);
+        mixAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidMix,
+                                                 mixSlider));
 
-        wetDryLabel.setText("Dry/Wet", dontSendNotification);
-        wetDryLabel.attachToComponent(&wetDrySlider, false);
-        addAndMakeVisible(wetDryLabel);
+        mixLabel.setText("Mix", dontSendNotification);
+        mixLabel.attachToComponent(&mixSlider, false);
+        addAndMakeVisible(mixLabel);
     }
 
     {
@@ -111,7 +111,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
         makeLabelUpperCase(standardLabel);
         makeLabelUpperCase(qLabel);
-        makeLabelUpperCase(wetDryLabel);
+        makeLabelUpperCase(mixLabel);
         makeLabelUpperCase(inputGainLabel);
         makeLabelUpperCase(wetGainLabel);
         makeLabelUpperCase(outputGainLabel);
@@ -188,7 +188,7 @@ void OvertoneFilterEditor::resized()
 
     // right area
 
-    auto meterWidth = rightArea.proportionOfWidth(1.0 / 3.0);
+    auto meterWidth = rightArea.proportionOfWidth(0.5);
     auto outputMeterArea = rightArea.removeFromRight(meterWidth);
 
     outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
@@ -196,10 +196,10 @@ void OvertoneFilterEditor::resized()
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
     outputMeter.setBounds(outputMeterArea.removeFromTop(32));
 
-    wetDrySlider.setBounds(rightArea.removeFromRight(64).withTrimmedTop(16));
+    mixSlider.setBounds(rightArea.removeFromRight(32).withTrimmedTop(16));
 
-    auto inputMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
-    auto wetMixMeterArea = rightArea;
+    auto wetMixMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
+    auto inputMeterArea = rightArea;
 
     inputMeterLabel.setBounds(inputMeterArea.removeFromTop(16));
     inputMeter.setBounds(inputMeterArea.removeFromBottom(32));

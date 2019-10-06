@@ -43,9 +43,9 @@ private:
     std::unique_ptr<SliderAttachment> qAttachment;
     Label qLabel;
 
-    Slider wetDrySlider;
-    std::unique_ptr<SliderAttachment> wetDryAttachment;
-    Label wetDryLabel;
+    Slider mixSlider;
+    std::unique_ptr<SliderAttachment> mixAttachment;
+    Label mixLabel;
 
     // -----
     Slider inputGainSlider;

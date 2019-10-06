@@ -185,7 +185,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
             wetMixLevel.pushSample(subBlock.getSample(0, sample));
         }
 
-        const auto wetDry = parameterHelper.getWetDry(channel);
+        const auto wetDry = parameterHelper.getMix(channel);
         // blend the wet mix and the dry mix
         buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
         buffer.addFrom(channel, startSample + sample, wetMix, channel,

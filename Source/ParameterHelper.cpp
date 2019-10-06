@@ -24,7 +24,7 @@ void ParameterHelper::prepare(const int numChannels)
 {
     smoothStandard.resize(numChannels);
     smoothQ.resize(numChannels);
-    smoothWetDry.resize(numChannels);
+    smoothMix.resize(numChannels);
 
     smoothInGain.resize(numChannels);
     smoothWetGain.resize(numChannels);
@@ -39,7 +39,7 @@ void ParameterHelper::resetSmoothers(const double sampleRate)
         smoother.reset(sampleRate, 0.0);
     for (auto& smoother : smoothQ)
         smoother.reset(sampleRate, 0.0);
-    for (auto& smoother : smoothWetDry)
+    for (auto& smoother : smoothMix)
         smoother.reset(sampleRate, 0.1);
 
     for (auto& smoother : smoothInGain)
@@ -56,8 +56,8 @@ void ParameterHelper::instantlyUpdateSmoothers()
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidPitchStandard));
     for (auto& smoother : smoothQ)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidQ));
-    for (auto& smoother : smoothWetDry)
-        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidWetMix));
+    for (auto& smoother : smoothMix)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidMix));
 
     for (auto& smoother : smoothInGain)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidInputGain));
@@ -81,10 +81,10 @@ void ParameterHelper::updateSmoothers()
     for (auto& smoother : smoothOutGain)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidOutputGain));
 
-    for (auto i = 0; i < smoothWetDry.size(); ++i)
+    for (auto i = 0; i < smoothMix.size(); ++i)
     {
         if (!useInternalWetDry[i])
-            smoothWetDry[i].setTargetValue(*valueTreeState.getRawParameterValue(pidWetMix));
+            smoothMix[i].setTargetValue(*valueTreeState.getRawParameterValue(pidMix));
     }
 }
 
@@ -118,24 +118,24 @@ float ParameterHelper::getWetGain(const int channel)
     return smoothWetGain[channel].getNextValue();
 }
 
-float ParameterHelper::getWetDry(const int channel)
+float ParameterHelper::getMix(const int channel)
 {
-    return smoothWetDry[channel].getNextValue();
+    return smoothMix[channel].getNextValue();
 }
 
-void ParameterHelper::setWetDryTarget(const int channel, const float target)
+void ParameterHelper::setMixTarget(const int channel, const float target)
 {
-    smoothWetDry[channel].setTargetValue(target);
+    smoothMix[channel].setTargetValue(target);
 }
 
-float ParameterHelper::getCurrentWetDry(const int channel)
+float ParameterHelper::getCurrentMix(const int channel)
 {
-    return smoothWetDry[channel].getCurrentValue();
+    return smoothMix[channel].getCurrentValue();
 }
 
-void ParameterHelper::setCurrentWetDry(const int channel, const float currentWetDry)
+void ParameterHelper::setCurrentMix(const int channel, const float currentWetDry)
 {
-    smoothWetDry[channel].setCurrentAndTargetValue(currentWetDry);
+    smoothMix[channel].setCurrentAndTargetValue(currentWetDry);
 }
 
 float ParameterHelper::getCurrentWetGain(const int channel)
@@ -151,13 +151,13 @@ void ParameterHelper::setCurrentWetGain(const int channel, const float currentGa
 void ParameterHelper::useNoteOffWetDry(const int channel)
 {
     useInternalWetDry[channel] = true;
-    setWetDryTarget(channel, 0.0f);
+    setMixTarget(channel, 0.0f);
 }
 
 void ParameterHelper::useParamWetDry(const int channel)
 {
     useInternalWetDry[channel] = false;
-    setWetDryTarget(channel, *valueTreeState.getRawParameterValue(pidWetMix));
+    setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
 }
 
 //==============================================================================
@@ -169,8 +169,8 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            "Resonance",
                                                            NormalisableRange<float>(0.1f, 0.95f, 0, 1.0f),
                                                            0.85f));
-    params.push_back(std::make_unique<AudioParameterFloat>(pidWetMix,
-                                                           "Wet Dry",
+    params.push_back(std::make_unique<AudioParameterFloat>(pidMix,
+                                                           "Mix",
                                                            NormalisableRange<float>(0.0f, 1.0f, 0, 1.0f),
                                                            0.5f));
     params.push_back(std::make_unique<AudioParameterFloat>(pidInputGain,

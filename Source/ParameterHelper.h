@@ -56,13 +56,13 @@ public:
     void setCurrentWetGain(int channel, const float currentGain);
 
     //==============================================================================
-    float getWetDry(int channel);
+    float getMix(int channel);
 
-    void setWetDryTarget(int channel, float target);
+    void setMixTarget(int channel, float target);
 
-    float getCurrentWetDry(int channel);
+    float getCurrentMix(int channel);
 
-    void setCurrentWetDry(int channel, const float currentWetDry);
+    void setCurrentMix(int channel, const float currentWetDry);
 
     //==============================================================================
     void useNoteOffWetDry(int channel);
@@ -74,7 +74,7 @@ public:
     const String pidInputGain = "inputGain";
     const String pidWetGain = "wetGain";
     const String pidOutputGain = "outputGain";
-    const String pidWetMix = "wetMix";
+    const String pidMix = "mix";
     const String pidPitchStandard = "standard";
     const String pidQ = "q";
     //==============================================================================
@@ -88,7 +88,7 @@ private:
     std::vector<SmoothFloat> smoothInGain{};
     std::vector<SmoothFloat> smoothWetGain{};
     std::vector<SmoothFloat> smoothOutGain{};
-    std::vector<SmoothFloat> smoothWetDry{};
+    std::vector<SmoothFloat> smoothMix{};
     //==============================================================================
     std::vector<bool> useInternalWetDry{};
 
