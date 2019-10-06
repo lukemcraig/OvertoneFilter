@@ -12,7 +12,8 @@
 #include "LevelMeter.h"
 
 //==============================================================================
-LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, Colour c, int numLEDs) : levelMeterAudioSource(lmas), clipColour(c), numLEDs(numLEDs)
+LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, Colour c, int numLEDs) : levelMeterAudioSource(lmas), clipColour(c),
+                                                                             numLEDs(numLEDs)
 {
     startTimer(50);
 }
@@ -38,6 +39,8 @@ void LevelMeter::paint(Graphics& g)
 
     const auto doubleOuterBorderWidth = 2.0f * outerBorderWidth;
 
+    auto c = findColour(Slider::thumbColourId);
+
     const auto rms = 1.4125375446227544f * levelMeterAudioSource.getLevel();
     const auto db = Decibels::gainToDecibels(rms);
     const auto noiseFloor = -60.0f;
@@ -45,28 +48,52 @@ void LevelMeter::paint(Graphics& g)
     const auto dbGated = std::max(0.0f, db - noiseFloor);
 
     const auto numBlocks = static_cast<int>(std::ceil(a * dbGated * dbGated));
-
-    const auto blockWidth = width - doubleOuterBorderWidth;
-    const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(numLEDs); 
-    const auto blockRectHeight = (1.0f - 2.0f * spacingFraction) * blockHeight;
-    const auto blockRectSpacing = spacingFraction * blockHeight;
-
-    const auto blockCornerSize = 0.1f * blockWidth;
-
-    const auto c = findColour(Slider::thumbColourId);
-
-    for (auto i = 0; i < numLEDs; ++i)
+    if (height > width)
     {
-        if (i >= numBlocks)
-            g.setColour(c.withAlpha(0.5f));
-        else
-            g.setColour(i < numLEDs - 1 ? c : clipColour);
+        const auto blockWidth = width - doubleOuterBorderWidth;
+        const auto blockHeight = (height - doubleOuterBorderWidth) / static_cast<float>(numLEDs);
+        const auto blockRectHeight = (1.0f - 2.0f * spacingFraction) * blockHeight;
+        const auto blockRectSpacing = spacingFraction * blockHeight;
 
-        g.fillRoundedRectangle(outerBorderWidth,
-                               outerBorderWidth + ((numLEDs - i - 1) * blockHeight) + blockRectSpacing,
-                               blockWidth,
-                               blockRectHeight,
-                               blockCornerSize);
+        const auto blockCornerSize = 0.1f * blockWidth;
+
+        for (auto i = 0; i < numLEDs; ++i)
+        {
+            if (i >= numBlocks)
+                g.setColour(c.withAlpha(0.5f));
+            else
+                g.setColour(i < numLEDs - 1 ? c : clipColour);
+
+            g.fillRoundedRectangle(outerBorderWidth,
+                                   outerBorderWidth + ((numLEDs - i - 1) * blockHeight) + blockRectSpacing,
+                                   blockWidth,
+                                   blockRectHeight,
+                                   blockCornerSize);
+        }
+    }
+    else
+    {
+        const auto blockWidth = (width - doubleOuterBorderWidth) / static_cast<float>(numLEDs);
+        const auto blockHeight = height - doubleOuterBorderWidth;
+
+        const auto blockRectWidth = (1.0f - 2.0f * spacingFraction) * blockWidth;
+        const auto blockRectSpacing = spacingFraction * blockWidth;
+
+        const auto blockCornerSize = 0.1f * blockWidth;
+
+        for (auto i = 0; i < numLEDs; ++i)
+        {
+            if (i >= numBlocks)
+                g.setColour(c.withAlpha(0.5f));
+            else
+                g.setColour(i < numLEDs - 1 ? c : Colours::red);
+
+            g.fillRoundedRectangle(outerBorderWidth + (i * blockWidth) + blockRectSpacing,
+                                   outerBorderWidth,
+                                   blockRectWidth,
+                                   blockHeight,
+                                   blockCornerSize);
+        }
     }
 }
 
