@@ -49,6 +49,10 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
 
     wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
     wetMix.clear();
+    //--------
+    inputLevel.prepare(0.010f, sampleRate);
+    wetMixLevel.prepare(0.010f, sampleRate);
+    outputLevel.prepare(0.010f, sampleRate);
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()
@@ -114,9 +118,11 @@ void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
 }
 
 void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
-                                            const int subBlockSize, int channel, dsp::AudioBlock<float> blockChannel,
-                                            int startSample)
+                                                   const int subBlockSize, int channel,
+                                                   dsp::AudioBlock<float> blockChannel,
+                                                   int startSample)
 {
+    //todo rename parameters
     {
         MidiBuffer::Iterator iterator(midiMessages);
         iterator.setNextSamplePosition(startSample);
@@ -141,7 +147,23 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     //todo move this out of subblock loop?
     keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
 
+    // apply gain to the input (wetMix has already been copied, so this doesn't apply to it)
+    for (auto sample = 0; sample < subBlockSize; ++sample)
+    {
+        buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getInputGain(channel));
+    }
+
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+
+    // input meter
+    if (channel == 0)
+    {
+        for (auto sample = 0; sample < subBlockSize; ++sample)
+        {
+            inputLevel.pushSample(subBlock.getSample(0, sample));
+        }
+    }
+
     //TODO this isn't called per sample so need to skip
     const auto resonance = parameterHelper.getQ(channel);
     for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
@@ -154,15 +176,31 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     }
     for (auto sample = 0; sample < subBlockSize; ++sample)
     {
-        const auto outGain = parameterHelper.getGain(channel);
-        // apply the output gain to the wet signal
-        wetMix.applyGain(channel, startSample + sample, 1, outGain);
+        // apply the gain to the wet signal
+        wetMix.applyGain(channel, startSample + sample, 1, parameterHelper.getWetGain(channel));
 
-        const auto wetDry = parameterHelper.getWetDry(channel);
+        // wetMix meter
+        if (channel == 0)
+        {
+            wetMixLevel.pushSample(subBlock.getSample(0, sample));
+        }
+
+        const auto wetDry = parameterHelper.getMix(channel);
         // blend the wet mix and the dry mix
         buffer.applyGain(channel, startSample + sample, 1, 1.0f - wetDry);
         buffer.addFrom(channel, startSample + sample, wetMix, channel,
                        startSample + sample, 1, wetDry);
+
+        // apply the gain to the blended output signal
+        buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getOutGain(channel));
+
+        // output meter
+        if (channel == 0)
+        {
+            const auto brp = buffer.getReadPointer(0);
+
+            outputLevel.pushSample(brp[startSample + sample]);
+        }
     }
     parameterHelper.skipPitchStandard(channel, subBlockSize);
 }
@@ -174,11 +212,7 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    // channels that didn't contain input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
@@ -219,7 +253,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel);
 }
 
 //==============================================================================

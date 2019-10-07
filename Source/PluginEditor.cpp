@@ -2,64 +2,129 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p, ParameterHelper& ph,
-                                           MidiKeyboardState& ks)
-    : AudioProcessorEditor(&p), processor(p), parameterHelper(ph), keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard)
+OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
+                                           ParameterHelper& ph,
+                                           MidiKeyboardState& ks,
+                                           LevelMeterAudioSource& inputLevel,
+                                           LevelMeterAudioSource& wetMixLevel,
+                                           LevelMeterAudioSource& outputLevel)
+    : AudioProcessorEditor(&p),
+      processor(p),
+      parameterHelper(ph),
+      keyboardState(ks),
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard),
+      inputMeter(inputLevel, Colours::blueviolet),
+      wetMixMeter(wetMixLevel, Colours::blueviolet),
+      outputMeter(outputLevel)
 {
+    const auto textEntryBoxWidth = 64;
     {
+        standardSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
+        standardSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         addAndMakeVisible(standardSlider);
         standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
-                                                      parameterHelper.PID_PITCH_STANDARD, standardSlider));
+                                                      parameterHelper.pidPitchStandard, standardSlider));
 
         standardLabel.setText("Pitch Standard", dontSendNotification);
-        standardLabel.attachToComponent(&standardSlider, true);
+        standardLabel.attachToComponent(&standardSlider, false);
         addAndMakeVisible(standardLabel);
     }
     {
+        qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        qSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        qSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(qSlider);
-        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_Q, qSlider));
+        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
 
-        qLabel.setText("Q", dontSendNotification);
-        qLabel.attachToComponent(&qSlider, true);
+        qLabel.setText("Resonance", dontSendNotification);
+        qLabel.attachToComponent(&qSlider, false);
         addAndMakeVisible(qLabel);
     }
     {
-        addAndMakeVisible(gainSlider);
-        gainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_GAIN,
-                                                  gainSlider));
+        mixSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        mixSlider.setSliderStyle(Slider::LinearVertical);
+        mixSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(mixSlider);
+        mixAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidMix,
+                                                 mixSlider));
 
-        gainLabel.setText("Gain", dontSendNotification);
-        gainLabel.attachToComponent(&gainSlider, true);
-        addAndMakeVisible(gainLabel);
+        mixLabel.setText("Mix", dontSendNotification);
+        mixLabel.attachToComponent(&mixSlider, false);
+        addAndMakeVisible(mixLabel);
+    }
+
+    {
+        inputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        inputGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        inputGainSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(inputGainSlider);
+        inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
+                                                       inputGainSlider));
     }
     {
-        addAndMakeVisible(wetDrySlider);
-        wetDryAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.PID_WETDRY,
-                                                    wetDrySlider));
-
-        wetDryLabel.setText("Wet/Dry", dontSendNotification);
-        wetDryLabel.attachToComponent(&wetDrySlider, true);
-        addAndMakeVisible(wetDryLabel);
+        wetGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        wetGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        wetGainSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(wetGainSlider);
+        wetGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidWetGain,
+                                                     wetGainSlider));
+    }
+    {
+        outputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        outputGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        outputGainSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(outputGainSlider);
+        outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
+                                                        outputGainSlider));
     }
 
-    // ----
     {
         borderPath.setFill(Colours::transparentBlack);
         borderPath.setStrokeType(PathStrokeType(1));
         borderPath.setStrokeFill(Colours::white);
         addAndMakeVisible(borderPath);
     }
+    {
+        nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
+        addAndMakeVisible(nameLabel);
+    }
+    {
+        addAndMakeVisible(inputMeter);
+        addAndMakeVisible(wetMixMeter);
+        addAndMakeVisible(outputMeter);
 
-    nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
-    addAndMakeVisible(nameLabel);
+        inputMeterLabel.setText("Dry", dontSendNotification);
+        wetMixMeterLabel.setText("Wet", dontSendNotification);
+        outputMeterLabel.setText("Output", dontSendNotification);
+
+        inputMeterLabel.setJustificationType(Justification::centred);
+        wetMixMeterLabel.setJustificationType(Justification::centred);
+        outputMeterLabel.setJustificationType(Justification::centred);
+
+        addAndMakeVisible(inputMeterLabel);
+        addAndMakeVisible(wetMixMeterLabel);
+        addAndMakeVisible(outputMeterLabel);
+    }
+
+    {
+        makeLabelUpperCase(nameLabel);
+
+        makeLabelUpperCase(standardLabel);
+        makeLabelUpperCase(qLabel);
+        makeLabelUpperCase(mixLabel);
+        makeLabelUpperCase(inputGainLabel);
+        makeLabelUpperCase(wetGainLabel);
+        makeLabelUpperCase(outputGainLabel);
+
+        makeLabelUpperCase(inputMeterLabel);
+        makeLabelUpperCase(wetMixMeterLabel);
+        makeLabelUpperCase(outputMeterLabel);
+    }
 
     addAndMakeVisible(keyboard);
-
     setResizable(true, true);
     setResizeLimits(400, 400, 1680, 1050);
-    setSize(800, 400);
-    // ----
+    setSize(1400, 400);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -88,6 +153,8 @@ void OvertoneFilterEditor::resized()
     }
 
     auto area = getLocalBounds();
+    DBG(area.getWidth());
+    DBG(area.getHeight());
     // margins
     area.reduce(10, 10);
 
@@ -115,15 +182,52 @@ void OvertoneFilterEditor::resized()
         borderPath.setPath(roundPath);
     }
     area.reduce(10, 10);
-    auto nPanes = 2;
-   
-    const auto paneAreaHeight = area.getHeight() / nPanes;
 
-    standardSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
-    qSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
-    gainSlider.setBounds(area.removeFromTop(60).reduced(100, 0));
-    wetDrySlider.setBounds(area.removeFromTop(60).reduced(100, 0));
+    auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
+    auto rightArea = area;
 
-    const auto keyboardArea = area.removeFromTop(paneAreaHeight).reduced(10, 10);
+    // right area
+
+    auto meterWidth = rightArea.proportionOfWidth(0.5);
+    auto outputMeterArea = rightArea.removeFromRight(meterWidth);
+
+    outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
+    outputMeterLabel.setBounds(outputMeterArea.removeFromTop(16));
+    outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
+    outputMeter.setBounds(outputMeterArea.removeFromTop(32));
+
+    mixSlider.setBounds(rightArea.removeFromRight(32).withTrimmedTop(16));
+
+    auto wetMixMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
+    auto inputMeterArea = rightArea;
+
+    inputMeterLabel.setBounds(inputMeterArea.removeFromTop(16));
+    inputMeter.setBounds(inputMeterArea.removeFromBottom(32));
+    inputGainSlider.setBounds(inputMeterArea);
+
+    wetMixMeterLabel.setBounds(wetMixMeterArea.removeFromTop(16));
+    wetMixMeter.setBounds(wetMixMeterArea.removeFromBottom(32));
+    wetGainSlider.setBounds(wetMixMeterArea);
+
+    // left area
+
+    const auto nPanes = 2;
+    const auto paneAreaHeight = leftArea.getHeight() / nPanes;
+
+    auto sliderArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 10);
+    sliderArea.removeFromTop(16);
+
+    const auto nSliders = 2;
+    auto sliderHeight = sliderArea.getWidth() / nSliders;
+    standardSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    qSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+
+    const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
     keyboard.setBounds(keyboardArea);
+}
+
+//==============================================================================
+void OvertoneFilterEditor::makeLabelUpperCase(Label& label)
+{
+    label.setText(label.getText().toUpperCase(), dontSendNotification);
 }

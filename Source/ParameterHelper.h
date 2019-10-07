@@ -40,21 +40,29 @@ public:
 
     void skipPitchStandard(int channel, int numSamples);
 
+    //==============================================================================
     float getQ(int channel);
 
-    float getGain(int channel);
+    //==============================================================================
+    float getInputGain(int channel);
 
-    float getWetDry(int channel);
+    float getOutGain(int channel);
 
-    void setWetDryTarget(int channel, float target);
+    //==============================================================================
+    float getWetGain(int channel);
 
-    float getCurrentWetDry(int channel);
+    float getCurrentWetGain(int channel);
 
-    void setCurrentWetDry(int channel, const float currentWetDry);
+    void setCurrentWetGain(int channel, const float currentGain);
 
-    float getCurrentGain(int channel);
+    //==============================================================================
+    float getMix(int channel);
 
-    void setCurrentGain(int channel, const float currentGain);
+    void setMixTarget(int channel, float target);
+
+    float getCurrentMix(int channel);
+
+    void setCurrentMix(int channel, const float currentWetDry);
 
     //==============================================================================
     void useNoteOffWetDry(int channel);
@@ -62,22 +70,25 @@ public:
     void useParamWetDry(int channel);
 
     //==============================================================================
-    //TODO rename these?
-    const String PID_Q = "q";
-    const String PID_GAIN = "gain";
-    const String PID_WETDRY = "wetdry";
-    const String PID_PITCH_STANDARD = "standard";
 
+    const String pidInputGain = "inputGain";
+    const String pidWetGain = "wetGain";
+    const String pidOutputGain = "outputGain";
+    const String pidMix = "mix";
+    const String pidPitchStandard = "standard";
+    const String pidQ = "q";
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
 
 private:
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
-        std::vector<SmoothFloat> smoothStandard{};
+    std::vector<SmoothFloat> smoothStandard{};
     std::vector<SmoothFloat> smoothQ{};
-    std::vector<SmoothFloat> smoothGain{};
-    std::vector<SmoothFloat> smoothWetDry{};
+    std::vector<SmoothFloat> smoothInGain{};
+    std::vector<SmoothFloat> smoothWetGain{};
+    std::vector<SmoothFloat> smoothOutGain{};
+    std::vector<SmoothFloat> smoothMix{};
     //==============================================================================
     std::vector<bool> useInternalWetDry{};
 
