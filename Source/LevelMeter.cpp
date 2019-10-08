@@ -18,21 +18,17 @@ LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, OpenGLContext& oglc, Colour 
     numLEDs(numLEDs)
 {
     setOpaque(true);
-    //openGLContext.setRenderer(this);
-    //openGLContext.attachTo(*this);
-    //openGLContext.setContinuousRepainting(true);
 }
 
 LevelMeter::~LevelMeter()
 {
-    //shutdownOpenGL();
-    //jassert(! openGLContext.isAttached());
 }
 
 void LevelMeter::paint(Graphics& g)
 {
     if (true)
     {
+        //g.fillAll(Colours::blue);
         return;
     }
     //adapted from LookAndFeel_V4::drawLevelMeter()

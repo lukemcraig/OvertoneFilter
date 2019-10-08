@@ -102,7 +102,6 @@ private:
     Label nameLabel;
 
     // -----
-    //todo remove
     OpenGLTexture boundariesTexture;
 
     //==============================================================================
@@ -139,7 +138,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum;
+            iResolution, iTime, slider0, iChannel0, iChannel1, iChannel2, iFrame, iSpectrum;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,

@@ -149,10 +149,10 @@ void OvertoneFilterEditor::makeLabelUpperCase(Label& label)
 //==============================================================================
 void OvertoneFilterEditor::paint(Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    //g.setColour(Colours::white);
+    //g.setColour(Colours::transparentBlack);
+    //g.fillRect(0, 0, 100, 200);
     //g.setFont(15.0f);
 }
 
@@ -229,6 +229,18 @@ void OvertoneFilterEditor::resized()
 
     const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
     keyboard.setBounds(keyboardArea);
+
+    if (true)
+    {
+        componentMask = createComponentSnapshot(getBounds(), true, 1.0f);
+        for (int x = 0; x < getWidth(); ++x)
+        {
+            for (int y = 0; y < getWidth(); ++y)
+            {
+                componentMask.setPixelAt(x, y, Colours::green);
+            }
+        }
+    }
 }
 
 void OvertoneFilterEditor::initialiseOpenGL()
@@ -237,6 +249,13 @@ void OvertoneFilterEditor::initialiseOpenGL()
     glTexStorage2D = (type_glTexStorage2D)OpenGLHelpers::getExtensionFunction("glTexStorage2D");
 
     createShaders();
+
+    if (true)
+    {
+        boundariesTexture.bind();
+        boundariesTexture.loadImage(componentMask);
+        boundariesTexture.unbind();
+    }
 
     setupFBO();
 }
@@ -282,10 +301,6 @@ void OvertoneFilterEditor::setupFBO()
         auto width = roundToInt(desktopScale * getWidth());
         auto height = roundToInt(desktopScale * getHeight());
 
-        if (false)
-        {
-            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
-        }
         //TODO what to do if resolution changes?
         glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, width, height, 0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
 
@@ -363,6 +378,10 @@ void OvertoneFilterEditor::renderToTexture()
     {
         uniforms2->iChannel1->set(1);
     }
+    if (uniforms2->iChannel2 != nullptr)
+    {
+        uniforms2->iChannel2->set(2);
+    }
 
     // render texture scene
     quad->draw(openGLContext, *attributes2);
@@ -429,6 +448,12 @@ void OvertoneFilterEditor::render()
     openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
+    if (true)
+    {
+        openGLContext.extensions.glActiveTexture(GL_TEXTURE2);
+        boundariesTexture.bind();
+    }
+
     //3.
     // Bind to texture's FBO
     openGLContext.extensions.glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
@@ -445,6 +470,10 @@ void OvertoneFilterEditor::render()
     // Reset the element buffers so child Components draw correctly
     openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, 0);
     openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    inputMeter.renderOpenGL();
+    wetMixMeter.renderOpenGL();
+    outputMeter.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
     openGLContext.extensions.glActiveTexture(GL_TEXTURE1);
@@ -489,6 +518,7 @@ void OvertoneFilterEditor::createShaders()
         "uniform float slider0;\n"
         "uniform sampler2D iChannel0;\n"
         "uniform sampler2D iChannel1;\n"
+        "uniform sampler2D iChannel2;\n"
         "#define d_a 1.0\n"
         "#define d_b 0.4\n"
         "//#define f 0.0367\n"
@@ -497,7 +527,7 @@ void OvertoneFilterEditor::createShaders()
         "//#define k 0.06\n"
         "#define k k3(uv)\n"
         "float k3(vec2 uv){\n"
-        "        return (1.0-texture2D(iChannel1,uv).a)*.06;\n"
+        "        return (1.0 - max(texture2D(iChannel1,uv).a, texture2D(iChannel2,uv).a) )*.06;\n"
         "}\n"
         "\n"
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
@@ -621,9 +651,6 @@ void OvertoneFilterEditor::renderOpenGL()
 {
     render();
     ++frameCounter;
-    inputMeter.renderOpenGL();
-    wetMixMeter.renderOpenGL();
-    outputMeter.renderOpenGL();
 }
 
 void OvertoneFilterEditor::openGLContextClosing()
@@ -670,6 +697,7 @@ OvertoneFilterEditor::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLSha
     slider0.reset(createUniform(openGLContext, shaderProgram, "slider0"));
     iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
+    iChannel2.reset(createUniform(openGLContext, shaderProgram, "iChannel2"));
     iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
 }
 
