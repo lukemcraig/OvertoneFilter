@@ -130,7 +130,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
 
     addAndMakeVisible(keyboard);
-    setResizable(false, false);
+    setResizable(true, true);
     //setResizeLimits(400, 400, 1680, 1050);
     setSize(1400, 400);
 }
@@ -158,18 +158,8 @@ void OvertoneFilterEditor::paint(Graphics& g)
 
 void OvertoneFilterEditor::resized()
 {
-    //TODO clean all this up
-    {
-        const auto bounds = getBounds().toFloat();
-        RectanglePlacement placement(RectanglePlacement::fillDestination);
-        const auto w = bgPath.getDrawableBounds().proportionOfWidth(0.17f);
-        const auto fitTransform = placement.getTransformToFit(bgPath.getDrawableBounds().reduced(w), bounds);
-        bgPath.setTransform(fitTransform.followedBy(AffineTransform::translation(0, 110.0f)));
-    }
-
     auto area = getLocalBounds();
-    DBG(area.getWidth());
-    DBG(area.getHeight());
+
     // margins
     area.reduce(10, 10);
 

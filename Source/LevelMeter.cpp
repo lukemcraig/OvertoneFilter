@@ -17,7 +17,7 @@ LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, OpenGLContext& oglc, Colour 
     clipColour(c),
     numLEDs(numLEDs)
 {
-    //setOpaque(true);
+    setOpaque(true);
     //openGLContext.setRenderer(this);
     //openGLContext.attachTo(*this);
     //openGLContext.setContinuousRepainting(true);
@@ -151,6 +151,11 @@ void LevelMeter::renderScene()
         uniforms->iResolution->set(width, height);
     }
 
+    if (uniforms->iViewport != nullptr)
+    {
+        uniforms->iViewport->set(x, y);
+    }
+
     if (uniforms->iTime != nullptr)
     {
         const float sec = Time::getMillisecondCounterHiRes() * 0.001f;
@@ -206,15 +211,20 @@ void LevelMeter::createShaders()
         "uniform int iFrame;\n"
         "uniform float iTime;\n"
         "uniform vec2 iResolution;\n"
+        "uniform vec2 iViewport;\n"
         "uniform float slider0;\n"
+
+        "#define quietColor vec3(0.0, 1.0, 0.0)\n"
+        "#define loudColor vec3(1.0, 0.0, 0.0)\n"
+
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
-        "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
-        "    vec3 fg = vec3(.5, .1, .2);\n"
-        "    vec3 bg = vec3( 0.1, 0.5, 0.3);\n"
-        "    vec3 col = mix(bg,fg,sin(iTime));  \n"
-        "    gl_FragColor = vec4(col,1.0);\n"
+        "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
+        "    float level  = slider0;\n"
+        "    vec3 col = mix(quietColor, loudColor, uv.x);\n"
+        "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
+        "    gl_FragColor = vec4(col, 1.0);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
@@ -300,6 +310,7 @@ LevelMeter::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram
     iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
+    iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
 }
 
 OpenGLShaderProgram::Uniform* LevelMeter::Uniforms::createUniform(OpenGLContext& openGLContext,
