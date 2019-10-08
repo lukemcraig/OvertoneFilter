@@ -102,6 +102,7 @@ private:
     Label nameLabel;
 
     // -----
+    //todo remove
     OpenGLTexture boundariesTexture;
 
     //==============================================================================
@@ -209,6 +210,7 @@ private:
     GLuint renderTex;
     GLuint depthBuf;
 
+    //todo remove
     Image componentMask;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterEditor)

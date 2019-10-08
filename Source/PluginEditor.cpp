@@ -13,9 +13,9 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       parameterHelper(ph),
       keyboardState(ks),
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard),
-      inputMeter(inputLevel, Colours::blueviolet),
-      wetMixMeter(wetMixLevel, Colours::blueviolet),
-      outputMeter(outputLevel)
+      inputMeter(inputLevel, openGLContext, Colours::blueviolet),
+      wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
+      outputMeter(outputLevel, openGLContext)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -622,12 +622,18 @@ void OvertoneFilterEditor::createShaders()
 void OvertoneFilterEditor::newOpenGLContextCreated()
 {
     initialiseOpenGL();
+    inputMeter.initialiseOpenGL();
+    wetMixMeter.initialiseOpenGL();
+    outputMeter.initialiseOpenGL();
 }
 
 void OvertoneFilterEditor::renderOpenGL()
 {
     render();
     ++frameCounter;
+    inputMeter.renderOpenGL();
+    wetMixMeter.renderOpenGL();
+    outputMeter.renderOpenGL();
 }
 
 void OvertoneFilterEditor::openGLContextClosing()
