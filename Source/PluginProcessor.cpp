@@ -151,18 +151,15 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
     for (auto sample = 0; sample < subBlockSize; ++sample)
     {
         buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getInputGain(channel));
+
+        // input meter
+        if (channel == 0)
+        {
+            inputLevel.pushSample(buffer.getSample(0, startSample + sample));
+        }
     }
 
     auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
-
-    // input meter
-    if (channel == 0)
-    {
-        for (auto sample = 0; sample < subBlockSize; ++sample)
-        {
-            inputLevel.pushSample(subBlock.getSample(0, sample));
-        }
-    }
 
     //TODO this isn't called per sample so need to skip
     const auto resonance = parameterHelper.getQ(channel);

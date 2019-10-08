@@ -170,8 +170,8 @@ void LevelMeter::renderScene()
     if (uniforms->slider0 != nullptr)
     {
         //todo
-        auto level = static_cast<GLfloat>(levelMeterAudioSource.getLevel());
-        uniforms->slider0->set(level);
+        const auto rms = 1.4125375446227544f * levelMeterAudioSource.getLevel();
+        uniforms->slider0->set(rms);
     }
 
     //if (uniforms->iChannel0 != nullptr)
@@ -224,7 +224,7 @@ void LevelMeter::createShaders()
         "    float level  = slider0;\n"
         "    vec3 col = mix(quietColor, loudColor, uv.x);\n"
         "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
-        "    gl_FragColor = vec4(col, 1.0);\n"
+        "    gl_FragColor = vec4(col*mask, 1.0);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
