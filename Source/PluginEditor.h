@@ -5,6 +5,7 @@
 #include "MyMidiKeyboardComponent.h"
 #include "LevelMeter.h"
 #include "WavefrontObjParser.h"
+#include "MySlider.h"
 
 //==============================================================================
 /**
@@ -66,24 +67,24 @@ private:
     std::unique_ptr<SliderAttachment> standardAttachment;
     Label standardLabel;
 
-    Slider qSlider;
+    MySlider qSlider;
     std::unique_ptr<SliderAttachment> qAttachment;
     Label qLabel;
 
-    Slider mixSlider;
+    MySlider mixSlider;
     std::unique_ptr<SliderAttachment> mixAttachment;
     Label mixLabel;
 
     // -----
-    Slider inputGainSlider;
+    MySlider inputGainSlider;
     std::unique_ptr<SliderAttachment> inputGainAttachment;
     Label inputGainLabel;
 
-    Slider wetGainSlider;
+    MySlider wetGainSlider;
     std::unique_ptr<SliderAttachment> wetGainAttachment;
     Label wetGainLabel;
 
-    Slider outputGainSlider;
+    MySlider outputGainSlider;
     std::unique_ptr<SliderAttachment> outputGainAttachment;
     Label outputGainLabel;
     // -----

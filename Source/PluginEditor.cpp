@@ -19,7 +19,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
-    setOpaque(false);
+    setOpaque(true);
     openGLContext.setRenderer(this);
     openGLContext.attachTo(*this);
     openGLContext.setContinuousRepainting(true);
