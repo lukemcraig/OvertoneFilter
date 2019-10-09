@@ -25,6 +25,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     openGLContext.setContinuousRepainting(true);
 
     // --------
+    getLookAndFeel().setColour(Label::textColourId, Colours::black);
+    // --------
     const auto textEntryBoxWidth = 64;
     {
         standardSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
@@ -128,11 +130,11 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         makeLabelUpperCase(wetMixMeterLabel);
         makeLabelUpperCase(outputMeterLabel);
     }
-
+    addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
     setResizable(true, true);
     //setResizeLimits(400, 400, 1680, 1050);
-    setSize(1400, 400);
+    setSize(1400, 800);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -196,6 +198,10 @@ void OvertoneFilterEditor::resized()
         borderPath.setPath(roundPath);
     }
     area.reduce(10, 10);
+
+    spectrumDisplay.setBounds(area.removeFromTop(200));
+
+
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;

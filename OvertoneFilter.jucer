@@ -11,6 +11,10 @@
               defines="JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES">
   <MAINGROUP id="uOFHnM" name="Overtone Filter">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
+      <FILE id="xXN75n" name="SpectrumDisplay.cpp" compile="1" resource="0"
+            file="Source/SpectrumDisplay.cpp"/>
+      <FILE id="n3cBD4" name="SpectrumDisplay.h" compile="0" resource="0"
+            file="Source/SpectrumDisplay.h"/>
       <FILE id="VWm1jv" name="MySlider.cpp" compile="1" resource="0" file="Source/MySlider.cpp"/>
       <FILE id="kDqZUv" name="MySlider.h" compile="0" resource="0" file="Source/MySlider.h"/>
       <FILE id="IfoBzH" name="WavefrontObjParser.h" compile="0" resource="0"
