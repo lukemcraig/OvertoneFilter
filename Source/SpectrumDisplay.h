@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "WavefrontObjParser.h"
+#include "PluginProcessor.h"
 
 //==============================================================================
 /*
@@ -19,7 +20,7 @@
 class SpectrumDisplay : public Component
 {
 public:
-    SpectrumDisplay(OpenGLContext& openGlContext);
+    SpectrumDisplay(OvertoneFilterAudioProcessor&, OpenGLContext&);
 
     ~SpectrumDisplay();
 
@@ -43,6 +44,7 @@ public:
     //==============================================================================
 
 private:
+    OvertoneFilterAudioProcessor& processor;
     //==============================================================================
     struct Vertex
     {

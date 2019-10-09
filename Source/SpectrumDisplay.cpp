@@ -12,9 +12,8 @@
 #include "SpectrumDisplay.h"
 
 //==============================================================================
-SpectrumDisplay::SpectrumDisplay(OpenGLContext& openGlContext) : openGLContext(openGlContext)
+SpectrumDisplay::SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc) : openGLContext(oc), processor(p)
 {
-
 }
 
 SpectrumDisplay::~SpectrumDisplay()
@@ -23,12 +22,10 @@ SpectrumDisplay::~SpectrumDisplay()
 
 void SpectrumDisplay::paint(Graphics& g)
 {
-
 }
 
 void SpectrumDisplay::resized()
 {
-
 }
 
 void SpectrumDisplay::initialiseOpenGL()
@@ -79,6 +76,16 @@ void SpectrumDisplay::renderScene()
         uniforms->iFrame->set(frameCounter);
     }
 
+    if (uniforms->iSpectrum != nullptr)
+    {
+        if (processor.nextFFTBlockReady)
+        {
+            processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData);
+            processor.nextFFTBlockReady = false;
+            uniforms->iSpectrum->set(processor.fftData, OvertoneFilterAudioProcessor::fftSize);
+        }
+    }
+
     quad->draw(openGLContext, *attributes);
 }
 
@@ -112,6 +119,7 @@ void SpectrumDisplay::createShaders()
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
         "uniform float slider0;\n"
+        "uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSize) + "];\n"
 
         "#define quietColor vec3(0.0, 1.0, 0.0)\n"
         "#define loudColor vec3(1.0, 0.0, 0.0)\n"
@@ -122,6 +130,7 @@ void SpectrumDisplay::createShaders()
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float level  = slider0;\n"
         "    vec3 col = mix(quietColor, loudColor, uv.x);\n"
+        "    col += vec3(sin(iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSize) + ")]));  \n"
         "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
         "    gl_FragColor = vec4(col*mask, 1.0);\n"
         "}\n";
@@ -204,9 +213,9 @@ SpectrumDisplay::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderPr
 }
 
 OpenGLShaderProgram::Uniform* SpectrumDisplay::Uniforms::createUniform(OpenGLContext& openGLContext,
-                                                                  OpenGLShaderProgram&
-                                                                  shaderProgram,
-                                                                  const char* uniformName)
+                                                                       OpenGLShaderProgram&
+                                                                       shaderProgram,
+                                                                       const char* uniformName)
 {
     if (openGLContext.extensions.glGetUniformLocation(shaderProgram.getProgramID(), uniformName) < 0)
         return nullptr;
@@ -243,7 +252,7 @@ void SpectrumDisplay::Shape::draw(OpenGLContext& glContext, Attributes& glAttrib
 }
 
 SpectrumDisplay::Shape::VertexBuffer::VertexBuffer(OpenGLContext& context,
-                                              WavefrontObjFile::Shape& aShape): openGLContext(
+                                                   WavefrontObjFile::Shape& aShape): openGLContext(
     context)
 {
     numIndices = aShape.mesh.indices.size();
@@ -280,7 +289,7 @@ void SpectrumDisplay::Shape::VertexBuffer::bind()
 }
 
 void SpectrumDisplay::Shape::createVertexListFromMesh(const WavefrontObjFile::Mesh& mesh,
-                                                 Array<Vertex>& list, Colour colour)
+                                                      Array<Vertex>& list, Colour colour)
 {
     auto scale = 0.2f;
     WavefrontObjFile::TextureCoord defaultTexCoord{0.5f, 0.5f};

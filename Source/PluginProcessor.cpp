@@ -9,7 +9,7 @@ OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
                      .withOutput("Output", AudioChannelSet::stereo(), true)
       ),
 #endif
-      parameterHelper(*this)
+      parameterHelper(*this), forwardFFT(fftOrder)
 {
 }
 
@@ -156,6 +156,18 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         if (channel == 0)
         {
             inputLevel.pushSample(buffer.getSample(0, startSample + sample));
+            // spectrum data
+            if (fifoIndex == fftSize)
+            {
+                if (! nextFFTBlockReady)
+                {
+                    zeromem(fftData, sizeof (fftData));
+                    memcpy(fftData, fifo, sizeof (fifo));
+                    nextFFTBlockReady = true;
+                }
+                fifoIndex = 0;
+            }
+            fifo[fifoIndex++] = buffer.getSample(0, startSample + sample);
         }
     }
 

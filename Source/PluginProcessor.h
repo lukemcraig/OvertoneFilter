@@ -79,6 +79,19 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     //==============================================================================
+        enum
+    {
+        fftOrder = 8,
+        fftSize = 1 << fftOrder
+    };
+
+    dsp::FFT forwardFFT;
+    float fifo [fftSize];
+    float fftData [2 * fftSize];
+    int fifoIndex = 0;
+    bool nextFFTBlockReady = false;
+    //==============================================================================
+
 private:
     MidiKeyboardState keyboardState;
     ParameterHelper parameterHelper;
