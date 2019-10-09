@@ -155,6 +155,13 @@ void OvertoneFilterEditor::paint(Graphics& g)
     //g.setFont(15.0f);
 }
 
+void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea)
+{
+    label.setBounds(
+        labelArea.removeFromTop(16).withSizeKeepingCentre(
+            6 + label.getFont().getStringWidth(label.getText()), 16));
+}
+
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
@@ -196,7 +203,7 @@ void OvertoneFilterEditor::resized()
     auto outputMeterArea = rightArea.removeFromRight(meterWidth);
 
     outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
-    outputMeterLabel.setBounds(outputMeterArea.removeFromTop(16));
+    setLabelAreaAboveCentered(outputMeterLabel, outputMeterArea);
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
     outputMeter.setBounds(outputMeterArea.removeFromTop(32));
 
@@ -207,12 +214,11 @@ void OvertoneFilterEditor::resized()
     auto wetMixMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
     auto inputMeterArea = rightArea;
 
-    inputMeterLabel.setBounds(
-        inputMeterArea.removeFromTop(16).withSizeKeepingCentre(6+inputMeterLabel.getFont().getStringWidth(inputMeterLabel.getText()), 16));
+    setLabelAreaAboveCentered(inputMeterLabel, inputMeterArea);
     inputMeter.setBounds(inputMeterArea.removeFromBottom(32));
     inputGainSlider.setBounds(inputMeterArea);
 
-    wetMixMeterLabel.setBounds(wetMixMeterArea.removeFromTop(16));
+    setLabelAreaAboveCentered(wetMixMeterLabel, wetMixMeterArea);
     wetMixMeter.setBounds(wetMixMeterArea.removeFromBottom(32));
     wetGainSlider.setBounds(wetMixMeterArea);
 
@@ -226,12 +232,13 @@ void OvertoneFilterEditor::resized()
 
     const auto nSliders = 2;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
+
     auto standardSliderArea = sliderArea.removeFromLeft(sliderHeight);
-    standardLabel.setBounds(standardSliderArea.removeFromTop(16));
+    setLabelAreaAboveCentered(standardLabel, standardSliderArea);
     standardSlider.setBounds(standardSliderArea);
 
     auto qSliderArea = sliderArea.removeFromLeft(sliderHeight);
-    qLabel.setBounds(qSliderArea.removeFromTop(16));
+    setLabelAreaAboveCentered(qLabel, qSliderArea);
     qSlider.setBounds(qSliderArea);
 
     const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);

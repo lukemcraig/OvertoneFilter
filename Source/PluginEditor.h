@@ -26,6 +26,8 @@ public:
     //==============================================================================
     void paint(Graphics&) override;
 
+    void setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea);
+
     void resized() override;
 
     //==============================================================================
