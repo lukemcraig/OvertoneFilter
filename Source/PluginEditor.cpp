@@ -230,16 +230,16 @@ void OvertoneFilterEditor::resized()
     const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
     keyboard.setBounds(keyboardArea);
 
-    if (true)
+    // extra boundaries for the background shader
     {
-        componentMask = createComponentSnapshot(getBounds(), true, 1.0f);
-        for (int x = 0; x < getWidth(); ++x)
-        {
-            for (int y = 0; y < getWidth(); ++y)
-            {
-                componentMask.setPixelAt(x, y, Colours::green);
-            }
-        }
+        componentMask = Image(Image::ARGB, getWidth(), getHeight(), true);
+
+        Graphics imageG(componentMask);
+        imageG.setColour(Colours::white);
+        imageG.fillRect(outputMeter.getBounds());
+        imageG.fillRect(wetMixMeter.getBounds());
+        imageG.fillRect(inputMeter.getBounds());
+        imageG.fillRect(inputMeterLabel.getBounds());
     }
 }
 
