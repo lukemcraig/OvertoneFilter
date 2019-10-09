@@ -34,7 +34,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                                       parameterHelper.pidPitchStandard, standardSlider));
 
         standardLabel.setText("Pitch Standard", dontSendNotification);
-        standardLabel.attachToComponent(&standardSlider, false);
+        standardLabel.setJustificationType(Justification::centred);
         addAndMakeVisible(standardLabel);
     }
     {
@@ -45,7 +45,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
 
         qLabel.setText("Resonance", dontSendNotification);
-        qLabel.attachToComponent(&qSlider, false);
+        qLabel.setJustificationType(Justification::centred);
         addAndMakeVisible(qLabel);
     }
     {
@@ -57,7 +57,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                                  mixSlider));
 
         mixLabel.setText("Mix", dontSendNotification);
-        mixLabel.attachToComponent(&mixSlider, false);
         addAndMakeVisible(mixLabel);
     }
 
@@ -201,12 +200,15 @@ void OvertoneFilterEditor::resized()
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
     outputMeter.setBounds(outputMeterArea.removeFromTop(32));
 
-    mixSlider.setBounds(rightArea.removeFromRight(32).withTrimmedTop(16));
+    auto mixSliderArea = rightArea.removeFromRight(32);
+    mixLabel.setBounds(mixSliderArea.removeFromTop(16));
+    mixSlider.setBounds(mixSliderArea);
 
     auto wetMixMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
     auto inputMeterArea = rightArea;
 
-    inputMeterLabel.setBounds(inputMeterArea.removeFromTop(16));
+    inputMeterLabel.setBounds(
+        inputMeterArea.removeFromTop(16).withSizeKeepingCentre(6+inputMeterLabel.getFont().getStringWidth(inputMeterLabel.getText()), 16));
     inputMeter.setBounds(inputMeterArea.removeFromBottom(32));
     inputGainSlider.setBounds(inputMeterArea);
 
@@ -224,8 +226,13 @@ void OvertoneFilterEditor::resized()
 
     const auto nSliders = 2;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
-    standardSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
-    qSlider.setBounds(sliderArea.removeFromLeft(sliderHeight));
+    auto standardSliderArea = sliderArea.removeFromLeft(sliderHeight);
+    standardLabel.setBounds(standardSliderArea.removeFromTop(16));
+    standardSlider.setBounds(standardSliderArea);
+
+    auto qSliderArea = sliderArea.removeFromLeft(sliderHeight);
+    qLabel.setBounds(qSliderArea.removeFromTop(16));
+    qSlider.setBounds(qSliderArea);
 
     const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
     keyboard.setBounds(keyboardArea);
@@ -237,9 +244,17 @@ void OvertoneFilterEditor::resized()
         Graphics imageG(componentMask);
         imageG.setColour(Colours::white);
         imageG.fillRect(outputMeter.getBounds());
+        imageG.fillRect(outputMeterLabel.getBounds());
+
         imageG.fillRect(wetMixMeter.getBounds());
+        imageG.fillRect(wetMixMeterLabel.getBounds());
+
         imageG.fillRect(inputMeter.getBounds());
         imageG.fillRect(inputMeterLabel.getBounds());
+
+        imageG.fillRect(mixLabel.getBounds());
+        imageG.fillRect(standardLabel.getBounds());
+        imageG.fillRect(qLabel.getBounds());
     }
 }
 
