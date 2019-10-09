@@ -82,6 +82,7 @@ void SpectrumDisplay::renderScene()
     {
         if (processor.nextFFTBlockReady)
         {
+            processor.window.multiplyWithWindowingTable(processor.fftData, OvertoneFilterAudioProcessor::fftSize);
             processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData);
             processor.nextFFTBlockReady = false;
 

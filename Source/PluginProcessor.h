@@ -87,6 +87,7 @@ public:
     };
 
     dsp::FFT forwardFFT;
+    dsp::WindowingFunction<float> window;
     float fifo [fftSize];
     float fftData [2 * fftSize];
     int fifoIndex = 0;

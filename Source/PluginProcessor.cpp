@@ -9,7 +9,7 @@ OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
                      .withOutput("Output", AudioChannelSet::stereo(), true)
       ),
 #endif
-      parameterHelper(*this), forwardFFT(fftOrder)
+      parameterHelper(*this), forwardFFT(fftOrder), window(fftSize, dsp::WindowingFunction<float>::hann)
 {
 }
 
