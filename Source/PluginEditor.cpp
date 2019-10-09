@@ -135,7 +135,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     addAndMakeVisible(keyboard);
     setResizable(true, true);
     //setResizeLimits(400, 400, 1680, 1050);
-    setSize(1400, 600);
+    setSize(1240, 680);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -169,7 +169,8 @@ void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
-
+    //DBG(area.getWidth());
+    //DBG(area.getHeight());
     // margins
     area.reduce(10, 10);
 
@@ -200,7 +201,20 @@ void OvertoneFilterEditor::resized()
     }
     area.reduce(10, 10);
 
-    spectrumDisplay.setBounds(area.removeFromTop(200));
+    spectrumDisplay.setBounds(area.removeFromTop(100));
+    keyboard.setBounds(area.removeFromTop(200));
+
+    for (int i = 127; i >= 0; --i)
+    {
+        auto ksp = keyboard.getKeyStartPosition(i);
+        auto keyWidth = keyboard.getKeyWidth();
+        auto lastNote = keyboard.getNoteAtPosition(Point<float>(ksp + (keyWidth * 0.5f), 0));
+        if (lastNote != -1)
+        {
+            DBG(lastNote);
+            break;
+        }
+    }
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
@@ -249,8 +263,8 @@ void OvertoneFilterEditor::resized()
     setLabelAreaAboveCentered(qLabel, qSliderArea);
     qSlider.setBounds(qSliderArea);
 
-    const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
-    keyboard.setBounds(keyboardArea);
+    //const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
+    //keyboard.setBounds(keyboardArea);
 
     // extra boundaries for the background shader
     {

@@ -102,7 +102,7 @@ void OvertoneFilterAudioProcessor::handleNoteOn(int channel, const float noteNum
     parameterHelper.useParamWetDry(channel);
     // todo it might make more sense to store the current note number and calculate the filterCutoff at even intervals instead
     const auto standard = parameterHelper.getCurrentPitchStandard(channel);
-    const auto newFreq = standard * pow(2.0f, (noteNumber - 69.0f) / 12.0f);
+    const auto newFreq = standard * std::pow(2.0f, (noteNumber - 69.0f) / 12.0f);
     filterCutoff[channel] = newFreq;
 }
 

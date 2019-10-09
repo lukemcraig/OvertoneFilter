@@ -132,24 +132,17 @@ void SpectrumDisplay::createShaders()
         "}\n";
 
     fragmentShader =
-        "uniform int iFrame;\n"
-        "uniform float iTime;\n"
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
-        "uniform float slider0;\n"
 
         "uniform sampler2D iSpectrum;\n"
-        "#define quietColor vec3(0.0, 1.0, 0.0)\n"
-        "#define loudColor vec3(1.0, 0.0, 0.0)\n"
 
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
-        "    float level  = slider0;\n"
-
-        "    vec3 col = vec3(texture2D(iSpectrum,uv).a);\n"
-
+        "    float x = (440.0 * pow(2.0,(127.0 * uv.x - 69.0)/12.0))/22050.0;"
+        "    vec3 col = vec3(texture2D(iSpectrum,vec2(x,0)).a);\n"
         "    gl_FragColor = vec4(col,1.0);\n"
         "}\n";
 

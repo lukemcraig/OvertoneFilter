@@ -31,6 +31,11 @@ protected:
 
     void mouseUpOnKey(int midiNoteNumber, const MouseEvent& e) override;
 
+    //String getWhiteNoteText(int midiNoteNumber) override;
+
+    void drawWhiteNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown, bool isOver,
+                       Colour lineColour, Colour textColour) override;
+
 private:
     OvertoneFilterAudioProcessor& processor;
 
