@@ -40,11 +40,11 @@ void SpectrumDisplay::initialiseOpenGL()
     //auto fftImage = Image(Image::SingleChannel);
     //openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
 
-    Image testImage = ImageCache::getFromMemory(BinaryData::testpic_png, BinaryData::testpic_pngSize);
+    //Image testImage = ImageCache::getFromMemory(BinaryData::testpic_png, BinaryData::testpic_pngSize);
 
     spectrumTexture.bind();
-    //spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
-    spectrumTexture.loadImage(testImage);
+    spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
+    //spectrumTexture.loadImage(testImage);
 
     spectrumTexture.unbind();
 }
@@ -167,9 +167,9 @@ void SpectrumDisplay::createShaders()
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float level  = slider0;\n"
         //"    vec4 col = vec4((iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSizePositive) +   ")]));  \n"
-        "    vec4 col = vec4(texture2D(iSpectrum,uv));\n"
+        "    vec3 col = vec3(texture2D(iSpectrum,uv).a);\n"
         // "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
-        "    gl_FragColor = col;\n"
+        "    gl_FragColor = vec4(col,1.0);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
