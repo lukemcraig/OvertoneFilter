@@ -81,7 +81,7 @@ public:
     //==============================================================================
         enum
     {
-        fftOrder = 9,
+        fftOrder = 10,
         fftSize = 1 << fftOrder,
         fftSizePositive = 1 << (fftOrder-1)
     };

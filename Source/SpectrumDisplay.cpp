@@ -129,10 +129,9 @@ void SpectrumDisplay::createShaders()
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float level  = slider0;\n"
-        "    vec3 col = mix(quietColor, loudColor, uv.x);\n"
-        "    col += vec3((iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSizePositive) + ")]));  \n"
-        "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
-        "    gl_FragColor = vec4(col*mask, 1.0);\n"
+        "    vec4 col = vec4((iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSizePositive) + ")]));  \n"
+       // "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
+        "    gl_FragColor = col;\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
