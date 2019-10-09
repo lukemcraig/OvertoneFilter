@@ -45,6 +45,7 @@ public:
 
 private:
     OvertoneFilterAudioProcessor& processor;
+    OpenGLTexture spectrumTexture;
     //==============================================================================
     struct Vertex
     {

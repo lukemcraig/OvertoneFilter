@@ -31,6 +31,22 @@ void SpectrumDisplay::resized()
 void SpectrumDisplay::initialiseOpenGL()
 {
     createShaders();
+    std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
+    for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
+    {
+        //auto value = processor.fftData[i] * 255.0f;
+        fftAlphaValues[i] = static_cast<uint8>(255);
+    }
+    //auto fftImage = Image(Image::SingleChannel);
+    //openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
+
+    Image testImage = ImageCache::getFromMemory(BinaryData::testpic_png, BinaryData::testpic_pngSize);
+
+    spectrumTexture.bind();
+    //spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
+    spectrumTexture.loadImage(testImage);
+
+    spectrumTexture.unbind();
 }
 
 void SpectrumDisplay::shutdown()
@@ -40,6 +56,8 @@ void SpectrumDisplay::shutdown()
     quad.reset();
     attributes.reset();
     uniforms.reset();
+
+    spectrumTexture.release();
 }
 
 void SpectrumDisplay::renderScene()
@@ -82,7 +100,21 @@ void SpectrumDisplay::renderScene()
         {
             processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData);
             processor.nextFFTBlockReady = false;
-            uniforms->iSpectrum->set(processor.fftData, OvertoneFilterAudioProcessor::fftSizePositive);
+            //uniforms->iSpectrum->set(processor.fftData, OvertoneFilterAudioProcessor::fftSizePositive);
+
+            //std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
+            //for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
+            //{
+            //    auto value = processor.fftData[i] * 255.0f;
+            //    fftAlphaValues[i] = static_cast<uint8>(255);
+            //}
+            ////auto fftImage = Image(Image::SingleChannel);
+            ////openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
+
+            //spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
+            //spectrumTexture.bind();
+            jassert(spectrumTexture.getTextureID()==3);
+            uniforms->iSpectrum->set(3);
         }
     }
 
@@ -95,6 +127,11 @@ void SpectrumDisplay::render()
     //OpenGLHelpers::clear(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
     //glEnable(GL_BLEND | GL_DEPTH);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    {
+        openGLContext.extensions.glActiveTexture(GL_TEXTURE2+1);
+        spectrumTexture.bind();
+    }
 
     renderScene();
 
@@ -119,8 +156,8 @@ void SpectrumDisplay::createShaders()
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
         "uniform float slider0;\n"
-        "uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSizePositive) + "];\n"
-
+        //"uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSizePositive) + "];\n"
+        "uniform sampler2D iSpectrum;\n"
         "#define quietColor vec3(0.0, 1.0, 0.0)\n"
         "#define loudColor vec3(1.0, 0.0, 0.0)\n"
 
@@ -129,8 +166,9 @@ void SpectrumDisplay::createShaders()
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float level  = slider0;\n"
-        "    vec4 col = vec4((iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSizePositive) + ")]));  \n"
-       // "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
+        //"    vec4 col = vec4((iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSizePositive) +   ")]));  \n"
+        "    vec4 col = vec4(texture2D(iSpectrum,uv));\n"
+        // "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
         "    gl_FragColor = col;\n"
         "}\n";
 

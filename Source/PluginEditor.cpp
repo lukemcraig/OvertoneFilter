@@ -16,7 +16,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       inputMeter(inputLevel, openGLContext, Colours::blueviolet),
       wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
       outputMeter(outputLevel, openGLContext),
-      spectrumDisplay(p,openGLContext)
+      spectrumDisplay(p, openGLContext)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -281,12 +281,9 @@ void OvertoneFilterEditor::initialiseOpenGL()
 
     createShaders();
 
-    if (true)
-    {
-        boundariesTexture.bind();
-        boundariesTexture.loadImage(componentMask);
-        boundariesTexture.unbind();
-    }
+    boundariesTexture.bind();
+    boundariesTexture.loadImage(componentMask);
+    boundariesTexture.unbind();
 
     setupFBO();
 }
@@ -479,7 +476,6 @@ void OvertoneFilterEditor::render()
     openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
-    if (true)
     {
         openGLContext.extensions.glActiveTexture(GL_TEXTURE2);
         boundariesTexture.bind();
