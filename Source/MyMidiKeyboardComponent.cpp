@@ -16,6 +16,8 @@ MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p
                                                  Orientation orientation) : MidiKeyboardComponent(state, orientation),
                                                                             processor(p)
 {
+    setColour(whiteNoteColourId,Colours::antiquewhite);
+    setColour(blackNoteColourId,Colours::darkblue);
 }
 
 MyMidiKeyboardComponent::~MyMidiKeyboardComponent()
