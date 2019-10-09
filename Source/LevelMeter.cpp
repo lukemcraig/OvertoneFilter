@@ -124,11 +124,6 @@ void LevelMeter::shutdown()
     uniforms.reset();
 }
 
-//void LevelMeter::shutdownOpenGL()
-//{
-//    openGLContext.detach();
-//}
-
 void LevelMeter::renderScene()
 {
     //render scene
@@ -250,10 +245,7 @@ void LevelMeter::createShaders()
     }
 }
 
-//void LevelMeter::newOpenGLContextCreated()
-//{
-//    initialiseOpenGL();
-//}
+
 
 void LevelMeter::renderOpenGL()
 {
@@ -261,10 +253,6 @@ void LevelMeter::renderOpenGL()
     ++frameCounter;
 }
 
-//void LevelMeter::openGLContextClosing()
-//{
-//    shutdown();
-//}
 
 //==============================================================================
 

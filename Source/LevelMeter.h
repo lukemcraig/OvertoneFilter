@@ -20,7 +20,7 @@
 class LevelMeter : public Component
 {
 public:
-    LevelMeter(LevelMeterAudioSource&,OpenGLContext& , Colour c = Colours::red, int numLEDs = 5);
+    LevelMeter(LevelMeterAudioSource&, OpenGLContext&, Colour c = Colours::red, int numLEDs = 5);
 
     ~LevelMeter();
 
@@ -28,13 +28,10 @@ public:
 
     void resized() override;
 
-
     //==============================================================================
     void initialiseOpenGL();
 
     void shutdown();
-
-    void shutdownOpenGL();
 
     void renderScene();
 
@@ -42,11 +39,7 @@ public:
 
     void createShaders();
 
-    //void newOpenGLContextCreated() override;
-
-    void renderOpenGL(); //override;
-
-    //void openGLContextClosing() override;
+    void renderOpenGL();
 
     //==============================================================================
 

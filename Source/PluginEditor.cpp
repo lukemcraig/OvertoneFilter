@@ -15,7 +15,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard),
       inputMeter(inputLevel, openGLContext, Colours::blueviolet),
       wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
-      outputMeter(outputLevel, openGLContext)
+      outputMeter(outputLevel, openGLContext),
+      spectrumDisplay(openGLContext)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -134,7 +135,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     addAndMakeVisible(keyboard);
     setResizable(true, true);
     //setResizeLimits(400, 400, 1680, 1050);
-    setSize(1400, 800);
+    setSize(1400, 600);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -200,8 +201,6 @@ void OvertoneFilterEditor::resized()
     area.reduce(10, 10);
 
     spectrumDisplay.setBounds(area.removeFromTop(200));
-
-
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
@@ -506,6 +505,7 @@ void OvertoneFilterEditor::render()
     inputMeter.renderOpenGL();
     wetMixMeter.renderOpenGL();
     outputMeter.renderOpenGL();
+    spectrumDisplay.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
     openGLContext.extensions.glActiveTexture(GL_TEXTURE1);
@@ -678,6 +678,7 @@ void OvertoneFilterEditor::newOpenGLContextCreated()
     inputMeter.initialiseOpenGL();
     wetMixMeter.initialiseOpenGL();
     outputMeter.initialiseOpenGL();
+    spectrumDisplay.initialiseOpenGL();
 }
 
 void OvertoneFilterEditor::renderOpenGL()
@@ -688,6 +689,10 @@ void OvertoneFilterEditor::renderOpenGL()
 
 void OvertoneFilterEditor::openGLContextClosing()
 {
+    inputMeter.shutdown();
+    wetMixMeter.shutdown();
+    outputMeter.shutdown();
+    spectrumDisplay.shutdown();
     shutdown();
 }
 
