@@ -81,8 +81,9 @@ public:
     //==============================================================================
         enum
     {
-        fftOrder = 8,
-        fftSize = 1 << fftOrder
+        fftOrder = 9,
+        fftSize = 1 << fftOrder,
+        fftSizePositive = 1 << (fftOrder-1)
     };
 
     dsp::FFT forwardFFT;

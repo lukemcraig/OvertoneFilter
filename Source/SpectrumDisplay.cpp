@@ -82,7 +82,7 @@ void SpectrumDisplay::renderScene()
         {
             processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData);
             processor.nextFFTBlockReady = false;
-            uniforms->iSpectrum->set(processor.fftData, OvertoneFilterAudioProcessor::fftSize);
+            uniforms->iSpectrum->set(processor.fftData, OvertoneFilterAudioProcessor::fftSizePositive);
         }
     }
 
@@ -119,7 +119,7 @@ void SpectrumDisplay::createShaders()
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
         "uniform float slider0;\n"
-        "uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSize) + "];\n"
+        "uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSizePositive) + "];\n"
 
         "#define quietColor vec3(0.0, 1.0, 0.0)\n"
         "#define loudColor vec3(1.0, 0.0, 0.0)\n"
@@ -130,7 +130,7 @@ void SpectrumDisplay::createShaders()
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float level  = slider0;\n"
         "    vec3 col = mix(quietColor, loudColor, uv.x);\n"
-        "    col += vec3(sin(iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSize) + ")]));  \n"
+        "    col += vec3((iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSizePositive) + ")]));  \n"
         "    float mask = clamp(sign(level - uv.x),0.3,1.0);\n"
         "    gl_FragColor = vec4(col*mask, 1.0);\n"
         "}\n";
