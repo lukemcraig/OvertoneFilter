@@ -35,7 +35,7 @@ void SpectrumDisplay::initialiseOpenGL()
     for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
     {
         //auto value = processor.fftData[i] * 255.0f;
-        fftAlphaValues[i] = static_cast<uint8>(255);
+        fftAlphaValues[i] = static_cast<uint8>(125);
     }
     //auto fftImage = Image(Image::SingleChannel);
     //openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
@@ -102,16 +102,16 @@ void SpectrumDisplay::renderScene()
             processor.nextFFTBlockReady = false;
             //uniforms->iSpectrum->set(processor.fftData, OvertoneFilterAudioProcessor::fftSizePositive);
 
-            //std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
-            //for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
-            //{
-            //    auto value = processor.fftData[i] * 255.0f;
-            //    fftAlphaValues[i] = static_cast<uint8>(255);
-            //}
+            std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
+            for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
+            {
+                auto value = processor.fftData[i] * 255.0f;
+                fftAlphaValues[i] = static_cast<uint8>(value);
+            }
             ////auto fftImage = Image(Image::SingleChannel);
             ////openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
 
-            //spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
+            spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
             //spectrumTexture.bind();
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
@@ -129,7 +129,7 @@ void SpectrumDisplay::render()
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     {
-        openGLContext.extensions.glActiveTexture(GL_TEXTURE2+1);
+        openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
         spectrumTexture.bind();
     }
 
