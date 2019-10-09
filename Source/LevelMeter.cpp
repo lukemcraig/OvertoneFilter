@@ -136,8 +136,8 @@ void LevelMeter::renderScene()
     auto width = roundToInt(desktopScale * getWidth());
     auto height = roundToInt(desktopScale * getHeight());
 
-    auto x = getRight() - width;
-    auto y = getParentHeight() - getBottom();
+    auto x = getRight()*desktopScale - width;
+    auto y = (getParentHeight() - getBottom())*desktopScale;
     glViewport(x, y, width, height);
 
     shaderProgram->use();
