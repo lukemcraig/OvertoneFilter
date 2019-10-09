@@ -93,6 +93,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
+        nameLabel.setJustificationType(Justification::centred);
         addAndMakeVisible(nameLabel);
     }
     {
@@ -170,25 +171,27 @@ void OvertoneFilterEditor::resized()
     area.reduce(10, 10);
 
     {
-        nameLabel.setJustificationType(Justification::centred);
-        auto nameArea = area;
+        auto nameArea = area.removeFromTop(10).withSizeKeepingCentre(
+            6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
         nameLabel.setPaintingIsUnclipped(true);
-        nameLabel.setBounds(nameArea.removeFromTop(5));
+        nameLabel.setBounds(nameArea);
     }
     {
         auto pad = 10;
         auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
-        Path path;
-        path.startNewSubPath(area.getX() + w, area.getY());
+
         const auto topLeft = area.getTopLeft();
-        path.lineTo(topLeft.getX(), topLeft.getY());
         const auto bottomLeft = area.getBottomLeft();
-        path.lineTo(bottomLeft.getX(), bottomLeft.getY());
         const auto bottomRight = area.getBottomRight();
-        path.lineTo(bottomRight.getX(), bottomRight.getY());
         const auto topRight = area.getTopRight();
-        path.lineTo(topRight.getX(), topRight.getY());
-        path.lineTo(topRight.getX() - w, topRight.getY());
+
+        Path path;
+        path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
+        path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
+        path.lineTo(bottomLeft.getX(), bottomLeft.getY());
+        path.lineTo(bottomRight.getX(), bottomRight.getY());
+        path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
+        path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
         auto roundPath = path.createPathWithRoundedCorners(3);
         borderPath.setPath(roundPath);
     }
@@ -262,6 +265,7 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(mixLabel.getBounds());
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
+        imageG.fillRect(nameLabel.getBounds());
     }
 }
 
@@ -549,7 +553,7 @@ void OvertoneFilterEditor::createShaders()
         "//#define k 0.06\n"
         "#define k k3(uv)\n"
         "float k3(vec2 uv){\n"
-        "        return (1.0 - max(texture2D(iChannel1,uv).a, texture2D(iChannel2,uv).a) )*.06;\n"
+        "        return (1.0 - max(texture2D(iChannel1,uv).r, texture2D(iChannel2,uv).a) )*.06;\n"
         "}\n"
         "\n"
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"

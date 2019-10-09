@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="Overtone Filter" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.4.3" companyName="Luke M. Craig" reportAppUsage="0"
+              jucerVersion="5.4.4" companyName="Luke M. Craig" reportAppUsage="0"
               pluginName="Overtone Filter" pluginManufacturer="Luke M. Craig"
               pluginWantsMidiIn="1" id="fu59EL" pluginFormats="buildAUv3,buildStandalone,buildVST3"
               pluginCharacteristicsValue="pluginWantsMidiIn" buildVST="0" buildVST3="1"
