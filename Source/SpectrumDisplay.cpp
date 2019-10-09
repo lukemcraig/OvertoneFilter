@@ -89,7 +89,9 @@ void SpectrumDisplay::renderScene()
             std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
             for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
             {
-                auto value = processor.fftData[i] * 255.0f;
+                //todo proper scaling
+                auto value = jmin(processor.fftData[i] * 25.0f, 255.0f);
+                jassert(value>=0.0f);
                 fftAlphaValues[i] = static_cast<uint8>(value);
             }
 
@@ -143,7 +145,9 @@ void SpectrumDisplay::createShaders()
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = (440.0 * pow(2.0,(127.0 * uv.x - 69.0)/12.0))/22050.0;"
-        "    vec3 col = vec3(texture2D(iSpectrum,vec2(x,0)).a);\n"
+        "    float fft = texture(iSpectrum,vec2(x,0)).a;\n"
+        "    float mask = sign(fft - uv.y);\n"
+        "    vec3 col = vec3(fft*mask);\n"
         "    gl_FragColor = vec4(col,1.0);\n"
         "}\n";
 
