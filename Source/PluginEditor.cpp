@@ -206,10 +206,10 @@ void OvertoneFilterEditor::resized()
     //keyboard.setKeyWidth(20);
     //keyboard.setLowestVisibleKey(24);
 
-    keyboard.setAvailableRange(36, 61);
+    keyboard.setAvailableRange(0, 61);
     //auto neededWidth = keyboard.getTotalKeyboardWidth();
 
-    keyboard.setKeyWidth(keyboard.getWidth() / (15.0f));
+    keyboard.setKeyWidth(keyboard.getWidth() / (36.0f));
     //for (int i = 127; i >= 0; --i)
     //{
     //    auto ksp = keyboard.getKeyStartPosition(i);
