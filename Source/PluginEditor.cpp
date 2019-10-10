@@ -27,6 +27,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
     // --------
     getLookAndFeel().setColour(Label::textColourId, Colours::black);
+    getLookAndFeel().setColour(Slider::thumbColourId, Colours::white);
     // --------
     const auto textEntryBoxWidth = 64;
     {

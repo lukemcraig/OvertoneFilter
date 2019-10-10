@@ -205,8 +205,8 @@ void LevelMeter::createShaders()
         "uniform vec2 iViewport;\n"
         "uniform float slider0;\n"
 
-        "#define quietColor vec3(0.0, 1.0, 0.0)\n"
-        "#define loudColor vec3(1.0, 0.0, 0.0)\n"
+        "#define quietColor vec3(0.0, 0.0, 0.0)\n"
+        "#define loudColor vec3(1.0, 1.0, 1.0)\n"
 
         "void main()\n"
         "{\n"
