@@ -172,40 +172,39 @@ void OvertoneFilterEditor::resized()
     //DBG(area.getWidth());
     //DBG(area.getHeight());
     // margins
-    area.reduce(10, 10);
+    //area.reduce(10, 10);
 
-    {
-        auto nameArea = area.removeFromTop(10).withSizeKeepingCentre(
-            6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
-        nameLabel.setPaintingIsUnclipped(true);
-        nameLabel.setBounds(nameArea);
-    }
-    {
-        auto pad = 10;
-        auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
+    //{
+    //    auto nameArea = area.removeFromTop(10).withSizeKeepingCentre(
+    //        6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
+    //    nameLabel.setPaintingIsUnclipped(true);
+    //    nameLabel.setBounds(nameArea);
+    //}
+    //{
+    //    auto pad = 10;
+    //    auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
 
-        const auto topLeft = area.getTopLeft();
-        const auto bottomLeft = area.getBottomLeft();
-        const auto bottomRight = area.getBottomRight();
-        const auto topRight = area.getTopRight();
+    //    const auto topLeft = area.getTopLeft();
+    //    const auto bottomLeft = area.getBottomLeft();
+    //    const auto bottomRight = area.getBottomRight();
+    //    const auto topRight = area.getTopRight();
 
-        Path path;
-        path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
-        path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
-        path.lineTo(bottomLeft.getX(), bottomLeft.getY());
-        path.lineTo(bottomRight.getX(), bottomRight.getY());
-        path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
-        path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
-        auto roundPath = path.createPathWithRoundedCorners(3);
-        borderPath.setPath(roundPath);
-    }
-    area.reduce(10, 10);
-
-    spectrumDisplay.setBounds(area.removeFromTop(100));
-    keyboard.setBounds(area.removeFromTop(200));
+    //    Path path;
+    //    path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
+    //    path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
+    //    path.lineTo(bottomLeft.getX(), bottomLeft.getY());
+    //    path.lineTo(bottomRight.getX(), bottomRight.getY());
+    //    path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
+    //    path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
+    //    auto roundPath = path.createPathWithRoundedCorners(3);
+    //    borderPath.setPath(roundPath);
+    //}
+    //area.reduce(10, 10);
+    auto keyboardSpectrumArea = area.removeFromTop(300).reduced(10, 10);
+    spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
+    keyboard.setBounds(keyboardSpectrumArea.removeFromTop(150));
 
     keyboard.setAvailableRange(0, 127);
-
 
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
 
@@ -290,6 +289,9 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
         imageG.fillRect(nameLabel.getBounds());
+
+        imageG.fillRect(keyboard.getBounds());
+        //imageG.fillRect(spectrumDisplay.getBounds());
     }
 }
 
@@ -545,17 +547,18 @@ void OvertoneFilterEditor::createShaders()
         "uniform vec2 iResolution;\n"
         "uniform float slider0;\n"
         "uniform sampler2D iChannel0;\n"
-        //todo
-        //"uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSize) + "];\n"
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
-        "    vec3 fg = vec3(.929, .918, .757);\n"
-        "    vec3 bg = vec3( 0.1, 0.1, 0.2);\n"
+        "    vec3 fg = vec3(1., 1., 1.);\n"
+        "    vec3 bg = vec3( 0.0, 0.0, 0.0);\n"
         "    vec3 col = mix(bg,fg,1.-vec3(texture2D(iChannel0,uv).y));  \n"
-        //"    col += vec3(sin(iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSize) + ")]));  \n"
-        "    gl_FragColor = vec4(col,1.0);\n"
+
+        "    vec2 uvCenter = uv * ( 1.0 - uv.xy);\n"
+        "    float vignette = uvCenter.x * uvCenter.y * 15.0;\n"
+        "    vignette = pow(vignette, 0.1);\n"
+        "    gl_FragColor = vec4(col*vignette,1.0);\n"
         "}\n";
 
     textureShader =
