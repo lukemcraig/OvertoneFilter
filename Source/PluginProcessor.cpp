@@ -157,17 +157,27 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         {
             inputLevel.pushSample(buffer.getSample(0, startSample + sample));
             // spectrum data
-            if (fifoIndex == fftSize)
+            if (fifoIndex % hopSize == 0)
             {
                 if (! nextFFTBlockReady)
                 {
-                    zeromem(fftData, sizeof (fftData));
-                    memcpy(fftData, fifo, sizeof (fifo));
+                    //zeromem(fftData, sizeof (fftData));
+                    //memcpy(fftData, fifo, sizeof (fifo));
+                    auto fifoRead = fifoIndex;
+                    for (int i = 0; i < fftSize; ++i)
+                    {
+                        if (fifoRead == fftSize)
+                            fifoRead = 0;
+                        fftData[i] = fifo[fifoRead];
+                        ++fifoRead;
+                    }
                     nextFFTBlockReady = true;
                 }
-                fifoIndex = 0;
+                if (fifoIndex == fftSize)
+                    fifoIndex = 0;
             }
-            fifo[fifoIndex++] = buffer.getSample(0, startSample + sample);
+            fifo[fifoIndex] = buffer.getSample(0, startSample + sample);
+            ++fifoIndex;
         }
     }
 

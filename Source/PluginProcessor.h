@@ -79,17 +79,18 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     //==============================================================================
-        enum
+    enum
     {
         fftOrder = 12,
         fftSize = 1 << fftOrder,
-        fftSizePositive = 1 << (fftOrder-1)
+        hopSize = fftSize / 2,
+        fftSizePositive = 1 << (fftOrder - 1)
     };
 
     dsp::FFT forwardFFT;
     dsp::WindowingFunction<float> window;
-    float fifo [fftSize];
-    float fftData [2 * fftSize];
+    std::array<float, fftSize> fifo;
+    std::array<float, 2 * fftSize> fftData{};
     int fifoIndex = 0;
     bool nextFFTBlockReady = false;
     //==============================================================================

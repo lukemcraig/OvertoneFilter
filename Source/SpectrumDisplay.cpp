@@ -82,9 +82,9 @@ void SpectrumDisplay::renderScene()
     {
         if (processor.nextFFTBlockReady)
         {
-            processor.window.multiplyWithWindowingTable(processor.fftData, OvertoneFilterAudioProcessor::fftSize);
-            processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData);
-            processor.nextFFTBlockReady = false;
+            processor.window.multiplyWithWindowingTable(processor.fftData.data(),
+                                                        OvertoneFilterAudioProcessor::fftSize);
+            processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData.data());
 
             std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
             for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
@@ -99,6 +99,7 @@ void SpectrumDisplay::renderScene()
 
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
+            processor.nextFFTBlockReady = false;
         }
     }
 
@@ -134,6 +135,7 @@ void SpectrumDisplay::createShaders()
         "    gl_Position = vec4(position.xy*5.0,0.0,1.0);\n"
         "}\n";
 
+    // todo sample rate and min and max notes
     fragmentShader =
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
