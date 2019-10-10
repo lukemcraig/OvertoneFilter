@@ -137,6 +137,8 @@ void SpectrumDisplay::createShaders()
 
     // todo sample rate and min and max notes
     fragmentShader =
+        "#define minNote 12.0\n"
+        "#define maxNote 61.0\n"
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
 
@@ -147,9 +149,7 @@ void SpectrumDisplay::createShaders()
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = uv.x;\n"
-        //"    x = x*(261.6/22050.0) + (65.4/22050.0);\n"
-        //"    x = x + (65.4/22050.0);\n"
-        "    x = (440.0 * pow(2.0,(61.0 * x - 69.0)/12.0))/22050.0;\n"
+        "    x = (440.0 * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
         "    float fft = texture(iSpectrum,vec2(x,0)).a;\n"
         "    float mask = sign(fft - uv.y);\n"
         "    vec3 col = vec3(fft*mask);\n"
