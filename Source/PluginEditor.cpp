@@ -203,18 +203,24 @@ void OvertoneFilterEditor::resized()
 
     spectrumDisplay.setBounds(area.removeFromTop(100));
     keyboard.setBounds(area.removeFromTop(200));
+    //keyboard.setKeyWidth(20);
+    //keyboard.setLowestVisibleKey(24);
 
-    for (int i = 127; i >= 0; --i)
-    {
-        auto ksp = keyboard.getKeyStartPosition(i);
-        auto keyWidth = keyboard.getKeyWidth();
-        auto lastNote = keyboard.getNoteAtPosition(Point<float>(ksp + (keyWidth * 0.5f), 0));
-        if (lastNote != -1)
-        {
-            DBG(lastNote);
-            break;
-        }
-    }
+    keyboard.setAvailableRange(36, 61);
+    //auto neededWidth = keyboard.getTotalKeyboardWidth();
+
+    keyboard.setKeyWidth(keyboard.getWidth() / (15.0f));
+    //for (int i = 127; i >= 0; --i)
+    //{
+    //    auto ksp = keyboard.getKeyStartPosition(i);
+    //    auto keyWidth = keyboard.getKeyWidth();
+    //    auto lastNote = keyboard.getNoteAtPosition(Point<float>(ksp + (keyWidth * 0.5f), 0));
+    //    if (lastNote != -1)
+    //    {
+    //        DBG(lastNote);
+    //        break;
+    //    }
+    //}
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
