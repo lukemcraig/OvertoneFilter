@@ -137,8 +137,8 @@ void SpectrumDisplay::createShaders()
 
     // todo sample rate and min and max notes
     fragmentShader =
-        "#define minNote 12.0\n"
-        "#define maxNote 61.0\n"
+        "#define minNote 0.0\n"
+        "#define maxNote 127.0\n"
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
 
@@ -153,7 +153,7 @@ void SpectrumDisplay::createShaders()
         "    float fft = texture(iSpectrum,vec2(x,0)).a;\n"
         "    float mask = sign(fft - uv.y);\n"
         "    vec3 col = vec3(fft*mask);\n"
-        "    gl_FragColor = vec4(col,1.0);\n"
+        "    gl_FragColor = vec4(mask);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
