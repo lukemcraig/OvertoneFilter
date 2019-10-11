@@ -7,15 +7,17 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                            MidiKeyboardState& ks,
                                            LevelMeterAudioSource& inputLevel,
                                            LevelMeterAudioSource& wetMixLevel,
-                                           LevelMeterAudioSource& outputLevel)
+                                           LevelMeterAudioSource& outputLevel,
+                                           SpectrumSource& iss,SpectrumSource& oss)
     : AudioProcessorEditor(&p),
       processor(p),
       parameterHelper(ph),
       keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard),
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard,parameterHelper),
       inputMeter(inputLevel, openGLContext, Colours::blueviolet),
       wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
-      outputMeter(outputLevel, openGLContext)
+      outputMeter(outputLevel, openGLContext),
+      spectrumDisplay(p, openGLContext, iss,oss,ph)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -24,6 +26,9 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     openGLContext.attachTo(*this);
     openGLContext.setContinuousRepainting(true);
 
+    // --------
+    getLookAndFeel().setColour(Label::textColourId, Colours::black);
+    getLookAndFeel().setColour(Slider::thumbColourId, Colours::white);
     // --------
     const auto textEntryBoxWidth = 64;
     {
@@ -92,8 +97,10 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(borderPath);
     }
     {
+        nameLabel.setFont(30);
         nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
         nameLabel.setJustificationType(Justification::centred);
+        nameLabel.setColour(Label::textColourId, Colours::white);
         addAndMakeVisible(nameLabel);
     }
     {
@@ -128,11 +135,11 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         makeLabelUpperCase(wetMixMeterLabel);
         makeLabelUpperCase(outputMeterLabel);
     }
-
+    addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
     setResizable(true, true);
     //setResizeLimits(400, 400, 1680, 1050);
-    setSize(1400, 400);
+    setSize(1240, 680);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -151,8 +158,8 @@ void OvertoneFilterEditor::paint(Graphics& g)
 {
     //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    //g.setColour(Colours::transparentBlack);
-    //g.fillRect(0, 0, 100, 200);
+    g.setColour(Colour(0xFF000000));
+    g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
     //g.setFont(15.0f);
 }
 
@@ -166,36 +173,59 @@ void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
-
+    //DBG(area.getWidth());
+    //DBG(area.getHeight());
     // margins
-    area.reduce(10, 10);
+    //area.reduce(10, 10);
 
+    //{
+    //    auto pad = 10;
+    //    auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
+
+    //    const auto topLeft = area.getTopLeft();
+    //    const auto bottomLeft = area.getBottomLeft();
+    //    const auto bottomRight = area.getBottomRight();
+    //    const auto topRight = area.getTopRight();
+
+    //    Path path;
+    //    path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
+    //    path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
+    //    path.lineTo(bottomLeft.getX(), bottomLeft.getY());
+    //    path.lineTo(bottomRight.getX(), bottomRight.getY());
+    //    path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
+    //    path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
+    //    auto roundPath = path.createPathWithRoundedCorners(3);
+    //    borderPath.setPath(roundPath);
+    //}
+    //area.reduce(10, 10);
+    area.removeFromBottom(10);
     {
-        auto nameArea = area.removeFromTop(10).withSizeKeepingCentre(
+        auto nameArea = area.removeFromBottom(30).withSizeKeepingCentre(
             6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
         nameLabel.setPaintingIsUnclipped(true);
         nameLabel.setBounds(nameArea);
     }
-    {
-        auto pad = 10;
-        auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
 
-        const auto topLeft = area.getTopLeft();
-        const auto bottomLeft = area.getBottomLeft();
-        const auto bottomRight = area.getBottomRight();
-        const auto topRight = area.getTopRight();
+    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(10, 10);
+    spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
+    keyboardSpectrumArea.removeFromTop(10);
+    keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
-        Path path;
-        path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
-        path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
-        path.lineTo(bottomLeft.getX(), bottomLeft.getY());
-        path.lineTo(bottomRight.getX(), bottomRight.getY());
-        path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
-        path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
-        auto roundPath = path.createPathWithRoundedCorners(3);
-        borderPath.setPath(roundPath);
-    }
-    area.reduce(10, 10);
+    keyboard.setAvailableRange(0, 127);
+
+    keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
+
+    //for (int i = 127; i >= 0; --i)
+    //{
+    //    auto ksp = keyboard.getKeyStartPosition(i);
+    //    auto keyWidth = keyboard.getKeyWidth();
+    //    auto lastNote = keyboard.getNoteAtPosition(Point<float>(ksp + (keyWidth * 0.5f), 0));
+    //    if (lastNote != -1)
+    //    {
+    //        DBG(lastNote);
+    //        break;
+    //    }
+    //}
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
@@ -244,8 +274,8 @@ void OvertoneFilterEditor::resized()
     setLabelAreaAboveCentered(qLabel, qSliderArea);
     qSlider.setBounds(qSliderArea);
 
-    const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
-    keyboard.setBounds(keyboardArea);
+    //const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
+    //keyboard.setBounds(keyboardArea);
 
     // extra boundaries for the background shader
     {
@@ -266,6 +296,9 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
         imageG.fillRect(nameLabel.getBounds());
+
+        imageG.fillRect(keyboard.getBounds());
+        imageG.fillRect(spectrumDisplay.getBounds());
     }
 }
 
@@ -276,12 +309,9 @@ void OvertoneFilterEditor::initialiseOpenGL()
 
     createShaders();
 
-    if (true)
-    {
-        boundariesTexture.bind();
-        boundariesTexture.loadImage(componentMask);
-        boundariesTexture.unbind();
-    }
+    boundariesTexture.bind();
+    boundariesTexture.loadImage(componentMask);
+    boundariesTexture.unbind();
 
     setupFBO();
 }
@@ -329,6 +359,9 @@ void OvertoneFilterEditor::setupFBO()
 
         //TODO what to do if resolution changes?
         glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, width, height, 0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+        
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
@@ -474,7 +507,6 @@ void OvertoneFilterEditor::render()
     openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
-    if (true)
     {
         openGLContext.extensions.glActiveTexture(GL_TEXTURE2);
         boundariesTexture.bind();
@@ -500,6 +532,7 @@ void OvertoneFilterEditor::render()
     inputMeter.renderOpenGL();
     wetMixMeter.renderOpenGL();
     outputMeter.renderOpenGL();
+    spectrumDisplay.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
     openGLContext.extensions.glActiveTexture(GL_TEXTURE1);
@@ -524,17 +557,18 @@ void OvertoneFilterEditor::createShaders()
         "uniform vec2 iResolution;\n"
         "uniform float slider0;\n"
         "uniform sampler2D iChannel0;\n"
-        //todo
-        //"uniform float iSpectrum[" + String(OvertoneFilterAudioProcessor::fftSize) + "];\n"
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
-        "    vec3 fg = vec3(.929, .918, .757);\n"
-        "    vec3 bg = vec3( 0.1, 0.1, 0.2);\n"
+        "    vec3 fg = vec3(1., 1., 1.);\n"
+        "    vec3 bg = vec3( 0.0, 0.0, 0.0);\n"
         "    vec3 col = mix(bg,fg,1.-vec3(texture2D(iChannel0,uv).y));  \n"
-        //"    col += vec3(sin(iSpectrum[int(uv.x * " + String(OvertoneFilterAudioProcessor::fftSize) + ")]));  \n"
-        "    gl_FragColor = vec4(col,1.0);\n"
+
+        "    vec2 uvCenter = uv * ( 1.0 - uv.xy);\n"
+        "    float vignette = uvCenter.x * uvCenter.y * 15.0;\n"
+        "    vignette = pow(vignette, 0.1);\n"
+        "    gl_FragColor = vec4(col*vignette,1.0);\n"
         "}\n";
 
     textureShader =
@@ -553,7 +587,7 @@ void OvertoneFilterEditor::createShaders()
         "//#define k 0.06\n"
         "#define k k3(uv)\n"
         "float k3(vec2 uv){\n"
-        "        return (1.0 - max(texture2D(iChannel1,uv).r, texture2D(iChannel2,uv).a) )*.06;\n"
+        "        return (1.0 - texture2D(iChannel1,uv).r )*.06;\n"
         "}\n"
         "\n"
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
@@ -609,6 +643,7 @@ void OvertoneFilterEditor::createShaders()
         "    col.y = updateB(uv,iChannel0,iResolution, iTime);\n"
         "    }\n"
         "\n"
+        "    col.x = min(col.x,1.0-texture2D(iChannel2,uv).a);\n"
         "    col.y = clamp(col.y,0.0,0.9);\n"
         "    // store A and B\n"
         "    gl_FragColor = vec4(col,1.,1.);\n"
@@ -671,6 +706,7 @@ void OvertoneFilterEditor::newOpenGLContextCreated()
     inputMeter.initialiseOpenGL();
     wetMixMeter.initialiseOpenGL();
     outputMeter.initialiseOpenGL();
+    spectrumDisplay.initialiseOpenGL();
 }
 
 void OvertoneFilterEditor::renderOpenGL()
@@ -681,6 +717,10 @@ void OvertoneFilterEditor::renderOpenGL()
 
 void OvertoneFilterEditor::openGLContextClosing()
 {
+    inputMeter.shutdown();
+    wetMixMeter.shutdown();
+    outputMeter.shutdown();
+    spectrumDisplay.shutdown();
     shutdown();
 }
 

@@ -3,6 +3,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ParameterHelper.h"
 #include "LevelMeterAudioSource.h"
+#include "SpectrumSource.h"
 
 //==============================================================================
 /**
@@ -79,6 +80,9 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     //==============================================================================
+
+    //==============================================================================
+
 private:
     MidiKeyboardState keyboardState;
     ParameterHelper parameterHelper;
@@ -98,6 +102,9 @@ private:
     LevelMeterAudioSource inputLevel;
     LevelMeterAudioSource wetMixLevel;
     LevelMeterAudioSource outputLevel;
+    //==============================================================================
+    SpectrumSource inputSpectrumSource;
+    SpectrumSource outputSpectrumSource;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)
 };

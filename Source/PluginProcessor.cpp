@@ -102,7 +102,7 @@ void OvertoneFilterAudioProcessor::handleNoteOn(int channel, const float noteNum
     parameterHelper.useParamWetDry(channel);
     // todo it might make more sense to store the current note number and calculate the filterCutoff at even intervals instead
     const auto standard = parameterHelper.getCurrentPitchStandard(channel);
-    const auto newFreq = standard * pow(2.0f, (noteNumber - 69.0f) / 12.0f);
+    const auto newFreq = standard * std::pow(2.0f, (noteNumber - 69.0f) / 12.0f);
     filterCutoff[channel] = newFreq;
 }
 
@@ -155,7 +155,9 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         // input meter
         if (channel == 0)
         {
-            inputLevel.pushSample(buffer.getSample(0, startSample + sample));
+            auto sampleData = buffer.getSample(0, startSample + sample);
+            inputLevel.pushSample(sampleData);
+            inputSpectrumSource.pushSample(sampleData);
         }
     }
 
@@ -194,9 +196,10 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         // output meter
         if (channel == 0)
         {
-            const auto brp = buffer.getReadPointer(0);
+            const auto sampleData = buffer.getReadPointer(0)[startSample + sample];
 
-            outputLevel.pushSample(brp[startSample + sample]);
+            outputLevel.pushSample(sampleData);
+            outputSpectrumSource.pushSample(sampleData);
         }
     }
     parameterHelper.skipPitchStandard(channel, subBlockSize);
@@ -250,7 +253,8 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel,
+                                    inputSpectrumSource, outputSpectrumSource);
 }
 
 //==============================================================================

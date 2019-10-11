@@ -1,8 +1,8 @@
 /*
   ==============================================================================
 
-    LevelMeter.h
-    Created: 2 Oct 2019 3:52:35pm
+    SpectrumDisplay.h
+    Created: 9 Oct 2019 12:19:27am
     Author:  Luke
 
   ==============================================================================
@@ -11,18 +11,18 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "LevelMeterAudioSource.h"
 #include "WavefrontObjParser.h"
+#include "PluginProcessor.h"
 
 //==============================================================================
 /*
 */
-class LevelMeter : public Component
+class SpectrumDisplay : public Component
 {
 public:
-    LevelMeter(LevelMeterAudioSource&, OpenGLContext&, Colour c = Colours::red, int numLEDs = 5);
+    SpectrumDisplay(OvertoneFilterAudioProcessor&, OpenGLContext&, SpectrumSource&, SpectrumSource&, ParameterHelper&);
 
-    ~LevelMeter();
+    ~SpectrumDisplay();
 
     void paint(Graphics&) override;
 
@@ -44,9 +44,12 @@ public:
     //==============================================================================
 
 private:
-    LevelMeterAudioSource& levelMeterAudioSource;
-    Colour clipColour;
-    int numLEDs;
+    OvertoneFilterAudioProcessor& processor;
+    ParameterHelper& parameterHelper;
+    SpectrumSource& inputSpectrumSource;
+    SpectrumSource& outputSpectrumSource;
+    OpenGLTexture spectrumTexture;
+    Image spectrumImage = Image(Image::PixelFormat::ARGB, SpectrumSource::fftSizePositive, 2, true);
 
     //==============================================================================
     struct Vertex
@@ -82,7 +85,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum, iViewport;
+            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum, iViewport, iPitchStandard;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,
@@ -140,6 +143,5 @@ private:
     GLuint fboHandle;
     GLuint renderTex;
     GLuint depthBuf;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrumDisplay)
 };

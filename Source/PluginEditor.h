@@ -6,6 +6,7 @@
 #include "LevelMeter.h"
 #include "WavefrontObjParser.h"
 #include "MySlider.h"
+#include "SpectrumDisplay.h"
 
 //==============================================================================
 /**
@@ -17,7 +18,7 @@ class OvertoneFilterEditor : public AudioProcessorEditor,
 public:
 
     OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, LevelMeterAudioSource&,
-                         LevelMeterAudioSource&, LevelMeterAudioSource&);
+                         LevelMeterAudioSource&, LevelMeterAudioSource&, SpectrumSource&, SpectrumSource&);
 
     ~OvertoneFilterEditor();
 
@@ -103,6 +104,8 @@ private:
     DrawablePath borderPath;
     Label nameLabel;
 
+    // -------
+    SpectrumDisplay spectrumDisplay;
     // -----
     OpenGLTexture boundariesTexture;
 
@@ -211,7 +214,6 @@ private:
     GLuint renderTex;
     GLuint depthBuf;
 
-    //todo remove
     Image componentMask;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterEditor)
