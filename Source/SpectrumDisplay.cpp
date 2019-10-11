@@ -22,6 +22,7 @@ SpectrumDisplay::~SpectrumDisplay()
 
 void SpectrumDisplay::paint(Graphics& g)
 {
+
 }
 
 void SpectrumDisplay::resized()
@@ -104,7 +105,7 @@ void SpectrumDisplay::renderScene()
                 jassert(value>=0.0f);
                 fftAlphaValues[i] = static_cast<uint8>(value);
             }
-
+            fftAlphaValues[0]=0.0f;
             spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
             //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
             //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glMagFilter);

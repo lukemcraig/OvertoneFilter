@@ -161,8 +161,6 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
             {
                 if (! nextFFTBlockReady)
                 {
-                    //zeromem(fftData, sizeof (fftData));
-                    //memcpy(fftData, fifo, sizeof (fifo));
                     auto fifoRead = fifoIndex;
                     for (int i = 0; i < fftSize; ++i)
                     {

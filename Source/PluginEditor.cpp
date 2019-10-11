@@ -155,9 +155,10 @@ void OvertoneFilterEditor::paint(Graphics& g)
 {
     //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    //g.setColour(Colours::transparentBlack);
-    //g.fillRect(0, 0, 100, 200);
+    g.setColour(Colour(0xFF000000));
+    g.fillRect(keyboard.getBounds().expanded(10,10));
     //g.setFont(15.0f);
+    
 }
 
 void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea)
@@ -201,9 +202,10 @@ void OvertoneFilterEditor::resized()
     //    borderPath.setPath(roundPath);
     //}
     //area.reduce(10, 10);
-    auto keyboardSpectrumArea = area.removeFromTop(300).reduced(10, 10);
+    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(10, 10);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
-    keyboard.setBounds(keyboardSpectrumArea.removeFromTop(150));
+    keyboardSpectrumArea.removeFromTop(10);
+    keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
     keyboard.setAvailableRange(0, 127);
 
