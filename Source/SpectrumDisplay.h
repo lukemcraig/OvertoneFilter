@@ -20,7 +20,7 @@
 class SpectrumDisplay : public Component
 {
 public:
-    SpectrumDisplay(OvertoneFilterAudioProcessor&, OpenGLContext&, SpectrumSource&, SpectrumSource&);
+    SpectrumDisplay(OvertoneFilterAudioProcessor&, OpenGLContext&, SpectrumSource&, SpectrumSource&, ParameterHelper&);
 
     ~SpectrumDisplay();
 
@@ -45,6 +45,7 @@ public:
 
 private:
     OvertoneFilterAudioProcessor& processor;
+    ParameterHelper& parameterHelper;
     SpectrumSource& inputSpectrumSource;
     SpectrumSource& outputSpectrumSource;
     OpenGLTexture spectrumTexture;
@@ -84,7 +85,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum, iViewport;
+            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum, iViewport, iPitchStandard;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,

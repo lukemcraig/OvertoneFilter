@@ -13,10 +13,11 @@
 
 //==============================================================================
 SpectrumDisplay::
-SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc, SpectrumSource& iss, SpectrumSource& oss) :
+SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc, SpectrumSource& iss, SpectrumSource& oss,
+                ParameterHelper& parameterHelper) :
     openGLContext(oc),
     processor(p),
-    inputSpectrumSource(iss), outputSpectrumSource(oss)
+    inputSpectrumSource(iss), outputSpectrumSource(oss), parameterHelper(parameterHelper)
 {
 }
 
@@ -96,12 +97,17 @@ void SpectrumDisplay::renderScene()
         if (needToUpdate)
         {
             spectrumTexture.loadImage(spectrumImage);
-            glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
+            glBindTexture(GL_TEXTURE_2D, spectrumTexture.getTextureID());
             //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
         }
+    }
+
+    if (uniforms->iPitchStandard != nullptr)
+    {
+        uniforms->iPitchStandard->set(parameterHelper.getCurrentPitchStandard(0));
     }
 
     quad->draw(openGLContext, *attributes);
@@ -142,7 +148,7 @@ void SpectrumDisplay::createShaders()
         "#define maxNote 127.0\n"
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
-
+        "uniform float iPitchStandard;\n"
         "uniform sampler2D iSpectrum;\n"
 
         "void main()\n"
@@ -150,7 +156,7 @@ void SpectrumDisplay::createShaders()
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = uv.x;\n"
-        "    x = (440.0 * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
+        "    x = (iPitchStandard * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
         "    float fftinput = texture(iSpectrum,vec2(x,1.0)).r;\n"
         "    float fftoutput = texture(iSpectrum,vec2(x,0.0)).r;\n"
         "    if(fftoutput>uv.y){\n"
@@ -245,6 +251,7 @@ SpectrumDisplay::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderPr
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
     iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
+    iPitchStandard.reset(createUniform(openGLContext, shaderProgram, "iPitchStandard"));
 }
 
 OpenGLShaderProgram::Uniform* SpectrumDisplay::Uniforms::createUniform(OpenGLContext& openGLContext,
