@@ -18,7 +18,7 @@ SpectrumSource::~SpectrumSource()
 {
 }
 
-bool SpectrumSource::getSpectrum(Image& spectrumImage)
+bool SpectrumSource::getSpectrum(Image& spectrumImage, int row)
 {
     if (nextFFTBlockReady)
     {
@@ -36,7 +36,7 @@ bool SpectrumSource::getSpectrum(Image& spectrumImage)
 
             auto pixelValue = static_cast<uint8>(jmin((value) * 255.0f, 255.0f));
                         
-            spectrumImage.setPixelAt(i, 0, Colour(pixelValue, pixelValue, pixelValue, pixelValue));
+            spectrumImage.setPixelAt(i, row, Colour(pixelValue, pixelValue, pixelValue, pixelValue));
         }
         nextFFTBlockReady = false;
         return true;

@@ -103,7 +103,8 @@ private:
     LevelMeterAudioSource wetMixLevel;
     LevelMeterAudioSource outputLevel;
     //==============================================================================
-    SpectrumSource spectrumSource;
+    SpectrumSource inputSpectrumSource;
+    SpectrumSource outputSpectrumSource;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)
 };

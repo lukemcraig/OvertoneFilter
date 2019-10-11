@@ -18,7 +18,7 @@ class OvertoneFilterEditor : public AudioProcessorEditor,
 public:
 
     OvertoneFilterEditor(OvertoneFilterAudioProcessor&, ParameterHelper&, MidiKeyboardState&, LevelMeterAudioSource&,
-                         LevelMeterAudioSource&, LevelMeterAudioSource&, SpectrumSource&);
+                         LevelMeterAudioSource&, LevelMeterAudioSource&, SpectrumSource&, SpectrumSource&);
 
     ~OvertoneFilterEditor();
 

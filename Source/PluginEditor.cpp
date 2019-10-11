@@ -8,7 +8,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                            LevelMeterAudioSource& inputLevel,
                                            LevelMeterAudioSource& wetMixLevel,
                                            LevelMeterAudioSource& outputLevel,
-                                           SpectrumSource& ss)
+                                           SpectrumSource& iss,SpectrumSource& oss)
     : AudioProcessorEditor(&p),
       processor(p),
       parameterHelper(ph),
@@ -17,7 +17,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       inputMeter(inputLevel, openGLContext, Colours::blueviolet),
       wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
       outputMeter(outputLevel, openGLContext),
-      spectrumDisplay(p, openGLContext, ss)
+      spectrumDisplay(p, openGLContext, iss,oss)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 

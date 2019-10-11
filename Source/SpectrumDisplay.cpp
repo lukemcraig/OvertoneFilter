@@ -13,9 +13,10 @@
 
 //==============================================================================
 SpectrumDisplay::
-SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc, SpectrumSource& ss) : openGLContext(oc),
-                                                                                          processor(p),
-                                                                                          spectrumSource(ss)
+SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc, SpectrumSource& iss, SpectrumSource& oss) :
+    openGLContext(oc),
+    processor(p),
+    inputSpectrumSource(iss), outputSpectrumSource(oss)
 {
 }
 
@@ -83,7 +84,7 @@ void SpectrumDisplay::renderScene()
 
     if (uniforms->iSpectrum != nullptr)
     {
-        if (spectrumSource.getSpectrum(spectrumImage))
+        if (inputSpectrumSource.getSpectrum(spectrumImage, 0) || outputSpectrumSource.getSpectrum(spectrumImage, 1))
         {
             spectrumTexture.loadImage(spectrumImage);
             //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());

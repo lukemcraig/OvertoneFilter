@@ -21,7 +21,7 @@ public:
 
     ~SpectrumSource();
 
-    bool getSpectrum(Image& spectrumImage);
+    bool getSpectrum(Image& spectrumImage, int row);
 
     void pushSample(float sample);
 

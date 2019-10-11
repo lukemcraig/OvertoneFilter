@@ -157,8 +157,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         {
             auto sampleData = buffer.getSample(0, startSample + sample);
             inputLevel.pushSample(sampleData);
-            spectrumSource.pushSample(sampleData);
-            
+            inputSpectrumSource.pushSample(sampleData);
         }
     }
 
@@ -197,9 +196,10 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         // output meter
         if (channel == 0)
         {
-            const auto brp = buffer.getReadPointer(0);
+            const auto sampleData = buffer.getReadPointer(0)[startSample + sample];
 
-            outputLevel.pushSample(brp[startSample + sample]);
+            outputLevel.pushSample(sampleData);
+            outputSpectrumSource.pushSample(sampleData);
         }
     }
     parameterHelper.skipPitchStandard(channel, subBlockSize);
@@ -253,7 +253,8 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel, spectrumSource);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel,
+                                    inputSpectrumSource, outputSpectrumSource);
 }
 
 //==============================================================================
