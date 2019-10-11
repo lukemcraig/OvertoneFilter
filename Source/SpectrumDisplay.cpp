@@ -168,8 +168,8 @@ void SpectrumDisplay::createShaders()
         "    x = (440.0 * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
         "    float fft = texture(iSpectrum,vec2(x,0.0)).r;\n"
         "    float mask = sign(fft - uv.y);\n"
-        "    vec3 col = vec3(fft*mask);\n"
-        "    gl_FragColor = vec4(col,1.0);\n"
+        //"    vec3 col = vec3(fft*mask);\n"
+        "    gl_FragColor = vec4(vec3(0.0),mask);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
