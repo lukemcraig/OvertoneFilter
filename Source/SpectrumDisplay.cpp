@@ -102,8 +102,8 @@ void SpectrumDisplay::render()
 {
     jassert(OpenGLHelpers::isContextActive());
     //OpenGLHelpers::clear(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
-    //glEnable(GL_BLEND | GL_DEPTH);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     {
         openGLContext.extensions.glActiveTexture(GL_TEXTURE2 + 1);
@@ -142,10 +142,23 @@ void SpectrumDisplay::createShaders()
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = uv.x;\n"
         "    x = (440.0 * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
-        "    float fft = texture(iSpectrum,vec2(x,0.0)).r;\n"
-        "    float mask = sign(fft - uv.y);\n"
-        //"    vec3 col = vec3(fft*mask);\n"
-        "    gl_FragColor = vec4(vec3(0.0),mask);\n"
+        "    float fftinput = texture(iSpectrum,vec2(x,1.0)).r;\n"
+        "    float fftoutput = texture(iSpectrum,vec2(x,0.0)).r;\n"
+        "    if(fftoutput>uv.y){\n"
+        "    gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
+        "    }\n"
+        "    else if(fftinput>uv.y){\n"
+        "    gl_FragColor = vec4(0.2,0.2,0.2,1.0);\n"
+        "    }\n"
+        "    else{\n"
+        "    gl_FragColor = vec4(0.0,0.0,0.0,0.0);\n"
+        "    }\n"
+        "    \n"
+        //"    float maskin = clamp(sign(fftinput - uv.y),0.0,1.0);\n"
+        //"    float maskout = clamp(sign(fftoutput - uv.y),0.0,1.0);\n"
+        //"    vec4 colin = vec4(vec3(0.0,1.0,0.2),maskin);\n"
+        //"    vec4 colout = vec4(vec3(1.0,0.4,0.2),maskout);\n"
+        //"    gl_FragColor = colout+colin;\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
