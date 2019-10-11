@@ -90,12 +90,24 @@ void SpectrumDisplay::renderScene()
             for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
             {
                 //todo proper scaling
-                auto value = jmin(processor.fftData[i] * 25.0f, 255.0f);
+                auto value = processor.fftData[i];
+
+                auto mindB = -100.0f;
+                auto maxdB = 0.0f;
+
+                value = jmap(jlimit(mindB, maxdB, Decibels::gainToDecibels(value)
+                                    - Decibels::gainToDecibels(
+                                        static_cast<float>(OvertoneFilterAudioProcessor::fftSize))),
+                             mindB, maxdB, 0.0f, 1.0f);
+
+                value = jmin((value) * 255.0f, 255.0f);
                 jassert(value>=0.0f);
                 fftAlphaValues[i] = static_cast<uint8>(value);
             }
 
             spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
+            //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
+            //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glMagFilter);
 
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
@@ -152,8 +164,8 @@ void SpectrumDisplay::createShaders()
         "    x = (440.0 * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
         "    float fft = texture(iSpectrum,vec2(x,0)).a;\n"
         "    float mask = sign(fft - uv.y);\n"
-        "    vec3 col = vec3(fft*mask);\n"
-        "    gl_FragColor = vec4(mask);\n"
+        //"    vec3 col = vec3(fft*mask);\n"
+        "    gl_FragColor = vec4(vec3(0.0),mask);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
