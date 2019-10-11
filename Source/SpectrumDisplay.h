@@ -46,6 +46,7 @@ public:
 private:
     OvertoneFilterAudioProcessor& processor;
     OpenGLTexture spectrumTexture;
+    Image spectrumImage = Image(Image::PixelFormat::SingleChannel,OvertoneFilterAudioProcessor::fftSizePositive, 1,true);
     //==============================================================================
     struct Vertex
     {

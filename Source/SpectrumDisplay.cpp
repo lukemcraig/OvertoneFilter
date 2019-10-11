@@ -104,9 +104,12 @@ void SpectrumDisplay::renderScene()
                 value = jmin((value) * 255.0f, 255.0f);
                 jassert(value>=0.0f);
                 fftAlphaValues[i] = static_cast<uint8>(value);
+                spectrumImage.setPixelAt(i, 0, Colour(value, value, value));
             }
             fftAlphaValues[0]=0.0f;
-            spectrumTexture.loadAlpha(fftAlphaValues.data(), fftAlphaValues.size(), 1);
+            
+            
+            spectrumTexture.loadImage(spectrumImage);
             //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
             //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glMagFilter);
 
@@ -163,10 +166,10 @@ void SpectrumDisplay::createShaders()
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = uv.x;\n"
         "    x = (440.0 * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
-        "    float fft = texture(iSpectrum,vec2(x,0)).a;\n"
+        "    float fft = texture(iSpectrum,vec2(x,0.0)).r;\n"
         "    float mask = sign(fft - uv.y);\n"
         //"    vec3 col = vec3(fft*mask);\n"
-        "    gl_FragColor = vec4(vec3(0.0),mask);\n"
+        "    gl_FragColor = vec4(vec3(mask),1.0);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
