@@ -84,7 +84,16 @@ void SpectrumDisplay::renderScene()
 
     if (uniforms->iSpectrum != nullptr)
     {
-        if (inputSpectrumSource.getSpectrum(spectrumImage, 0) || outputSpectrumSource.getSpectrum(spectrumImage, 1))
+        bool needToUpdate = false;
+        if (inputSpectrumSource.getSpectrum(spectrumImage, 0))
+        {
+            needToUpdate = true;
+        }
+        if (outputSpectrumSource.getSpectrum(spectrumImage, 1))
+        {
+            needToUpdate = true;
+        }
+        if (needToUpdate)
         {
             spectrumTexture.loadImage(spectrumImage);
             //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
