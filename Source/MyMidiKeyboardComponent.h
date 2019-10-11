@@ -16,13 +16,16 @@
 //==============================================================================
 /*
 */
-class MyMidiKeyboardComponent : public MidiKeyboardComponent
+class MyMidiKeyboardComponent : public MidiKeyboardComponent,
+                                public AudioProcessorValueTreeState::Listener
 {
 public:
     MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p, MidiKeyboardState& state,
-                            Orientation orientation);
+                            Orientation orientation, ParameterHelper& ph);
 
     ~MyMidiKeyboardComponent();
+
+    void parameterChanged(const String& parameterID, float newValue) override;
 
 protected:
     bool mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e) override;
@@ -38,6 +41,7 @@ protected:
 
 private:
     OvertoneFilterAudioProcessor& processor;
+    ParameterHelper& parameterHelper;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MyMidiKeyboardComponent)
 };

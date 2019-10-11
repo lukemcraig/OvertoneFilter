@@ -13,15 +13,26 @@
 
 //==============================================================================
 MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p, MidiKeyboardState& state,
-                                                 Orientation orientation) : MidiKeyboardComponent(state, orientation),
-                                                                            processor(p)
+                                                 Orientation orientation, ParameterHelper& ph) :
+    MidiKeyboardComponent(state, orientation),
+    processor(p), parameterHelper(ph)
 {
     //setColour(whiteNoteColourId, Colours::transparentWhite);
     //setColour(blackNoteColourId, Colour(0x88000000));
+    parameterHelper.valueTreeState.addParameterListener(parameterHelper.pidPitchStandard, this);
 }
 
 MyMidiKeyboardComponent::~MyMidiKeyboardComponent()
 {
+    parameterHelper.valueTreeState.removeParameterListener(parameterHelper.pidPitchStandard, this);
+}
+
+void MyMidiKeyboardComponent::parameterChanged(const String& parameterID, float newValue)
+{
+    if (parameterID == parameterHelper.pidPitchStandard)
+    {
+        repaint();
+    }
 }
 
 //==============================================================================
@@ -61,7 +72,7 @@ void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, Rec
 
     auto text = getWhiteNoteText(midiNoteNumber);
     //todo standard
-    const auto freq = 440.0f * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
+    const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
     auto freqText = String(freq);
     //text += NewLine::getDefault() + freqText;
     if (text.isNotEmpty())
