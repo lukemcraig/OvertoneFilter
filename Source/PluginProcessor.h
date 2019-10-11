@@ -3,6 +3,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ParameterHelper.h"
 #include "LevelMeterAudioSource.h"
+#include "SpectrumSource.h"
 
 //==============================================================================
 /**
@@ -79,20 +80,7 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    enum
-    {
-        fftOrder = 12,
-        fftSize = 1 << fftOrder,
-        hopSize = fftSize / 2,
-        fftSizePositive = 1 << (fftOrder - 1)
-    };
 
-    dsp::FFT forwardFFT;
-    dsp::WindowingFunction<float> window;
-    std::array<float, fftSize> fifo;
-    std::array<float, 2 * fftSize> fftData{};
-    int fifoIndex = 0;
-    bool nextFFTBlockReady = false;
     //==============================================================================
 
 private:
@@ -114,6 +102,8 @@ private:
     LevelMeterAudioSource inputLevel;
     LevelMeterAudioSource wetMixLevel;
     LevelMeterAudioSource outputLevel;
+    //==============================================================================
+    SpectrumSource spectrumSource;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterAudioProcessor)
 };

@@ -12,7 +12,10 @@
 #include "SpectrumDisplay.h"
 
 //==============================================================================
-SpectrumDisplay::SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc) : openGLContext(oc), processor(p)
+SpectrumDisplay::
+SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc, SpectrumSource& ss) : openGLContext(oc),
+                                                                                          processor(p),
+                                                                                          spectrumSource(ss)
 {
 }
 
@@ -22,7 +25,6 @@ SpectrumDisplay::~SpectrumDisplay()
 
 void SpectrumDisplay::paint(Graphics& g)
 {
-
 }
 
 void SpectrumDisplay::resized()
@@ -81,41 +83,14 @@ void SpectrumDisplay::renderScene()
 
     if (uniforms->iSpectrum != nullptr)
     {
-        if (processor.nextFFTBlockReady)
+        if (spectrumSource.getSpectrum(spectrumImage))
         {
-            processor.window.multiplyWithWindowingTable(processor.fftData.data(),
-                                                        OvertoneFilterAudioProcessor::fftSize);
-            processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData.data());
-
-            std::array<uint8, OvertoneFilterAudioProcessor::fftSizePositive> fftAlphaValues{};
-            for (int i = 0; i < OvertoneFilterAudioProcessor::fftSizePositive; ++i)
-            {
-                //todo proper scaling
-                auto value = processor.fftData[i];
-
-                auto mindB = -100.0f;
-                auto maxdB = 0.0f;
-
-                value = jmap(jlimit(mindB, maxdB, Decibels::gainToDecibels(value)
-                                    - Decibels::gainToDecibels(
-                                        static_cast<float>(OvertoneFilterAudioProcessor::fftSize))),
-                             mindB, maxdB, 0.0f, 1.0f);
-
-                value = jmin((value) * 255.0f, 255.0f);
-                jassert(value>=0.0f);
-                fftAlphaValues[i] = static_cast<uint8>(value);
-                spectrumImage.setPixelAt(i, 0, Colour( fftAlphaValues[i],fftAlphaValues[i],fftAlphaValues[i],fftAlphaValues[i]));
-            }
-            fftAlphaValues[0]=0.0f;
-            
-            
             spectrumTexture.loadImage(spectrumImage);
             //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
             //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glMagFilter);
 
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
-            processor.nextFFTBlockReady = false;
         }
     }
 

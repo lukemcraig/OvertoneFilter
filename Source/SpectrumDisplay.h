@@ -20,7 +20,7 @@
 class SpectrumDisplay : public Component
 {
 public:
-    SpectrumDisplay(OvertoneFilterAudioProcessor&, OpenGLContext&);
+    SpectrumDisplay(OvertoneFilterAudioProcessor&, OpenGLContext&, SpectrumSource&);
 
     ~SpectrumDisplay();
 
@@ -45,8 +45,10 @@ public:
 
 private:
     OvertoneFilterAudioProcessor& processor;
+    SpectrumSource& spectrumSource;
     OpenGLTexture spectrumTexture;
-    Image spectrumImage = Image(Image::PixelFormat::ARGB,OvertoneFilterAudioProcessor::fftSizePositive, 1,true);
+    Image spectrumImage = Image(Image::PixelFormat::ARGB, SpectrumSource::fftSizePositive, 1, true);
+
     //==============================================================================
     struct Vertex
     {

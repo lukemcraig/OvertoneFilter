@@ -9,7 +9,7 @@ OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
                      .withOutput("Output", AudioChannelSet::stereo(), true)
       ),
 #endif
-      parameterHelper(*this), forwardFFT(fftOrder), window(fftSize, dsp::WindowingFunction<float>::hann)
+      parameterHelper(*this)
 {
 }
 
@@ -155,27 +155,10 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         // input meter
         if (channel == 0)
         {
-            inputLevel.pushSample(buffer.getSample(0, startSample + sample));
-            // spectrum data
-            if (fifoIndex % hopSize == 0)
-            {
-                if (! nextFFTBlockReady)
-                {
-                    auto fifoRead = fifoIndex;
-                    for (int i = 0; i < fftSize; ++i)
-                    {
-                        if (fifoRead == fftSize)
-                            fifoRead = 0;
-                        fftData[i] = fifo[fifoRead];
-                        ++fifoRead;
-                    }
-                    nextFFTBlockReady = true;
-                }
-                if (fifoIndex == fftSize)
-                    fifoIndex = 0;
-            }
-            fifo[fifoIndex] = buffer.getSample(0, startSample + sample);
-            ++fifoIndex;
+            auto sampleData = buffer.getSample(0, startSample + sample);
+            inputLevel.pushSample(sampleData);
+            spectrumSource.pushSample(sampleData);
+            
         }
     }
 
@@ -270,7 +253,7 @@ bool OvertoneFilterAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 {
-    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel);
+    return new OvertoneFilterEditor(*this, parameterHelper, keyboardState, inputLevel, wetMixLevel, outputLevel, spectrumSource);
 }
 
 //==============================================================================
