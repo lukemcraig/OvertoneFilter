@@ -96,8 +96,10 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(borderPath);
     }
     {
+        nameLabel.setFont(30);
         nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
         nameLabel.setJustificationType(Justification::centred);
+        nameLabel.setColour(Label::textColourId, Colours::white);
         addAndMakeVisible(nameLabel);
     }
     {
@@ -156,9 +158,8 @@ void OvertoneFilterEditor::paint(Graphics& g)
     //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
     g.setColour(Colour(0xFF000000));
-    g.fillRect(keyboard.getBounds().expanded(10,10));
+    g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
     //g.setFont(15.0f);
-    
 }
 
 void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea)
@@ -176,12 +177,6 @@ void OvertoneFilterEditor::resized()
     // margins
     //area.reduce(10, 10);
 
-    //{
-    //    auto nameArea = area.removeFromTop(10).withSizeKeepingCentre(
-    //        6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
-    //    nameLabel.setPaintingIsUnclipped(true);
-    //    nameLabel.setBounds(nameArea);
-    //}
     //{
     //    auto pad = 10;
     //    auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
@@ -202,6 +197,14 @@ void OvertoneFilterEditor::resized()
     //    borderPath.setPath(roundPath);
     //}
     //area.reduce(10, 10);
+    area.removeFromBottom(10);
+    {
+        auto nameArea = area.removeFromBottom(30).withSizeKeepingCentre(
+            6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
+        nameLabel.setPaintingIsUnclipped(true);
+        nameLabel.setBounds(nameArea);
+    }
+
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(10, 10);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
     keyboardSpectrumArea.removeFromTop(10);
@@ -294,7 +297,7 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(nameLabel.getBounds());
 
         imageG.fillRect(keyboard.getBounds());
-        //imageG.fillRect(spectrumDisplay.getBounds());
+        imageG.fillRect(spectrumDisplay.getBounds());
     }
 }
 
