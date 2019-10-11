@@ -27,7 +27,7 @@ public:
 
     enum
     {
-        fftOrder = 12,
+        fftOrder = 11,
         fftSize = 1 << fftOrder,
         hopSize = fftSize / 2,
         fftSizePositive = 1 << (fftOrder - 1)

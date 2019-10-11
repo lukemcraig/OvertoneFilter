@@ -96,8 +96,8 @@ void SpectrumDisplay::renderScene()
         if (needToUpdate)
         {
             spectrumTexture.loadImage(spectrumImage);
-            //glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
-            //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glMagFilter);
+            glBindTexture (GL_TEXTURE_2D, spectrumTexture.getTextureID());
+            //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
