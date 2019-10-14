@@ -3,7 +3,7 @@
 
 //==============================================================================
 OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations //TODO remove this ifndef
+#ifndef JucePlugin_PreferredChannelConfigurations 
     : AudioProcessor(BusesProperties()
                      .withInput("Input", AudioChannelSet::stereo(), true)
                      .withOutput("Output", AudioChannelSet::stereo(), true)
@@ -53,6 +53,9 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     inputLevel.prepare(0.010f, sampleRate);
     wetMixLevel.prepare(0.010f, sampleRate);
     outputLevel.prepare(0.010f, sampleRate);
+    //--------
+    outputSpectrumSource.setSampleRate(sampleRate);
+    inputSpectrumSource.setSampleRate(sampleRate);
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()

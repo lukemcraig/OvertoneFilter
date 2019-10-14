@@ -71,7 +71,7 @@ void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, Rec
     g.fillRect(area);
 
     auto text = getWhiteNoteText(midiNoteNumber);
-    //todo standard
+
     const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
     auto freqText = String(freq);
     //text += NewLine::getDefault() + freqText;

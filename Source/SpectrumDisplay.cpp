@@ -100,6 +100,22 @@ void SpectrumDisplay::renderScene()
         uniforms->iPitchStandard->set(parameterHelper.getCurrentPitchStandard(0));
     }
 
+    if (uniforms->iMinNote != nullptr)
+    {
+        uniforms->iMinNote->set(0.0f);
+    }
+
+    if (uniforms->iMaxNote != nullptr)
+    {
+        uniforms->iMaxNote->set(127.0f);
+    }
+
+    if (uniforms->iNyquist != nullptr)
+    {
+        auto nyq = inputSpectrumSource.getSampleRate()/2.0;
+        uniforms->iNyquist->set(static_cast<GLfloat>(nyq));
+    }
+
     quad->draw(openGLContext, *attributes);
 }
 
@@ -132,21 +148,21 @@ void SpectrumDisplay::createShaders()
         "    gl_Position = vec4(position.xy*5.0,0.0,1.0);\n"
         "}\n";
 
-    // todo sample rate and min and max notes
     fragmentShader =
-        "#define minNote 0.0\n"
-        "#define maxNote 127.0\n"
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
         "uniform float iPitchStandard;\n"
         "uniform sampler2D iSpectrum;\n"
+        "uniform float iMinNote;\n"
+        "uniform float iMaxNote;\n"
+        "uniform float iNyquist;\n"
 
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = uv.x;\n"
-        "    x = (iPitchStandard * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
+        "    x = (iPitchStandard * pow(2.0,(x * (iMaxNote-iMinNote)+iMinNote - 69.0)/12.0))/iNyquist;\n"
         "    float fftinput = texture(iSpectrum,vec2(x,1.0)).r;\n"
         "    float fftoutput = texture(iSpectrum,vec2(x,0.0)).r;\n"
         "    if(fftoutput>uv.y){\n"
@@ -206,6 +222,9 @@ SpectrumDisplay::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderPr
     iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
     iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
     iPitchStandard.reset(createUniform(openGLContext, shaderProgram, "iPitchStandard"));
+    iMinNote.reset(createUniform(openGLContext, shaderProgram, "iMinNote"));
+    iMaxNote.reset(createUniform(openGLContext, shaderProgram, "iMaxNote"));
+    iNyquist.reset(createUniform(openGLContext, shaderProgram, "iNyquist"));
 }
 
 OpenGLShaderProgram::Uniform* SpectrumDisplay::Uniforms::createUniform(OpenGLContext& openGLContext,

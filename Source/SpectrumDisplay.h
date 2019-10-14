@@ -59,7 +59,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iViewport, iSpectrum, iPitchStandard;
+            iResolution, iViewport, iSpectrum, iPitchStandard, iMinNote, iMaxNote, iNyquist;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,

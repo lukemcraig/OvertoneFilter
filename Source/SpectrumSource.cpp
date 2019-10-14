@@ -27,7 +27,6 @@ bool SpectrumSource::getSpectrum(Image& spectrumImage, int row)
 
         for (int i = 0; i < fftSizePositive; ++i)
         {
-            //todo proper scaling
             auto value = fftData[i];
 
             value = jmap(jlimit(mindB, maxdB, Decibels::gainToDecibels(value)
