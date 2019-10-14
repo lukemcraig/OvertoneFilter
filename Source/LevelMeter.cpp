@@ -24,6 +24,8 @@ LevelMeter::~LevelMeter()
 
 void LevelMeter::paint(Graphics& g)
 {
+    g.setColour(Colours::black);
+    g.drawRect(getLocalBounds());
 }
 
 void LevelMeter::resized()
@@ -110,8 +112,9 @@ void LevelMeter::createShaders()
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
-        "    vec3 col = mix(quietColor, loudColor, uv.x);\n"
-        "    float mask = clamp(sign(iLevel - uv.x),0.3,1.0);\n"
+        //"    vec3 col = mix(quietColor, loudColor, uv.x);\n"
+        "    vec3 col = loudColor;\n"
+        "    float mask = clamp(sign(iLevel - uv.x),0.0,1.0);\n"
         "    gl_FragColor = vec4(col*mask, 1.0);\n"
         "}\n";
 
