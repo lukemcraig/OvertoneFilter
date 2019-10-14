@@ -166,8 +166,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
 
     auto subBlock = blockChannel.getSubBlock(startSample, numSamples);
 
-    //TODO this isn't called per sample so need to skip
-    const auto resonance = parameterHelper.getQ(channel);
+    const auto resonance = parameterHelper.getCurrentResonance(channel);
     for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
     {
         const auto filterIndex = channel * numFiltersPerChannel + filterN;
@@ -205,6 +204,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
             outputSpectrumSource.pushSample(sampleData);
         }
     }
+    parameterHelper.skipResonance(channel, numSamples);
     parameterHelper.skipPitchStandard(channel, numSamples);
 }
 

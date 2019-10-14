@@ -52,7 +52,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         qSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         qSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(qSlider);
-        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
+        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidResonance, qSlider));
 
         qLabel.setText("Resonance", dontSendNotification);
         qLabel.setJustificationType(Justification::centred);
