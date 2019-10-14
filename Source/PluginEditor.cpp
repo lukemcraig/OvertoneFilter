@@ -14,8 +14,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       parameterHelper(ph),
       keyboardState(ks),
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard, parameterHelper),
-      inputMeter(inputLevel, openGLContext, Colours::blueviolet),
-      wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
+      inputMeter(inputLevel, openGLContext),
+      wetMixMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
       spectrumDisplay(p, openGLContext, iss, oss, ph)
 {
@@ -42,17 +42,17 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(standardSlider);
         standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
                                                       parameterHelper.pidPitchStandard, standardSlider));
-        
+
         standardLabel.setText("Pitch Standard", dontSendNotification);
         standardLabel.setJustificationType(Justification::centred);
-        addAndMakeVisible(standardLabel);                
+        addAndMakeVisible(standardLabel);
     }
     {
         qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         qSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         qSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(qSlider);
-        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidQ, qSlider));
+        qAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidResonance, qSlider));
 
         qLabel.setText("Resonance", dontSendNotification);
         qLabel.setJustificationType(Justification::centred);
@@ -143,7 +143,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
     setResizable(true, true);
-    //setResizeLimits(400, 400, 1680, 1050);
+
     setSize(1240, 680);
 }
 
@@ -178,31 +178,7 @@ void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
-    //DBG(area.getWidth());
-    //DBG(area.getHeight());
-    // margins
-    //area.reduce(10, 10);
 
-    //{
-    //    auto pad = 10;
-    //    auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
-
-    //    const auto topLeft = area.getTopLeft();
-    //    const auto bottomLeft = area.getBottomLeft();
-    //    const auto bottomRight = area.getBottomRight();
-    //    const auto topRight = area.getTopRight();
-
-    //    Path path;
-    //    path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
-    //    path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
-    //    path.lineTo(bottomLeft.getX(), bottomLeft.getY());
-    //    path.lineTo(bottomRight.getX(), bottomRight.getY());
-    //    path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
-    //    path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
-    //    auto roundPath = path.createPathWithRoundedCorners(3);
-    //    borderPath.setPath(roundPath);
-    //}
-    //area.reduce(10, 10);
     area.removeFromBottom(10);
     {
         auto nameArea = area.removeFromBottom(30).withSizeKeepingCentre(
@@ -219,18 +195,6 @@ void OvertoneFilterEditor::resized()
     keyboard.setAvailableRange(0, 127);
 
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
-
-    //for (int i = 127; i >= 0; --i)
-    //{
-    //    auto ksp = keyboard.getKeyStartPosition(i);
-    //    auto keyWidth = keyboard.getKeyWidth();
-    //    auto lastNote = keyboard.getNoteAtPosition(Point<float>(ksp + (keyWidth * 0.5f), 0));
-    //    if (lastNote != -1)
-    //    {
-    //        DBG(lastNote);
-    //        break;
-    //    }
-    //}
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
@@ -278,9 +242,6 @@ void OvertoneFilterEditor::resized()
     auto qSliderArea = sliderArea.removeFromLeft(sliderHeight);
     setLabelAreaAboveCentered(qLabel, qSliderArea);
     qSlider.setBounds(qSliderArea);
-
-    //const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
-    //keyboard.setBounds(keyboardArea);
 
     // extra boundaries for the background shader
     {
@@ -343,7 +304,6 @@ void OvertoneFilterEditor::shutdownOpenGL()
 
 void OvertoneFilterEditor::setupFBO()
 {
-    //1.
     // Generate and bind the frame buffer
     openGLContext.extensions.glGenFramebuffers(1, &fboHandle);
     openGLContext.extensions.glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
@@ -351,7 +311,7 @@ void OvertoneFilterEditor::setupFBO()
     //create the texture object
     glGenTextures(1, &renderTex);
     // Use texture unit 0
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
     //TODO how to get this outside of
@@ -404,9 +364,9 @@ void OvertoneFilterEditor::setupFBO()
 void OvertoneFilterEditor::renderToTexture()
 {
     // Viewport for the texture
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = (float)openGLContext.getRenderingScale();
+    const auto width = roundToInt(desktopScale * getWidth());
+    const auto height = roundToInt(desktopScale * getHeight());
     glViewport(0, 0, width, height);
 
     bufferAProgram->use();
@@ -427,12 +387,6 @@ void OvertoneFilterEditor::renderToTexture()
         uniforms2->iFrame->set(frameCounter);
     }
 
-    if (uniforms2->slider0 != nullptr)
-    {
-        //todo
-        uniforms2->slider0->set(static_cast<GLfloat>(0.0367));
-    }
-
     if (uniforms2->iChannel0 != nullptr)
     {
         uniforms2->iChannel0->set(0);
@@ -440,11 +394,12 @@ void OvertoneFilterEditor::renderToTexture()
 
     if (uniforms2->iChannel1 != nullptr)
     {
-        uniforms2->iChannel1->set(1);
+        const auto boundariesTextureId = boundariesTexture.getTextureID();
+        uniforms2->iChannel1->set(static_cast<GLint>(boundariesTextureId));
     }
     if (uniforms2->iChannel2 != nullptr)
     {
-        uniforms2->iChannel2->set(2);
+        uniforms2->iChannel2->set(static_cast<GLint>(renderTex));
     }
 
     // render texture scene
@@ -454,9 +409,9 @@ void OvertoneFilterEditor::renderToTexture()
 void OvertoneFilterEditor::renderScene()
 {
     //render scene
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
+    const auto width = roundToInt(desktopScale * getWidth());
+    const auto height = roundToInt(desktopScale * getHeight());
     glViewport(0, 0, width, height);
 
     shaderProgram->use();
@@ -466,38 +421,11 @@ void OvertoneFilterEditor::renderScene()
         uniforms->iResolution->set(width, height);
     }
 
-    if (uniforms->iTime != nullptr)
-    {
-        const float sec = Time::getMillisecondCounterHiRes() * 0.001f;
-        uniforms->iTime->set(sec);
-    }
-
-    if (uniforms->iFrame != nullptr)
-    {
-        uniforms->iFrame->set(frameCounter);
-    }
-
-    if (uniforms->slider0 != nullptr)
-    {
-        //todo
-        uniforms->slider0->set(static_cast<GLfloat>(0.0367));
-    }
-
     if (uniforms->iChannel0 != nullptr)
     {
         // Use the texture that is associated with the FBO
         uniforms->iChannel0->set(0);
     }
-    //todo
-    //if (uniforms->iSpectrum != nullptr)
-    //{
-    //    if (processor.nextFFTBlockReady)
-    //    {
-    //        processor.forwardFFT.performFrequencyOnlyForwardTransform(processor.fftData);
-    //        processor.nextFFTBlockReady = false;
-    //        uniforms->iSpectrum->set(processor.fftData, ShaderGui3AudioProcessor::fftSize);
-    //    }
-    //}
 
     quad->draw(openGLContext, *attributes);
 }
@@ -506,18 +434,15 @@ void OvertoneFilterEditor::render()
 {
     jassert(OpenGLHelpers::isContextActive());
     OpenGLHelpers::clear(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
     {
-        openGLContext.extensions.glActiveTexture(GL_TEXTURE2);
+        openGLContext.extensions.glActiveTexture(GL_TEXTURE0+2);
         boundariesTexture.bind();
     }
 
-    //3.
     // Bind to texture's FBO
     openGLContext.extensions.glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
 
@@ -540,14 +465,11 @@ void OvertoneFilterEditor::render()
     spectrumDisplay.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE1);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+1);
 }
 
 void OvertoneFilterEditor::createShaders()
 {
-    auto languageVersion = OpenGLShaderProgram::getLanguageVersion();
-    DBG(languageVersion);
-    //todo make these const
     vertexShader =
         "attribute vec4 position;\n"
         "\n"
@@ -557,10 +479,7 @@ void OvertoneFilterEditor::createShaders()
         "}\n";
 
     fragmentShader =
-        "uniform int iFrame;\n"
-        "uniform float iTime;\n"
         "uniform vec2 iResolution;\n"
-        "uniform float slider0;\n"
         "uniform sampler2D iChannel0;\n"
         "void main()\n"
         "{\n"
@@ -580,15 +499,13 @@ void OvertoneFilterEditor::createShaders()
         "uniform float iTime;\n"
         "uniform int iFrame;\n"
         "uniform vec2 iResolution;\n"
-        "uniform float slider0;\n"
+
         "uniform sampler2D iChannel0;\n"
         "uniform sampler2D iChannel1;\n"
         "uniform sampler2D iChannel2;\n"
         "#define d_a 1.0\n"
         "#define d_b 0.4\n"
-        "//#define f 0.0367\n"
-        "#define f slider0\n"
-        "\n"
+        "#define f 0.0367\n"
         "//#define k 0.06\n"
         "#define k k3(uv)\n"
         "float k3(vec2 uv){\n"
@@ -731,45 +648,14 @@ void OvertoneFilterEditor::openGLContextClosing()
 
 //==============================================================================
 
-OvertoneFilterEditor::Attributes::Attributes(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
-{
-    position.reset(createAttribute(openGLContext, shaderProgram, "position"));
-}
-
-void OvertoneFilterEditor::Attributes::enable(OpenGLContext& glContext)
-{
-    if (position.get() != nullptr)
-    {
-        glContext.extensions.glVertexAttribPointer(position->attributeID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                                                   nullptr);
-        glContext.extensions.glEnableVertexAttribArray(position->attributeID);
-    }
-}
-
-void OvertoneFilterEditor::Attributes::disable(OpenGLContext& glContext)
-{
-    if (position.get() != nullptr) glContext.extensions.glDisableVertexAttribArray(position->attributeID);
-}
-
-OpenGLShaderProgram::Attribute* OvertoneFilterEditor::Attributes::createAttribute(
-    OpenGLContext& openGLContext, OpenGLShaderProgram& shader, const char* attributeName)
-{
-    if (openGLContext.extensions.glGetAttribLocation(shader.getProgramID(), attributeName) < 0)
-        return nullptr;
-
-    return new OpenGLShaderProgram::Attribute(shader, attributeName);
-}
-
 OvertoneFilterEditor::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
 {
     iResolution.reset(createUniform(openGLContext, shaderProgram, "iResolution"));
     iTime.reset(createUniform(openGLContext, shaderProgram, "iTime"));
     iFrame.reset(createUniform(openGLContext, shaderProgram, "iFrame"));
-    slider0.reset(createUniform(openGLContext, shaderProgram, "slider0"));
     iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iChannel2.reset(createUniform(openGLContext, shaderProgram, "iChannel2"));
-    iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
 }
 
 OpenGLShaderProgram::Uniform* OvertoneFilterEditor::Uniforms::createUniform(OpenGLContext& openGLContext,
@@ -781,91 +667,4 @@ OpenGLShaderProgram::Uniform* OvertoneFilterEditor::Uniforms::createUniform(Open
         return nullptr;
 
     return new OpenGLShaderProgram::Uniform(shaderProgram, uniformName);
-}
-
-OvertoneFilterEditor::Shape::Shape(OpenGLContext& glContext)
-{
-    //auto objFileContent = loadEntireAssetIntoString("quad.obj");
-    String objFileContent{
-        "v -1.000000 -1.000000 0.000000\n"
-        "v 1.000000 -1.000000 0.000000\n"
-        "v -1.000000 1.000000 -0.000000\n"
-        "v 1.000000 1.000000 -0.000000\n"
-        "f 2 3 1\n"
-        "f 2 4 3\n"
-    };
-    if (shapeFile.load(objFileContent).wasOk())
-        for (auto* shapeVertices : shapeFile.shapes)
-            vertexBuffers.add(new VertexBuffer(glContext, *shapeVertices));
-}
-
-void OvertoneFilterEditor::Shape::draw(OpenGLContext& glContext, Attributes& glAttributes)
-{
-    for (auto* vertexBuffer : vertexBuffers)
-    {
-        vertexBuffer->bind();
-
-        glAttributes.enable(glContext);
-        glDrawElements(GL_TRIANGLES, vertexBuffer->numIndices, GL_UNSIGNED_INT, nullptr);
-        glAttributes.disable(glContext);
-    }
-}
-
-OvertoneFilterEditor::Shape::VertexBuffer::VertexBuffer(OpenGLContext& context,
-                                                        WavefrontObjFile::Shape& aShape): openGLContext(
-    context)
-{
-    numIndices = aShape.mesh.indices.size();
-
-    openGLContext.extensions.glGenBuffers(1, &vertexBuffer);
-    openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-    Array<Vertex> vertices;
-    createVertexListFromMesh(aShape.mesh, vertices, Colours::green);
-
-    openGLContext.extensions.glBufferData(GL_ARRAY_BUFFER,
-                                          static_cast<GLsizeiptr>(static_cast<size_t>(vertices.size()) *
-                                              sizeof(Vertex)),
-                                          vertices.getRawDataPointer(), GL_STATIC_DRAW);
-
-    openGLContext.extensions.glGenBuffers(1, &indexBuffer);
-    openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    openGLContext.extensions.glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                                          static_cast<GLsizeiptr>(static_cast<size_t>(numIndices) * sizeof(
-                                              juce::uint32)),
-                                          aShape.mesh.indices.getRawDataPointer(), GL_STATIC_DRAW);
-}
-
-OvertoneFilterEditor::Shape::VertexBuffer::~VertexBuffer()
-{
-    openGLContext.extensions.glDeleteBuffers(1, &vertexBuffer);
-    openGLContext.extensions.glDeleteBuffers(1, &indexBuffer);
-}
-
-void OvertoneFilterEditor::Shape::VertexBuffer::bind()
-{
-    openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-}
-
-void OvertoneFilterEditor::Shape::createVertexListFromMesh(const WavefrontObjFile::Mesh& mesh,
-                                                           Array<Vertex>& list, Colour colour)
-{
-    auto scale = 0.2f;
-    WavefrontObjFile::TextureCoord defaultTexCoord{0.5f, 0.5f};
-    WavefrontObjFile::Vertex defaultNormal{0.5f, 0.5f, 0.5f};
-
-    for (auto i = 0; i < mesh.vertices.size(); ++i)
-    {
-        const auto& v = mesh.vertices.getReference(i);
-        const auto& n = i < mesh.normals.size() ? mesh.normals.getReference(i) : defaultNormal;
-        const auto& tc = i < mesh.textureCoords.size() ? mesh.textureCoords.getReference(i) : defaultTexCoord;
-
-        list.add({
-            {scale * v.x, scale * v.y, scale * v.z,},
-            {scale * n.x, scale * n.y, scale * n.z,},
-            {colour.getFloatRed(), colour.getFloatGreen(), colour.getFloatBlue(), colour.getFloatAlpha()},
-            {tc.x, tc.y}
-        });
-    }
 }

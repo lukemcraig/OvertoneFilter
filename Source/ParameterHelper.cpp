@@ -23,7 +23,7 @@ ParameterHelper::~ParameterHelper()
 void ParameterHelper::prepare(const int numChannels)
 {
     smoothStandard.resize(numChannels);
-    smoothQ.resize(numChannels);
+    smoothResonance.resize(numChannels);
     smoothMix.resize(numChannels);
 
     smoothInGain.resize(numChannels);
@@ -37,7 +37,7 @@ void ParameterHelper::resetSmoothers(const double sampleRate)
 {
     for (auto& smoother : smoothStandard)
         smoother.reset(sampleRate, 0.0);
-    for (auto& smoother : smoothQ)
+    for (auto& smoother : smoothResonance)
         smoother.reset(sampleRate, 0.0);
     for (auto& smoother : smoothMix)
         smoother.reset(sampleRate, 0.1);
@@ -54,8 +54,8 @@ void ParameterHelper::instantlyUpdateSmoothers()
 {
     for (auto& smoother : smoothStandard)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidPitchStandard));
-    for (auto& smoother : smoothQ)
-        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidQ));
+    for (auto& smoother : smoothResonance)
+        smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidResonance));
     for (auto& smoother : smoothMix)
         smoother.setCurrentAndTargetValue(*valueTreeState.getRawParameterValue(pidMix));
 
@@ -71,8 +71,8 @@ void ParameterHelper::updateSmoothers()
 {
     for (auto& smoother : smoothStandard)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidPitchStandard));
-    for (auto& smoother : smoothQ)
-        smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidQ));
+    for (auto& smoother : smoothResonance)
+        smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidResonance));
 
     for (auto& smoother : smoothInGain)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidInputGain));
@@ -98,9 +98,14 @@ void ParameterHelper::skipPitchStandard(int channel, int numSamples)
     smoothStandard[channel].skip(numSamples);
 }
 
-float ParameterHelper::getQ(const int channel)
+float ParameterHelper::getCurrentResonance(const int channel)
 {
-    return smoothQ[channel].getNextValue();
+    return smoothResonance[channel].getCurrentValue();
+}
+
+void ParameterHelper::skipResonance(int channel, const int numSamples)
+{
+     smoothResonance[channel].skip(numSamples);
 }
 
 float ParameterHelper::getInputGain(int channel)
@@ -165,7 +170,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
 {
     std::vector<std::unique_ptr<RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<AudioParameterFloat>(pidQ,
+    params.push_back(std::make_unique<AudioParameterFloat>(pidResonance,
                                                            "Resonance",
                                                            NormalisableRange<float>(0.1f, 0.95f, 0, 1.0f),
                                                            0.85f,

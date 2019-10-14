@@ -11,8 +11,8 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "WavefrontObjParser.h"
 #include "PluginProcessor.h"
+#include "Shape.h"
 
 //==============================================================================
 /*
@@ -45,47 +45,21 @@ public:
 
 private:
     OvertoneFilterAudioProcessor& processor;
+    OpenGLContext& openGLContext;
     ParameterHelper& parameterHelper;
     SpectrumSource& inputSpectrumSource;
     SpectrumSource& outputSpectrumSource;
+
     OpenGLTexture spectrumTexture;
     Image spectrumImage = Image(Image::PixelFormat::ARGB, SpectrumSource::fftSizePositive, 2, true);
 
     //==============================================================================
-    struct Vertex
-    {
-        float position[3];
-        float normal[3];
-        float colour[4];
-        float texCoord[2];
-    };
-
-    //==============================================================================
-    // This class just manages the attributes that the shaders use.
-    struct Attributes
-    {
-        Attributes(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
-
-        void enable(OpenGLContext& glContext);
-
-        void disable(OpenGLContext& glContext);
-
-        std::unique_ptr<OpenGLShaderProgram::Attribute> position;
-
-    private:
-        static OpenGLShaderProgram::Attribute* createAttribute(OpenGLContext& openGLContext,
-                                                               OpenGLShaderProgram& shader,
-                                                               const char* attributeName);
-    };
-
-    //==============================================================================
-    // This class just manages the uniform values that the demo shaders use.
     struct Uniforms
     {
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum, iViewport, iPitchStandard;
+            iResolution, iViewport, iSpectrum, iPitchStandard, iMinNote, iMaxNote, iNyquist;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,
@@ -93,40 +67,7 @@ private:
                                                            const char* uniformName);
     };
 
-    //==============================================================================
-    /** This loads a 3D model from an OBJ file and converts it into some vertex buffers
-        that we can draw.
-    */
-    struct Shape
-    {
-        Shape(OpenGLContext& glContext);
-
-        void draw(OpenGLContext& glContext, Attributes& glAttributes);
-
-    private:
-        struct VertexBuffer
-        {
-            VertexBuffer(OpenGLContext& context, WavefrontObjFile::Shape& aShape);
-
-            ~VertexBuffer();
-
-            void bind();
-
-            GLuint vertexBuffer, indexBuffer;
-            int numIndices;
-            OpenGLContext& openGLContext;
-
-            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VertexBuffer)
-        };
-
-        WavefrontObjFile shapeFile;
-        OwnedArray<VertexBuffer> vertexBuffers;
-
-        static void createVertexListFromMesh(const WavefrontObjFile::Mesh& mesh, Array<Vertex>& list, Colour colour);
-    };
-
     String vertexShader;
-    String textureShader;
     String fragmentShader;
 
     std::unique_ptr<OpenGLShaderProgram> shaderProgram;
@@ -136,12 +77,5 @@ private:
 
     //==============================================================================
 
-    /** The GL context */
-    OpenGLContext& openGLContext;
-    int frameCounter{};
-
-    GLuint fboHandle;
-    GLuint renderTex;
-    GLuint depthBuf;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrumDisplay)
 };

@@ -25,6 +25,10 @@ public:
 
     void pushSample(float sample);
 
+    void setSampleRate(double newSampleRate) { sampleRate = newSampleRate; }
+
+    double getSampleRate() { return sampleRate; }
+
     enum
     {
         fftOrder = 11,
@@ -43,6 +47,7 @@ public:
 private:
     float mindB = -100.0f;
     float maxdB = 0.0f;
+    double sampleRate{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrumSource)
 };

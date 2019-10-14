@@ -11,39 +11,44 @@
               defines="JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES">
   <MAINGROUP id="uOFHnM" name="Overtone Filter">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
-      <FILE id="Hmbq2R" name="SpectrumSource.cpp" compile="1" resource="0"
-            file="Source/SpectrumSource.cpp"/>
-      <FILE id="fErKmX" name="SpectrumSource.h" compile="0" resource="0"
-            file="Source/SpectrumSource.h"/>
-      <FILE id="xXN75n" name="SpectrumDisplay.cpp" compile="1" resource="0"
-            file="Source/SpectrumDisplay.cpp"/>
-      <FILE id="n3cBD4" name="SpectrumDisplay.h" compile="0" resource="0"
-            file="Source/SpectrumDisplay.h"/>
-      <FILE id="VWm1jv" name="MySlider.cpp" compile="1" resource="0" file="Source/MySlider.cpp"/>
-      <FILE id="kDqZUv" name="MySlider.h" compile="0" resource="0" file="Source/MySlider.h"/>
-      <FILE id="IfoBzH" name="WavefrontObjParser.h" compile="0" resource="0"
-            file="Source/WavefrontObjParser.h"/>
+      <FILE id="VoN6G0" name="Attributes.cpp" compile="1" resource="0" file="Source/Attributes.cpp"/>
+      <FILE id="DKZ8ZX" name="Attributes.h" compile="0" resource="0" file="Source/Attributes.h"/>
+      <FILE id="YSeQk5" name="LevelMeter.cpp" compile="1" resource="0" file="Source/LevelMeter.cpp"/>
+      <FILE id="UbNUYI" name="LevelMeter.h" compile="0" resource="0" file="Source/LevelMeter.h"/>
       <FILE id="GNIWGQ" name="LevelMeterAudioSource.cpp" compile="1" resource="0"
             file="Source/LevelMeterAudioSource.cpp"/>
       <FILE id="SFq2od" name="LevelMeterAudioSource.h" compile="0" resource="0"
             file="Source/LevelMeterAudioSource.h"/>
-      <FILE id="YSeQk5" name="LevelMeter.cpp" compile="1" resource="0" file="Source/LevelMeter.cpp"/>
-      <FILE id="UbNUYI" name="LevelMeter.h" compile="0" resource="0" file="Source/LevelMeter.h"/>
       <FILE id="lCTtY5" name="MyMidiKeyboardComponent.cpp" compile="1" resource="0"
             file="Source/MyMidiKeyboardComponent.cpp"/>
       <FILE id="adCX7G" name="MyMidiKeyboardComponent.h" compile="0" resource="0"
             file="Source/MyMidiKeyboardComponent.h"/>
+      <FILE id="VWm1jv" name="MySlider.cpp" compile="1" resource="0" file="Source/MySlider.cpp"/>
+      <FILE id="kDqZUv" name="MySlider.h" compile="0" resource="0" file="Source/MySlider.h"/>
       <FILE id="ys226C" name="ParameterHelper.cpp" compile="1" resource="0"
             file="Source/ParameterHelper.cpp"/>
       <FILE id="LdGv9r" name="ParameterHelper.h" compile="0" resource="0"
             file="Source/ParameterHelper.h"/>
+      <FILE id="wGHGVp" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="NTDx4n" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="hxzAR3" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="zfHvuy" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="wGHGVp" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="NTDx4n" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="ZOGdda" name="Shape.cpp" compile="1" resource="0" file="Source/Shape.cpp"/>
+      <FILE id="pXGpb9" name="Shape.h" compile="0" resource="0" file="Source/Shape.h"/>
+      <FILE id="xXN75n" name="SpectrumDisplay.cpp" compile="1" resource="0"
+            file="Source/SpectrumDisplay.cpp"/>
+      <FILE id="n3cBD4" name="SpectrumDisplay.h" compile="0" resource="0"
+            file="Source/SpectrumDisplay.h"/>
+      <FILE id="Hmbq2R" name="SpectrumSource.cpp" compile="1" resource="0"
+            file="Source/SpectrumSource.cpp"/>
+      <FILE id="fErKmX" name="SpectrumSource.h" compile="0" resource="0"
+            file="Source/SpectrumSource.h"/>
+      <FILE id="NswlPo" name="Vertex.h" compile="0" resource="0" file="Source/Vertex.h"/>
+      <FILE id="IfoBzH" name="WavefrontObjParser.h" compile="0" resource="0"
+            file="Source/WavefrontObjParser.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

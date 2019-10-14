@@ -41,7 +41,9 @@ public:
     void skipPitchStandard(int channel, int numSamples);
 
     //==============================================================================
-    float getQ(int channel);
+    float getCurrentResonance(int channel);
+
+    void skipResonance(int channel, const int numSamples);
 
     //==============================================================================
     float getInputGain(int channel);
@@ -76,7 +78,7 @@ public:
     const String pidOutputGain = "outputGain";
     const String pidMix = "mix";
     const String pidPitchStandard = "standard";
-    const String pidQ = "q";
+    const String pidResonance = "q";
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
 
@@ -84,7 +86,7 @@ private:
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
     std::vector<SmoothFloat> smoothStandard{};
-    std::vector<SmoothFloat> smoothQ{};
+    std::vector<SmoothFloat> smoothResonance{};
     std::vector<SmoothFloat> smoothInGain{};
     std::vector<SmoothFloat> smoothWetGain{};
     std::vector<SmoothFloat> smoothOutGain{};

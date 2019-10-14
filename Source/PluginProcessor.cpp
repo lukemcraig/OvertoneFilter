@@ -3,7 +3,7 @@
 
 //==============================================================================
 OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations //TODO remove this ifndef
+#ifndef JucePlugin_PreferredChannelConfigurations 
     : AudioProcessor(BusesProperties()
                      .withInput("Input", AudioChannelSet::stereo(), true)
                      .withOutput("Output", AudioChannelSet::stereo(), true)
@@ -53,6 +53,9 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     inputLevel.prepare(0.010f, sampleRate);
     wetMixLevel.prepare(0.010f, sampleRate);
     outputLevel.prepare(0.010f, sampleRate);
+    //--------
+    outputSpectrumSource.setSampleRate(sampleRate);
+    inputSpectrumSource.setSampleRate(sampleRate);
 }
 
 void OvertoneFilterAudioProcessor::releaseResources()
@@ -117,38 +120,41 @@ void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
     parameterHelper.useNoteOffWetDry(channel);
 }
 
-void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
-                                                   const int subBlockSize, int channel,
-                                                   dsp::AudioBlock<float> blockChannel,
-                                                   int startSample)
+void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages, int startSample, const int numSamples,
+                                                       int channel)
 {
-    //todo rename parameters
+    MidiBuffer::Iterator iterator(midiMessages);
+    iterator.setNextSamplePosition(startSample);
+    MidiMessage message;
+    int sampleNumber;
+    while (iterator.getNextEvent(message, sampleNumber))
     {
-        MidiBuffer::Iterator iterator(midiMessages);
-        iterator.setNextSamplePosition(startSample);
-        MidiMessage message;
-        int sampleNumber;
-        while (iterator.getNextEvent(message, sampleNumber))
+        if (sampleNumber > startSample + numSamples)
+            break;
+        if (message.isNoteOn())
         {
-            if (sampleNumber > startSample + subBlockSize)
-                break;
-            if (message.isNoteOn())
-            {
-                const auto noteNumber = static_cast<float>(message.getNoteNumber());
-                handleNoteOn(channel, noteNumber);
-            }
+            const auto noteNumber = static_cast<float>(message.getNoteNumber());
+            handleNoteOn(channel, noteNumber);
+        }
 
-            else if (message.isNoteOff())
-            {
-                handleNoteOff(channel);
-            }
+        else if (message.isNoteOff())
+        {
+            handleNoteOff(channel);
         }
     }
-    //todo move this out of subblock loop?
-    keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
+}
+
+void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
+                                                   dsp::AudioBlock<float> blockChannel,
+                                                   MidiBuffer& midiMessages,
+                                                   int startSample,
+                                                   const int numSamples,
+                                                   int channel)
+{
+    processSubBlockMidi(midiMessages, startSample, numSamples, channel);
 
     // apply gain to the input (wetMix has already been copied, so this doesn't apply to it)
-    for (auto sample = 0; sample < subBlockSize; ++sample)
+    for (auto sample = 0; sample < numSamples; ++sample)
     {
         buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getInputGain(channel));
 
@@ -161,10 +167,9 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         }
     }
 
-    auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+    auto subBlock = blockChannel.getSubBlock(startSample, numSamples);
 
-    //TODO this isn't called per sample so need to skip
-    const auto resonance = parameterHelper.getQ(channel);
+    const auto resonance = parameterHelper.getCurrentResonance(channel);
     for (auto filterN = 0; filterN < numFiltersPerChannel; ++filterN)
     {
         const auto filterIndex = channel * numFiltersPerChannel + filterN;
@@ -173,7 +178,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         filters[filterIndex]->process(
             dsp::ProcessContextReplacing<float>(subBlock));
     }
-    for (auto sample = 0; sample < subBlockSize; ++sample)
+    for (auto sample = 0; sample < numSamples; ++sample)
     {
         // apply the gain to the wet signal
         wetMix.applyGain(channel, startSample + sample, 1, parameterHelper.getWetGain(channel));
@@ -202,7 +207,8 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
             outputSpectrumSource.pushSample(sampleData);
         }
     }
-    parameterHelper.skipPitchStandard(channel, subBlockSize);
+    parameterHelper.skipResonance(channel, numSamples);
+    parameterHelper.skipPitchStandard(channel, numSamples);
 }
 
 void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -217,6 +223,9 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
         buffer.clear(i, 0, buffer.getNumSamples());
 
     parameterHelper.updateSmoothers();
+
+    // this just updates the GUI keyboard component
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -235,12 +244,12 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
         for (auto i = 0; i < numSubBlocks; ++i)
         {
             const auto startSample = i * subBlockSize;
-            processSubBlock(buffer, midiMessages, subBlockSize, channel, blockChannel, startSample);
+            processSubBlock(buffer, blockChannel, midiMessages, startSample, subBlockSize, channel);
         }
         if (samplesLeft > 0)
         {
             const auto startSample = numSubBlocks * subBlockSize;
-            processSubBlock(buffer, midiMessages, samplesLeft, channel, blockChannel, startSample);
+            processSubBlock(buffer, blockChannel, midiMessages, startSample, samplesLeft, channel);
         }
     }
 }

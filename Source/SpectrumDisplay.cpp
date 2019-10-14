@@ -72,20 +72,9 @@ void SpectrumDisplay::renderScene()
         uniforms->iViewport->set(x, y);
     }
 
-    if (uniforms->iTime != nullptr)
-    {
-        const float sec = Time::getMillisecondCounterHiRes() * 0.001f;
-        uniforms->iTime->set(sec);
-    }
-
-    if (uniforms->iFrame != nullptr)
-    {
-        uniforms->iFrame->set(frameCounter);
-    }
-
     if (uniforms->iSpectrum != nullptr)
     {
-        bool needToUpdate = false;
+        auto needToUpdate = false;
         if (inputSpectrumSource.getSpectrum(spectrumImage, 0))
         {
             needToUpdate = true;
@@ -97,17 +86,34 @@ void SpectrumDisplay::renderScene()
         if (needToUpdate)
         {
             spectrumTexture.loadImage(spectrumImage);
-            glBindTexture(GL_TEXTURE_2D, spectrumTexture.getTextureID());
-            //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            const auto spectrumTextureId = spectrumTexture.getTextureID();
+            glBindTexture(GL_TEXTURE_2D, spectrumTextureId);
 
-            jassert(spectrumTexture.getTextureID()==3);
-            uniforms->iSpectrum->set(3);
+            jassert(spectrumTextureId==3);
+
+            uniforms->iSpectrum->set(static_cast<GLint>(spectrumTextureId));
         }
     }
 
     if (uniforms->iPitchStandard != nullptr)
     {
         uniforms->iPitchStandard->set(parameterHelper.getCurrentPitchStandard(0));
+    }
+
+    if (uniforms->iMinNote != nullptr)
+    {
+        uniforms->iMinNote->set(0.0f);
+    }
+
+    if (uniforms->iMaxNote != nullptr)
+    {
+        uniforms->iMaxNote->set(127.0f);
+    }
+
+    if (uniforms->iNyquist != nullptr)
+    {
+        auto nyq = inputSpectrumSource.getSampleRate()/2.0;
+        uniforms->iNyquist->set(static_cast<GLfloat>(nyq));
     }
 
     quad->draw(openGLContext, *attributes);
@@ -142,21 +148,21 @@ void SpectrumDisplay::createShaders()
         "    gl_Position = vec4(position.xy*5.0,0.0,1.0);\n"
         "}\n";
 
-    // todo sample rate and min and max notes
     fragmentShader =
-        "#define minNote 0.0\n"
-        "#define maxNote 127.0\n"
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
         "uniform float iPitchStandard;\n"
         "uniform sampler2D iSpectrum;\n"
+        "uniform float iMinNote;\n"
+        "uniform float iMaxNote;\n"
+        "uniform float iNyquist;\n"
 
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         "    float x = uv.x;\n"
-        "    x = (iPitchStandard * pow(2.0,(x * (maxNote-minNote)+minNote - 69.0)/12.0))/22050.0;\n"
+        "    x = (iPitchStandard * pow(2.0,(x * (iMaxNote-iMinNote)+iMinNote - 69.0)/12.0))/iNyquist;\n"
         "    float fftinput = texture(iSpectrum,vec2(x,1.0)).r;\n"
         "    float fftoutput = texture(iSpectrum,vec2(x,0.0)).r;\n"
         "    if(fftoutput>uv.y){\n"
@@ -206,52 +212,19 @@ void SpectrumDisplay::createShaders()
 void SpectrumDisplay::renderOpenGL()
 {
     render();
-    ++frameCounter;
 }
 
 //==============================================================================
-//==============================================================================
-
-SpectrumDisplay::Attributes::Attributes(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
-{
-    position.reset(createAttribute(openGLContext, shaderProgram, "position"));
-}
-
-void SpectrumDisplay::Attributes::enable(OpenGLContext& glContext)
-{
-    if (position.get() != nullptr)
-    {
-        glContext.extensions.glVertexAttribPointer(position->attributeID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                                                   nullptr);
-        glContext.extensions.glEnableVertexAttribArray(position->attributeID);
-    }
-}
-
-void SpectrumDisplay::Attributes::disable(OpenGLContext& glContext)
-{
-    if (position.get() != nullptr) glContext.extensions.glDisableVertexAttribArray(position->attributeID);
-}
-
-OpenGLShaderProgram::Attribute* SpectrumDisplay::Attributes::createAttribute(
-    OpenGLContext& openGLContext, OpenGLShaderProgram& shader, const char* attributeName)
-{
-    if (openGLContext.extensions.glGetAttribLocation(shader.getProgramID(), attributeName) < 0)
-        return nullptr;
-
-    return new OpenGLShaderProgram::Attribute(shader, attributeName);
-}
 
 SpectrumDisplay::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
 {
     iResolution.reset(createUniform(openGLContext, shaderProgram, "iResolution"));
-    iTime.reset(createUniform(openGLContext, shaderProgram, "iTime"));
-    iFrame.reset(createUniform(openGLContext, shaderProgram, "iFrame"));
-    slider0.reset(createUniform(openGLContext, shaderProgram, "slider0"));
-    iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
-    iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
     iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
     iPitchStandard.reset(createUniform(openGLContext, shaderProgram, "iPitchStandard"));
+    iMinNote.reset(createUniform(openGLContext, shaderProgram, "iMinNote"));
+    iMaxNote.reset(createUniform(openGLContext, shaderProgram, "iMaxNote"));
+    iNyquist.reset(createUniform(openGLContext, shaderProgram, "iNyquist"));
 }
 
 OpenGLShaderProgram::Uniform* SpectrumDisplay::Uniforms::createUniform(OpenGLContext& openGLContext,
@@ -263,91 +236,4 @@ OpenGLShaderProgram::Uniform* SpectrumDisplay::Uniforms::createUniform(OpenGLCon
         return nullptr;
 
     return new OpenGLShaderProgram::Uniform(shaderProgram, uniformName);
-}
-
-SpectrumDisplay::Shape::Shape(OpenGLContext& glContext)
-{
-    //auto objFileContent = loadEntireAssetIntoString("quad.obj");
-    String objFileContent{
-        "v -1.000000 -1.000000 0.000000\n"
-        "v 1.000000 -1.000000 0.000000\n"
-        "v -1.000000 1.000000 -0.000000\n"
-        "v 1.000000 1.000000 -0.000000\n"
-        "f 2 3 1\n"
-        "f 2 4 3\n"
-    };
-    if (shapeFile.load(objFileContent).wasOk())
-        for (auto* shapeVertices : shapeFile.shapes)
-            vertexBuffers.add(new VertexBuffer(glContext, *shapeVertices));
-}
-
-void SpectrumDisplay::Shape::draw(OpenGLContext& glContext, Attributes& glAttributes)
-{
-    for (auto* vertexBuffer : vertexBuffers)
-    {
-        vertexBuffer->bind();
-
-        glAttributes.enable(glContext);
-        glDrawElements(GL_TRIANGLES, vertexBuffer->numIndices, GL_UNSIGNED_INT, nullptr);
-        glAttributes.disable(glContext);
-    }
-}
-
-SpectrumDisplay::Shape::VertexBuffer::VertexBuffer(OpenGLContext& context,
-                                                   WavefrontObjFile::Shape& aShape): openGLContext(
-    context)
-{
-    numIndices = aShape.mesh.indices.size();
-
-    openGLContext.extensions.glGenBuffers(1, &vertexBuffer);
-    openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-    Array<Vertex> vertices;
-    createVertexListFromMesh(aShape.mesh, vertices, Colours::green);
-
-    openGLContext.extensions.glBufferData(GL_ARRAY_BUFFER,
-                                          static_cast<GLsizeiptr>(static_cast<size_t>(vertices.size()) *
-                                              sizeof(Vertex)),
-                                          vertices.getRawDataPointer(), GL_STATIC_DRAW);
-
-    openGLContext.extensions.glGenBuffers(1, &indexBuffer);
-    openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    openGLContext.extensions.glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                                          static_cast<GLsizeiptr>(static_cast<size_t>(numIndices) * sizeof(
-                                              juce::uint32)),
-                                          aShape.mesh.indices.getRawDataPointer(), GL_STATIC_DRAW);
-}
-
-SpectrumDisplay::Shape::VertexBuffer::~VertexBuffer()
-{
-    openGLContext.extensions.glDeleteBuffers(1, &vertexBuffer);
-    openGLContext.extensions.glDeleteBuffers(1, &indexBuffer);
-}
-
-void SpectrumDisplay::Shape::VertexBuffer::bind()
-{
-    openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-}
-
-void SpectrumDisplay::Shape::createVertexListFromMesh(const WavefrontObjFile::Mesh& mesh,
-                                                      Array<Vertex>& list, Colour colour)
-{
-    auto scale = 0.2f;
-    WavefrontObjFile::TextureCoord defaultTexCoord{0.5f, 0.5f};
-    WavefrontObjFile::Vertex defaultNormal{0.5f, 0.5f, 0.5f};
-
-    for (auto i = 0; i < mesh.vertices.size(); ++i)
-    {
-        const auto& v = mesh.vertices.getReference(i);
-        const auto& n = i < mesh.normals.size() ? mesh.normals.getReference(i) : defaultNormal;
-        const auto& tc = i < mesh.textureCoords.size() ? mesh.textureCoords.getReference(i) : defaultTexCoord;
-
-        list.add({
-            {scale * v.x, scale * v.y, scale * v.z,},
-            {scale * n.x, scale * n.y, scale * n.z,},
-            {colour.getFloatRed(), colour.getFloatGreen(), colour.getFloatBlue(), colour.getFloatAlpha()},
-            {tc.x, tc.y}
-        });
-    }
 }
