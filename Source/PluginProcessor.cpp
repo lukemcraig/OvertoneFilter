@@ -117,6 +117,30 @@ void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
     parameterHelper.useNoteOffWetDry(channel);
 }
 
+void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages, int startSample, const int numSamples,
+                                                       int channel)
+{
+    MidiBuffer::Iterator iterator(midiMessages);
+    iterator.setNextSamplePosition(startSample);
+    MidiMessage message;
+    int sampleNumber;
+    while (iterator.getNextEvent(message, sampleNumber))
+    {
+        if (sampleNumber > startSample + numSamples)
+            break;
+        if (message.isNoteOn())
+        {
+            const auto noteNumber = static_cast<float>(message.getNoteNumber());
+            handleNoteOn(channel, noteNumber);
+        }
+
+        else if (message.isNoteOff())
+        {
+            handleNoteOff(channel);
+        }
+    }
+}
+
 void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
                                                    dsp::AudioBlock<float> blockChannel,
                                                    MidiBuffer& midiMessages,
@@ -124,29 +148,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
                                                    const int numSamples,
                                                    int channel)
 {
-    {
-        MidiBuffer::Iterator iterator(midiMessages);
-        iterator.setNextSamplePosition(startSample);
-        MidiMessage message;
-        int sampleNumber;
-        while (iterator.getNextEvent(message, sampleNumber))
-        {
-            if (sampleNumber > startSample + numSamples)
-                break;
-            if (message.isNoteOn())
-            {
-                const auto noteNumber = static_cast<float>(message.getNoteNumber());
-                handleNoteOn(channel, noteNumber);
-            }
-
-            else if (message.isNoteOff())
-            {
-                handleNoteOff(channel);
-            }
-        }
-    }
-    //todo move this out of subblock loop?
-    keyboardState.processNextMidiBuffer(midiMessages, startSample, numSamples, false);
+    processSubBlockMidi(midiMessages, startSample, numSamples, channel);
 
     // apply gain to the input (wetMix has already been copied, so this doesn't apply to it)
     for (auto sample = 0; sample < numSamples; ++sample)
@@ -218,6 +220,9 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
         buffer.clear(i, 0, buffer.getNumSamples());
 
     parameterHelper.updateSmoothers();
+
+    // this just updates the GUI keyboard component
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {

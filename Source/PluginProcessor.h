@@ -41,6 +41,8 @@ public:
 
     void handleNoteOff(int channel);
 
+    void processSubBlockMidi(MidiBuffer& midiMessages, int startSample, int numSamples, int channel);
+
     void processSubBlock(AudioBuffer<float>& buffer,
                          dsp::AudioBlock<float> blockChannel,
                          MidiBuffer& midiMessages,
@@ -80,8 +82,6 @@ public:
     void getStateInformation(MemoryBlock& destData) override;
 
     void setStateInformation(const void* data, int sizeInBytes) override;
-
-    //==============================================================================
 
     //==============================================================================
 
