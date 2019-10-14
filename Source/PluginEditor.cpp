@@ -8,16 +8,16 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                            LevelMeterAudioSource& inputLevel,
                                            LevelMeterAudioSource& wetMixLevel,
                                            LevelMeterAudioSource& outputLevel,
-                                           SpectrumSource& iss,SpectrumSource& oss)
+                                           SpectrumSource& iss, SpectrumSource& oss)
     : AudioProcessorEditor(&p),
       processor(p),
       parameterHelper(ph),
       keyboardState(ks),
-      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard,parameterHelper),
+      keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard, parameterHelper),
       inputMeter(inputLevel, openGLContext, Colours::blueviolet),
       wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
       outputMeter(outputLevel, openGLContext),
-      spectrumDisplay(p, openGLContext, iss,oss,ph)
+      spectrumDisplay(p, openGLContext, iss, oss, ph)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -27,20 +27,25 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     openGLContext.setContinuousRepainting(true);
 
     // --------
-    getLookAndFeel().setColour(Label::textColourId, Colours::black);
-    getLookAndFeel().setColour(Slider::thumbColourId, Colours::white);
+    {
+        auto& lookAndFeel = getLookAndFeel();
+        lookAndFeel.setColour(Label::textColourId, Colours::black);
+        lookAndFeel.setColour(Slider::thumbColourId, Colours::white);
+        lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::black);
+    }
     // --------
     const auto textEntryBoxWidth = 64;
     {
         standardSlider.setTextBoxStyle(Slider::TextBoxBelow, false, textEntryBoxWidth, 16);
         standardSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+
         addAndMakeVisible(standardSlider);
         standardAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
                                                       parameterHelper.pidPitchStandard, standardSlider));
-
+        
         standardLabel.setText("Pitch Standard", dontSendNotification);
         standardLabel.setJustificationType(Justification::centred);
-        addAndMakeVisible(standardLabel);
+        addAndMakeVisible(standardLabel);                
     }
     {
         qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
@@ -359,9 +364,9 @@ void OvertoneFilterEditor::setupFBO()
 
         //TODO what to do if resolution changes?
         glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, width, height, 0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
-        
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);

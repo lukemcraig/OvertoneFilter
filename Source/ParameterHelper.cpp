@@ -11,7 +11,7 @@
 #include "ParameterHelper.h"
 
 ParameterHelper::ParameterHelper(AudioProcessor& processorToConnectTo): valueTreeState(
-    processorToConnectTo, nullptr, "MidiWahParameters", createParameterLayout())
+    processorToConnectTo, nullptr, "OvertoneFilterParameters", createParameterLayout())
 {
 }
 
@@ -110,7 +110,7 @@ float ParameterHelper::getInputGain(int channel)
 
 float ParameterHelper::getOutGain(int channel)
 {
-     return smoothOutGain[channel].getNextValue();
+    return smoothOutGain[channel].getNextValue();
 }
 
 float ParameterHelper::getWetGain(const int channel)
@@ -168,26 +168,62 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
     params.push_back(std::make_unique<AudioParameterFloat>(pidQ,
                                                            "Resonance",
                                                            NormalisableRange<float>(0.1f, 0.95f, 0, 1.0f),
-                                                           0.85f));
+                                                           0.85f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value * 100.0f, 2) + " %";
+                                                           }));
     params.push_back(std::make_unique<AudioParameterFloat>(pidMix,
                                                            "Mix",
                                                            NormalisableRange<float>(0.0f, 1.0f, 0, 1.0f),
-                                                           0.5f));
+                                                           0.5f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value * 100.0f, 2) + " %";
+                                                           }));
     params.push_back(std::make_unique<AudioParameterFloat>(pidInputGain,
                                                            "Dry Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
-                                                           1.0f));
+                                                           1.0f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value * 100.0f, 2) + " %";
+                                                           }));
     params.push_back(std::make_unique<AudioParameterFloat>(pidWetGain,
                                                            "Wet Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
-                                                           0.75f));
+                                                           0.75f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value * 100.0f, 2) + " %";
+                                                           }));
     params.push_back(std::make_unique<AudioParameterFloat>(pidOutputGain,
                                                            "Out Gain",
                                                            NormalisableRange<float>(0.0f, 2.0f, 0, 1.0f),
-                                                           1.0f));
+                                                           1.0f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value * 100.0f, 2) + " %";
+                                                           }));
     params.push_back(std::make_unique<AudioParameterFloat>(pidPitchStandard,
                                                            "Pitch Standard",
                                                            NormalisableRange<float>(392.0f, 493.88f, 0, 1.0f),
-                                                           440.0f));
+                                                           440.0f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value, 2) + " Hz";
+                                                           }));
     return {params.begin(), params.end()};
 }
