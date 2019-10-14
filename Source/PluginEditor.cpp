@@ -143,7 +143,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
     setResizable(true, true);
-    //setResizeLimits(400, 400, 1680, 1050);
+
     setSize(1240, 680);
 }
 
@@ -178,31 +178,7 @@ void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
-    //DBG(area.getWidth());
-    //DBG(area.getHeight());
-    // margins
-    //area.reduce(10, 10);
 
-    //{
-    //    auto pad = 10;
-    //    auto w = -pad + (area.getWidth() - nameLabel.getFont().getStringWidthFloat(nameLabel.getText())) / 2.0f;
-
-    //    const auto topLeft = area.getTopLeft();
-    //    const auto bottomLeft = area.getBottomLeft();
-    //    const auto bottomRight = area.getBottomRight();
-    //    const auto topRight = area.getTopRight();
-
-    //    Path path;
-    //    path.startNewSubPath(area.getX() + w, area.getY() - 5.0f);
-    //    path.lineTo(topLeft.getX(), topLeft.getY() - 5.0f);
-    //    path.lineTo(bottomLeft.getX(), bottomLeft.getY());
-    //    path.lineTo(bottomRight.getX(), bottomRight.getY());
-    //    path.lineTo(topRight.getX(), topRight.getY() - 5.0f);
-    //    path.lineTo(topRight.getX() - w, topRight.getY() - 5.0f);
-    //    auto roundPath = path.createPathWithRoundedCorners(3);
-    //    borderPath.setPath(roundPath);
-    //}
-    //area.reduce(10, 10);
     area.removeFromBottom(10);
     {
         auto nameArea = area.removeFromBottom(30).withSizeKeepingCentre(
@@ -219,18 +195,6 @@ void OvertoneFilterEditor::resized()
     keyboard.setAvailableRange(0, 127);
 
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
-
-    //for (int i = 127; i >= 0; --i)
-    //{
-    //    auto ksp = keyboard.getKeyStartPosition(i);
-    //    auto keyWidth = keyboard.getKeyWidth();
-    //    auto lastNote = keyboard.getNoteAtPosition(Point<float>(ksp + (keyWidth * 0.5f), 0));
-    //    if (lastNote != -1)
-    //    {
-    //        DBG(lastNote);
-    //        break;
-    //    }
-    //}
 
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
@@ -278,9 +242,6 @@ void OvertoneFilterEditor::resized()
     auto qSliderArea = sliderArea.removeFromLeft(sliderHeight);
     setLabelAreaAboveCentered(qLabel, qSliderArea);
     qSlider.setBounds(qSliderArea);
-
-    //const auto keyboardArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 0);
-    //keyboard.setBounds(keyboardArea);
 
     // extra boundaries for the background shader
     {
@@ -427,12 +388,6 @@ void OvertoneFilterEditor::renderToTexture()
         uniforms2->iFrame->set(frameCounter);
     }
 
-    if (uniforms2->slider0 != nullptr)
-    {
-        //todo
-        uniforms2->slider0->set(static_cast<GLfloat>(0.0367));
-    }
-
     if (uniforms2->iChannel0 != nullptr)
     {
         uniforms2->iChannel0->set(0);
@@ -466,23 +421,6 @@ void OvertoneFilterEditor::renderScene()
         uniforms->iResolution->set(width, height);
     }
 
-    if (uniforms->iTime != nullptr)
-    {
-        const float sec = Time::getMillisecondCounterHiRes() * 0.001f;
-        uniforms->iTime->set(sec);
-    }
-
-    if (uniforms->iFrame != nullptr)
-    {
-        uniforms->iFrame->set(frameCounter);
-    }
-
-    if (uniforms->slider0 != nullptr)
-    {
-        //todo
-        uniforms->slider0->set(static_cast<GLfloat>(0.0367));
-    }
-
     if (uniforms->iChannel0 != nullptr)
     {
         // Use the texture that is associated with the FBO
@@ -496,8 +434,6 @@ void OvertoneFilterEditor::render()
 {
     jassert(OpenGLHelpers::isContextActive());
     OpenGLHelpers::clear(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
     openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
@@ -507,7 +443,6 @@ void OvertoneFilterEditor::render()
         boundariesTexture.bind();
     }
 
-    //3.
     // Bind to texture's FBO
     openGLContext.extensions.glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
 
@@ -535,9 +470,6 @@ void OvertoneFilterEditor::render()
 
 void OvertoneFilterEditor::createShaders()
 {
-    auto languageVersion = OpenGLShaderProgram::getLanguageVersion();
-    DBG(languageVersion);
-    //todo make these const
     vertexShader =
         "attribute vec4 position;\n"
         "\n"
@@ -547,10 +479,7 @@ void OvertoneFilterEditor::createShaders()
         "}\n";
 
     fragmentShader =
-        "uniform int iFrame;\n"
-        "uniform float iTime;\n"
         "uniform vec2 iResolution;\n"
-        "uniform float slider0;\n"
         "uniform sampler2D iChannel0;\n"
         "void main()\n"
         "{\n"
@@ -570,15 +499,13 @@ void OvertoneFilterEditor::createShaders()
         "uniform float iTime;\n"
         "uniform int iFrame;\n"
         "uniform vec2 iResolution;\n"
-        "uniform float slider0;\n"
+
         "uniform sampler2D iChannel0;\n"
         "uniform sampler2D iChannel1;\n"
         "uniform sampler2D iChannel2;\n"
         "#define d_a 1.0\n"
         "#define d_b 0.4\n"
-        "//#define f 0.0367\n"
-        "#define f slider0\n"
-        "\n"
+        "#define f 0.0367\n"
         "//#define k 0.06\n"
         "#define k k3(uv)\n"
         "float k3(vec2 uv){\n"
@@ -726,11 +653,9 @@ OvertoneFilterEditor::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLSha
     iResolution.reset(createUniform(openGLContext, shaderProgram, "iResolution"));
     iTime.reset(createUniform(openGLContext, shaderProgram, "iTime"));
     iFrame.reset(createUniform(openGLContext, shaderProgram, "iFrame"));
-    slider0.reset(createUniform(openGLContext, shaderProgram, "slider0"));
     iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iChannel2.reset(createUniform(openGLContext, shaderProgram, "iChannel2"));
-    iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
 }
 
 OpenGLShaderProgram::Uniform* OvertoneFilterEditor::Uniforms::createUniform(OpenGLContext& openGLContext,

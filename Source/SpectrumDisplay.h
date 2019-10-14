@@ -45,9 +45,11 @@ public:
 
 private:
     OvertoneFilterAudioProcessor& processor;
+    OpenGLContext& openGLContext;
     ParameterHelper& parameterHelper;
     SpectrumSource& inputSpectrumSource;
     SpectrumSource& outputSpectrumSource;
+
     OpenGLTexture spectrumTexture;
     Image spectrumImage = Image(Image::PixelFormat::ARGB, SpectrumSource::fftSizePositive, 2, true);
 
@@ -57,7 +59,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, slider0, iChannel0, iChannel1, iFrame, iSpectrum, iViewport, iPitchStandard;
+            iResolution, iViewport, iSpectrum, iPitchStandard;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,
@@ -75,8 +77,5 @@ private:
 
     //==============================================================================
 
-    /** The GL context */
-    OpenGLContext& openGLContext;
-    int frameCounter{};
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrumDisplay)
 };

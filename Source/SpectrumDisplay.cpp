@@ -72,17 +72,6 @@ void SpectrumDisplay::renderScene()
         uniforms->iViewport->set(x, y);
     }
 
-    if (uniforms->iTime != nullptr)
-    {
-        const float sec = Time::getMillisecondCounterHiRes() * 0.001f;
-        uniforms->iTime->set(sec);
-    }
-
-    if (uniforms->iFrame != nullptr)
-    {
-        uniforms->iFrame->set(frameCounter);
-    }
-
     if (uniforms->iSpectrum != nullptr)
     {
         bool needToUpdate = false;
@@ -98,7 +87,6 @@ void SpectrumDisplay::renderScene()
         {
             spectrumTexture.loadImage(spectrumImage);
             glBindTexture(GL_TEXTURE_2D, spectrumTexture.getTextureID());
-            //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
             jassert(spectrumTexture.getTextureID()==3);
             uniforms->iSpectrum->set(3);
@@ -206,7 +194,6 @@ void SpectrumDisplay::createShaders()
 void SpectrumDisplay::renderOpenGL()
 {
     render();
-    ++frameCounter;
 }
 
 //==============================================================================
@@ -214,11 +201,6 @@ void SpectrumDisplay::renderOpenGL()
 SpectrumDisplay::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
 {
     iResolution.reset(createUniform(openGLContext, shaderProgram, "iResolution"));
-    iTime.reset(createUniform(openGLContext, shaderProgram, "iTime"));
-    iFrame.reset(createUniform(openGLContext, shaderProgram, "iFrame"));
-    slider0.reset(createUniform(openGLContext, shaderProgram, "slider0"));
-    iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
-    iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iSpectrum.reset(createUniform(openGLContext, shaderProgram, "iSpectrum"));
     iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
     iPitchStandard.reset(createUniform(openGLContext, shaderProgram, "iPitchStandard"));
