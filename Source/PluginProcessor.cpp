@@ -117,12 +117,13 @@ void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
     parameterHelper.useNoteOffWetDry(channel);
 }
 
-void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages,
-                                                   const int subBlockSize, int channel,
+void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
                                                    dsp::AudioBlock<float> blockChannel,
-                                                   int startSample)
+                                                   MidiBuffer& midiMessages,
+                                                   int startSample,
+                                                   const int numSamples,
+                                                   int channel)
 {
-    //todo rename parameters
     {
         MidiBuffer::Iterator iterator(midiMessages);
         iterator.setNextSamplePosition(startSample);
@@ -130,7 +131,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         int sampleNumber;
         while (iterator.getNextEvent(message, sampleNumber))
         {
-            if (sampleNumber > startSample + subBlockSize)
+            if (sampleNumber > startSample + numSamples)
                 break;
             if (message.isNoteOn())
             {
@@ -145,10 +146,10 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         }
     }
     //todo move this out of subblock loop?
-    keyboardState.processNextMidiBuffer(midiMessages, startSample, subBlockSize, false);
+    keyboardState.processNextMidiBuffer(midiMessages, startSample, numSamples, false);
 
     // apply gain to the input (wetMix has already been copied, so this doesn't apply to it)
-    for (auto sample = 0; sample < subBlockSize; ++sample)
+    for (auto sample = 0; sample < numSamples; ++sample)
     {
         buffer.applyGain(channel, startSample + sample, 1, parameterHelper.getInputGain(channel));
 
@@ -161,7 +162,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         }
     }
 
-    auto subBlock = blockChannel.getSubBlock(startSample, subBlockSize);
+    auto subBlock = blockChannel.getSubBlock(startSample, numSamples);
 
     //TODO this isn't called per sample so need to skip
     const auto resonance = parameterHelper.getQ(channel);
@@ -173,7 +174,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
         filters[filterIndex]->process(
             dsp::ProcessContextReplacing<float>(subBlock));
     }
-    for (auto sample = 0; sample < subBlockSize; ++sample)
+    for (auto sample = 0; sample < numSamples; ++sample)
     {
         // apply the gain to the wet signal
         wetMix.applyGain(channel, startSample + sample, 1, parameterHelper.getWetGain(channel));
@@ -202,7 +203,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer, M
             outputSpectrumSource.pushSample(sampleData);
         }
     }
-    parameterHelper.skipPitchStandard(channel, subBlockSize);
+    parameterHelper.skipPitchStandard(channel, numSamples);
 }
 
 void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -235,12 +236,12 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
         for (auto i = 0; i < numSubBlocks; ++i)
         {
             const auto startSample = i * subBlockSize;
-            processSubBlock(buffer, midiMessages, subBlockSize, channel, blockChannel, startSample);
+            processSubBlock(buffer, blockChannel, midiMessages, startSample, subBlockSize, channel);
         }
         if (samplesLeft > 0)
         {
             const auto startSample = numSubBlocks * subBlockSize;
-            processSubBlock(buffer, midiMessages, samplesLeft, channel, blockChannel, startSample);
+            processSubBlock(buffer, blockChannel, midiMessages, startSample, samplesLeft, channel);
         }
     }
 }

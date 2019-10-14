@@ -25,7 +25,7 @@ public:
 
 #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
-
+#endif
     /**
      * \brief Handles note on for all channels (called from the GUI)
      * \param noteNumber 
@@ -41,9 +41,11 @@ public:
 
     void handleNoteOff(int channel);
 
-    void processSubBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages, int subBlockSize, int channel,
-                         dsp::AudioBlock<float> blockChannel, int startSample);
-#endif
+    void processSubBlock(AudioBuffer<float>& buffer,
+                         dsp::AudioBlock<float> blockChannel,
+                         MidiBuffer& midiMessages,
+                         int startSample,
+                         int numSamples, int channel);
 
     void processBlock(AudioBuffer<float>&, MidiBuffer&) override;
 
