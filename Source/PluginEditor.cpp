@@ -14,8 +14,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       parameterHelper(ph),
       keyboardState(ks),
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard, parameterHelper),
-      inputMeter(inputLevel, openGLContext, Colours::blueviolet),
-      wetMixMeter(wetMixLevel, openGLContext, Colours::blueviolet),
+      inputMeter(inputLevel, openGLContext),
+      wetMixMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
       spectrumDisplay(p, openGLContext, iss, oss, ph)
 {
