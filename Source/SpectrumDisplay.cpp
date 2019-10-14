@@ -74,7 +74,7 @@ void SpectrumDisplay::renderScene()
 
     if (uniforms->iSpectrum != nullptr)
     {
-        bool needToUpdate = false;
+        auto needToUpdate = false;
         if (inputSpectrumSource.getSpectrum(spectrumImage, 0))
         {
             needToUpdate = true;
@@ -86,10 +86,12 @@ void SpectrumDisplay::renderScene()
         if (needToUpdate)
         {
             spectrumTexture.loadImage(spectrumImage);
-            glBindTexture(GL_TEXTURE_2D, spectrumTexture.getTextureID());
+            const auto spectrumTextureId = spectrumTexture.getTextureID();
+            glBindTexture(GL_TEXTURE_2D, spectrumTextureId);
 
-            jassert(spectrumTexture.getTextureID()==3);
-            uniforms->iSpectrum->set(3);
+            jassert(spectrumTextureId==3);
+
+            uniforms->iSpectrum->set(static_cast<GLint>(spectrumTextureId));
         }
     }
 

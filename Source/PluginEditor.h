@@ -104,10 +104,7 @@ private:
     DrawablePath borderPath;
     Label nameLabel;
 
-    // -------
-    SpectrumDisplay spectrumDisplay;
-    // -----
-    OpenGLTexture boundariesTexture;
+    //==============================================================================
 
     //==============================================================================
     // This class just manages the uniform values that the demo shaders use.
@@ -125,6 +122,15 @@ private:
     };
 
     //==============================================================================
+    OpenGLContext openGLContext;
+    SpectrumDisplay spectrumDisplay;
+
+    GLuint fboHandle;
+    GLuint renderTex;
+    GLuint depthBuf;
+
+    Image componentMask;
+    OpenGLTexture boundariesTexture;
 
     String vertexShader;
     String textureShader;
@@ -135,10 +141,6 @@ private:
     std::unique_ptr<Attributes> attributes, attributes2;
     std::unique_ptr<Uniforms> uniforms, uniforms2;
 
-    //==============================================================================
-
-    /** The GL context */
-    OpenGLContext openGLContext;
     int frameCounter{};
 
     //==============================================================================
@@ -154,11 +156,6 @@ private:
 
     type_glTexStorage2D glTexStorage2D;
     //==============================================================================
-    GLuint fboHandle;
-    GLuint renderTex;
-    GLuint depthBuf;
-
-    Image componentMask;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterEditor)
 };

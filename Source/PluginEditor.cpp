@@ -304,7 +304,6 @@ void OvertoneFilterEditor::shutdownOpenGL()
 
 void OvertoneFilterEditor::setupFBO()
 {
-    //1.
     // Generate and bind the frame buffer
     openGLContext.extensions.glGenFramebuffers(1, &fboHandle);
     openGLContext.extensions.glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
@@ -312,7 +311,7 @@ void OvertoneFilterEditor::setupFBO()
     //create the texture object
     glGenTextures(1, &renderTex);
     // Use texture unit 0
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
     //TODO how to get this outside of
@@ -365,9 +364,9 @@ void OvertoneFilterEditor::setupFBO()
 void OvertoneFilterEditor::renderToTexture()
 {
     // Viewport for the texture
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = (float)openGLContext.getRenderingScale();
+    const auto width = roundToInt(desktopScale * getWidth());
+    const auto height = roundToInt(desktopScale * getHeight());
     glViewport(0, 0, width, height);
 
     bufferAProgram->use();
@@ -395,11 +394,12 @@ void OvertoneFilterEditor::renderToTexture()
 
     if (uniforms2->iChannel1 != nullptr)
     {
-        uniforms2->iChannel1->set(1);
+        const auto boundariesTextureId = boundariesTexture.getTextureID();
+        uniforms2->iChannel1->set(static_cast<GLint>(boundariesTextureId));
     }
     if (uniforms2->iChannel2 != nullptr)
     {
-        uniforms2->iChannel2->set(2);
+        uniforms2->iChannel2->set(static_cast<GLint>(renderTex));
     }
 
     // render texture scene
@@ -409,9 +409,9 @@ void OvertoneFilterEditor::renderToTexture()
 void OvertoneFilterEditor::renderScene()
 {
     //render scene
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
+    const auto width = roundToInt(desktopScale * getWidth());
+    const auto height = roundToInt(desktopScale * getHeight());
     glViewport(0, 0, width, height);
 
     shaderProgram->use();
@@ -435,11 +435,11 @@ void OvertoneFilterEditor::render()
     jassert(OpenGLHelpers::isContextActive());
     OpenGLHelpers::clear(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
     {
-        openGLContext.extensions.glActiveTexture(GL_TEXTURE2);
+        openGLContext.extensions.glActiveTexture(GL_TEXTURE0+2);
         boundariesTexture.bind();
     }
 
@@ -465,7 +465,7 @@ void OvertoneFilterEditor::render()
     spectrumDisplay.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE1);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+1);
 }
 
 void OvertoneFilterEditor::createShaders()
