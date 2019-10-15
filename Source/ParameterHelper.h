@@ -97,9 +97,6 @@ private:
     std::vector<SmoothFloat> smoothWetGain{};
     std::vector<SmoothFloat> smoothOutGain{};
     std::vector<SmoothFloat> smoothMix{};
-    //==============================================================================
-    float mixAttackTime = 0.01;
-    float mixReleaseTime = 0.5;
 
     //==============================================================================
     std::vector<bool> useInternalMix{};

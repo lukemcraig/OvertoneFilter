@@ -158,14 +158,14 @@ void ParameterHelper::setMixRampTime(const int channel, float mixRampTime)
 void ParameterHelper::useNoteOffMix(const int channel)
 {
     useInternalMix[channel] = true;
-    setMixRampTime(channel, mixReleaseTime);
+    setMixRampTime(channel, *valueTreeState.getRawParameterValue(pidMixRelease));
     setMixTarget(channel, 0.0f);
 }
 
 void ParameterHelper::useParamMix(const int channel)
 {
     useInternalMix[channel] = false;
-    setMixRampTime(channel, mixAttackTime);
+    setMixRampTime(channel, *valueTreeState.getRawParameterValue(pidMixAttack));
     setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
 }
 
@@ -243,6 +243,26 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            [](float value, int maximumStringLength)
                                                            {
                                                                return String(value, 2) + " Hz";
+                                                           }));
+    params.push_back(std::make_unique<AudioParameterFloat>(pidMixAttack,
+                                                           "Mix Attack",
+                                                           NormalisableRange<float>(0.01f, 2.0f, 0, 1.0f),
+                                                           0.05f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value, 2) + " s";
+                                                           }));
+    params.push_back(std::make_unique<AudioParameterFloat>(pidMixRelease,
+                                                           "Mix Release",
+                                                           NormalisableRange<float>( 0.01f, 2.0f, 0, 1.0f),
+                                                           0.1f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value, 2) + " s";
                                                            }));
     return {params.begin(), params.end()};
 }

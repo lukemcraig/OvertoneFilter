@@ -26,6 +26,8 @@ void LevelMeter::paint(Graphics& g)
 {
     g.setColour(Colours::black);
     g.drawRect(getLocalBounds());
+    g.setColour(Colours::white);
+    g.drawRect(getLocalBounds().reduced(1, 1));
 }
 
 void LevelMeter::resized()

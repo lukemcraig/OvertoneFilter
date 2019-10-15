@@ -224,6 +224,9 @@ void OvertoneFilterEditor::resized()
 
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
 
+    area.removeFromTop(20);
+    area.removeFromRight(20);
+
     auto leftArea = area.removeFromLeft(area.proportionOfWidth(0.618));
     auto rightArea = area;
 
@@ -238,18 +241,20 @@ void OvertoneFilterEditor::resized()
     outputMeter.setBounds(outputMeterArea.removeFromTop(32));
 
     auto mixSliderArea = rightArea.removeFromBottom(128);
-    mixLabel.setBounds(mixSliderArea.removeFromLeft(32).removeFromTop(32));
+    setLabelAreaAboveCentered(mixLabel, mixSliderArea);
     mixSlider.setBounds(mixSliderArea.removeFromTop(32));
     internalMix.setBounds(mixSliderArea.removeFromTop(32));
 
     auto mixAttackArea = mixSliderArea.removeFromLeft(mixSliderArea.proportionOfWidth(0.5));
     auto mixReleaseArea = mixSliderArea;
 
-    mixAttackLabel.setBounds(mixAttackArea.removeFromTop(16));
+    setLabelAreaAboveCentered(mixAttackLabel, mixAttackArea);
     mixAttackSlider.setBounds(mixAttackArea);
 
-    mixReleaseLabel.setBounds(mixReleaseArea.removeFromTop(16));
+    setLabelAreaAboveCentered(mixReleaseLabel, mixReleaseArea);
     mixReleaseSlider.setBounds(mixReleaseArea);
+
+    rightArea.reduce(0,20);
 
     auto dryMeterArea = rightArea.removeFromLeft(rightArea.proportionOfWidth(0.5));
     auto wetMeterArea = rightArea;
