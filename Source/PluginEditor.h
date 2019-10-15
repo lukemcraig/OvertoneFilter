@@ -81,8 +81,16 @@ private:
     std::unique_ptr<SliderAttachment> mixAttachment;
     Label mixLabel;
 
+    MySlider mixAttackSlider;
+    std::unique_ptr<SliderAttachment> mixAttackAttachment;
+    Label mixAttackLabel;
+
+    MySlider mixReleaseSlider;
+    std::unique_ptr<SliderAttachment> mixReleaseAttachment;
+    Label mixReleaseLabel;
+
     // -----
-    MySlider inputGainSlider;
+    MySlider dryGainSlider;
     std::unique_ptr<SliderAttachment> inputGainAttachment;
     Label inputGainLabel;
 
@@ -95,12 +103,12 @@ private:
     Label outputGainLabel;
     // -----
 
-    LevelMeter inputMeter;
-    LevelMeter wetMixMeter;
+    LevelMeter dryMeter;
+    LevelMeter wetMeter;
     LevelMeter outputMeter;
 
-    Label inputMeterLabel;
-    Label wetMixMeterLabel;
+    Label dryMeterLabel;
+    Label wetMeterLabel;
     Label outputMeterLabel;
     // -----
     Label nameLabel;

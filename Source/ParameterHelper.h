@@ -74,17 +74,18 @@ public:
     void useParamMix(int channel);
 
     //==============================================================================
+    const String pidPitchStandard = "standard";
+    const String pidResonance = "q";
 
     const String pidInputGain = "inputGain";
     const String pidWetGain = "wetGain";
     const String pidOutputGain = "outputGain";
+
     const String pidMix = "mix";
-    const String pidPitchStandard = "standard";
-    const String pidResonance = "q";
+    const String pidMixAttack = "mixAttack";
+    const String pidMixRelease = "mixRelease";
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
-    float mixReleaseTime = 0.5;
-    float mixAttackTime = 0.01;
 
 private:
     double sampleRate{};
@@ -96,6 +97,10 @@ private:
     std::vector<SmoothFloat> smoothWetGain{};
     std::vector<SmoothFloat> smoothOutGain{};
     std::vector<SmoothFloat> smoothMix{};
+    //==============================================================================
+    float mixAttackTime = 0.01;
+    float mixReleaseTime = 0.5;
+
     //==============================================================================
     std::vector<bool> useInternalMix{};
 

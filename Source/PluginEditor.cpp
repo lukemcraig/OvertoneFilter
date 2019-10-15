@@ -14,8 +14,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       parameterHelper(ph),
       keyboardState(ks),
       keyboard(p, ks, MidiKeyboardComponent::horizontalKeyboard, parameterHelper),
-      inputMeter(inputLevel, openGLContext),
-      wetMixMeter(wetMixLevel, openGLContext),
+      dryMeter(inputLevel, openGLContext),
+      wetMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
       spectrumDisplay(p, openGLContext, iss, oss, ph)
 {
@@ -60,7 +60,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         mixSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        mixSlider.setSliderStyle(Slider::LinearVertical);
+        mixSlider.setSliderStyle(Slider::LinearHorizontal);
         mixSlider.setPopupDisplayEnabled(true, true, this);
         addAndMakeVisible(mixSlider);
         mixAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidMix,
@@ -70,20 +70,46 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(mixLabel);
     }
     {
-        internalMix.setRange(0.0,1.0);
+        mixAttackSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        mixAttackSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        mixAttackSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(mixAttackSlider);
+        mixAttackAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
+                                                       parameterHelper.pidMixAttack,
+                                                       mixAttackSlider));
+
+        mixAttackLabel.setText("Attack", dontSendNotification);
+        mixAttackLabel.setJustificationType(Justification::centred);
+        addAndMakeVisible(mixAttackLabel);
+    }
+    {
+        mixReleaseSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        mixReleaseSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        mixReleaseSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(mixReleaseSlider);
+        mixReleaseAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState,
+                                                        parameterHelper.pidMixRelease,
+                                                        mixReleaseSlider));
+
+        mixReleaseLabel.setText("Release", dontSendNotification);
+        mixReleaseLabel.setJustificationType(Justification::centred);
+        addAndMakeVisible(mixReleaseLabel);
+    }
+    {
+        internalMix.setRange(0.0, 1.0);
         internalMix.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        internalMix.setSliderStyle(Slider::LinearVertical);
+        internalMix.setSliderStyle(Slider::LinearHorizontal);
         internalMix.setPopupDisplayEnabled(false, false, this);
         addAndMakeVisible(internalMix);
         startTimer(50);
     }
     {
-        inputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        inputGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-        inputGainSlider.setPopupDisplayEnabled(true, true, this);
-        addAndMakeVisible(inputGainSlider);
+        dryGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        dryGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+        dryGainSlider.setPopupDisplayEnabled(true, true, this);
+        addAndMakeVisible(dryGainSlider);
         inputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidInputGain,
-                                                       inputGainSlider));
+                                                       dryGainSlider));
     }
     {
         wetGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
@@ -109,20 +135,20 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(nameLabel);
     }
     {
-        addAndMakeVisible(inputMeter);
-        addAndMakeVisible(wetMixMeter);
+        addAndMakeVisible(dryMeter);
+        addAndMakeVisible(wetMeter);
         addAndMakeVisible(outputMeter);
 
-        inputMeterLabel.setText("Dry", dontSendNotification);
-        wetMixMeterLabel.setText("Wet", dontSendNotification);
+        dryMeterLabel.setText("Dry", dontSendNotification);
+        wetMeterLabel.setText("Wet", dontSendNotification);
         outputMeterLabel.setText("Output", dontSendNotification);
 
-        inputMeterLabel.setJustificationType(Justification::centred);
-        wetMixMeterLabel.setJustificationType(Justification::centred);
+        dryMeterLabel.setJustificationType(Justification::centred);
+        wetMeterLabel.setJustificationType(Justification::centred);
         outputMeterLabel.setJustificationType(Justification::centred);
 
-        addAndMakeVisible(inputMeterLabel);
-        addAndMakeVisible(wetMixMeterLabel);
+        addAndMakeVisible(dryMeterLabel);
+        addAndMakeVisible(wetMeterLabel);
         addAndMakeVisible(outputMeterLabel);
     }
     {
@@ -135,9 +161,12 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         makeLabelUpperCase(wetGainLabel);
         makeLabelUpperCase(outputGainLabel);
 
-        makeLabelUpperCase(inputMeterLabel);
-        makeLabelUpperCase(wetMixMeterLabel);
+        makeLabelUpperCase(dryMeterLabel);
+        makeLabelUpperCase(wetMeterLabel);
         makeLabelUpperCase(outputMeterLabel);
+
+        makeLabelUpperCase(mixAttackLabel);
+        makeLabelUpperCase(mixReleaseLabel);
     }
     addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
@@ -208,22 +237,30 @@ void OvertoneFilterEditor::resized()
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
     outputMeter.setBounds(outputMeterArea.removeFromTop(32));
 
-    auto mixSliderArea = rightArea.removeFromRight(32);
-    mixLabel.setBounds(mixSliderArea.removeFromTop(16));
-    mixSlider.setBounds(mixSliderArea.removeFromLeft(16));
+    auto mixSliderArea = rightArea.removeFromBottom(128);
+    mixLabel.setBounds(mixSliderArea.removeFromLeft(32).removeFromTop(32));
+    mixSlider.setBounds(mixSliderArea.removeFromTop(32));
+    internalMix.setBounds(mixSliderArea.removeFromTop(32));
 
-    internalMix.setBounds(mixSliderArea);
+    auto mixAttackArea = mixSliderArea.removeFromLeft(mixSliderArea.proportionOfWidth(0.5));
+    auto mixReleaseArea = mixSliderArea;
 
-    auto wetMixMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
-    auto inputMeterArea = rightArea;
+    mixAttackLabel.setBounds(mixAttackArea.removeFromTop(16));
+    mixAttackSlider.setBounds(mixAttackArea);
 
-    setLabelAreaAboveCentered(inputMeterLabel, inputMeterArea);
-    inputMeter.setBounds(inputMeterArea.removeFromBottom(32));
-    inputGainSlider.setBounds(inputMeterArea);
+    mixReleaseLabel.setBounds(mixReleaseArea.removeFromTop(16));
+    mixReleaseSlider.setBounds(mixReleaseArea);
 
-    setLabelAreaAboveCentered(wetMixMeterLabel, wetMixMeterArea);
-    wetMixMeter.setBounds(wetMixMeterArea.removeFromBottom(32));
-    wetGainSlider.setBounds(wetMixMeterArea);
+    auto dryMeterArea = rightArea.removeFromLeft(rightArea.proportionOfWidth(0.5));
+    auto wetMeterArea = rightArea;
+
+    setLabelAreaAboveCentered(dryMeterLabel, dryMeterArea);
+    dryMeter.setBounds(dryMeterArea.removeFromBottom(32).reduced(2, 0));
+    dryGainSlider.setBounds(dryMeterArea);
+
+    setLabelAreaAboveCentered(wetMeterLabel, wetMeterArea);
+    wetMeter.setBounds(wetMeterArea.removeFromBottom(32).reduced(2, 0));
+    wetGainSlider.setBounds(wetMeterArea);
 
     // left area
 
@@ -253,13 +290,16 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(outputMeter.getBounds());
         imageG.fillRect(outputMeterLabel.getBounds());
 
-        imageG.fillRect(wetMixMeter.getBounds());
-        imageG.fillRect(wetMixMeterLabel.getBounds());
+        imageG.fillRect(wetMeter.getBounds());
+        imageG.fillRect(wetMeterLabel.getBounds());
 
-        imageG.fillRect(inputMeter.getBounds());
-        imageG.fillRect(inputMeterLabel.getBounds());
+        imageG.fillRect(dryMeter.getBounds());
+        imageG.fillRect(dryMeterLabel.getBounds());
 
         imageG.fillRect(mixLabel.getBounds());
+        imageG.fillRect(mixAttackLabel.getBounds());
+        imageG.fillRect(mixReleaseLabel.getBounds());
+
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
         imageG.fillRect(nameLabel.getBounds());
@@ -460,8 +500,8 @@ void OvertoneFilterEditor::render()
     openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, 0);
     openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    inputMeter.renderOpenGL();
-    wetMixMeter.renderOpenGL();
+    dryMeter.renderOpenGL();
+    wetMeter.renderOpenGL();
     outputMeter.renderOpenGL();
     spectrumDisplay.renderOpenGL();
 
@@ -626,8 +666,8 @@ void OvertoneFilterEditor::createShaders()
 void OvertoneFilterEditor::newOpenGLContextCreated()
 {
     initialiseOpenGL();
-    inputMeter.initialiseOpenGL();
-    wetMixMeter.initialiseOpenGL();
+    dryMeter.initialiseOpenGL();
+    wetMeter.initialiseOpenGL();
     outputMeter.initialiseOpenGL();
     spectrumDisplay.initialiseOpenGL();
 }
@@ -640,8 +680,8 @@ void OvertoneFilterEditor::renderOpenGL()
 
 void OvertoneFilterEditor::openGLContextClosing()
 {
-    inputMeter.shutdown();
-    wetMixMeter.shutdown();
+    dryMeter.shutdown();
+    wetMeter.shutdown();
     outputMeter.shutdown();
     spectrumDisplay.shutdown();
     shutdown();
