@@ -12,7 +12,8 @@
 /**
 */
 class OvertoneFilterEditor : public AudioProcessorEditor,
-                             public OpenGLRenderer
+                             public OpenGLRenderer,
+                             public Timer
 
 {
 public:
@@ -55,7 +56,9 @@ public:
     void openGLContextClosing() override;
 
     //==============================================================================
+    void timerCallback() override;
 
+    //==============================================================================
 private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
@@ -100,14 +103,13 @@ private:
     Label wetMixMeterLabel;
     Label outputMeterLabel;
     // -----
-    DrawablePath bgPath;
-    DrawablePath borderPath;
     Label nameLabel;
 
-    //==============================================================================
+    // -----
+    Slider internalMix;
 
     //==============================================================================
-    // This class just manages the uniform values that the demo shaders use.
+    // This class manages the uniform values that the shaders use.
     struct Uniforms
     {
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);

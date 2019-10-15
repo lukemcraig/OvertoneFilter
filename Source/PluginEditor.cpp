@@ -69,7 +69,14 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         mixLabel.setText("Mix", dontSendNotification);
         addAndMakeVisible(mixLabel);
     }
-
+    {
+        internalMix.setRange(0.0,1.0);
+        internalMix.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
+        internalMix.setSliderStyle(Slider::LinearVertical);
+        internalMix.setPopupDisplayEnabled(false, false, this);
+        addAndMakeVisible(internalMix);
+        startTimer(100);
+    }
     {
         inputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         inputGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
@@ -93,13 +100,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(outputGainSlider);
         outputGainAttachment.reset(new SliderAttachment(parameterHelper.valueTreeState, parameterHelper.pidOutputGain,
                                                         outputGainSlider));
-    }
-
-    {
-        borderPath.setFill(Colours::transparentBlack);
-        borderPath.setStrokeType(PathStrokeType(1));
-        borderPath.setStrokeFill(Colours::white);
-        addAndMakeVisible(borderPath);
     }
     {
         nameLabel.setFont(30);
@@ -125,7 +125,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(wetMixMeterLabel);
         addAndMakeVisible(outputMeterLabel);
     }
-
     {
         makeLabelUpperCase(nameLabel);
 
@@ -211,7 +210,9 @@ void OvertoneFilterEditor::resized()
 
     auto mixSliderArea = rightArea.removeFromRight(32);
     mixLabel.setBounds(mixSliderArea.removeFromTop(16));
-    mixSlider.setBounds(mixSliderArea);
+    mixSlider.setBounds(mixSliderArea.removeFromLeft(16));
+
+    internalMix.setBounds(mixSliderArea);
 
     auto wetMixMeterArea = rightArea.removeFromTop(rightArea.proportionOfHeight(0.5));
     auto inputMeterArea = rightArea;
@@ -311,7 +312,7 @@ void OvertoneFilterEditor::setupFBO()
     //create the texture object
     glGenTextures(1, &renderTex);
     // Use texture unit 0
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+0);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
     //TODO how to get this outside of
@@ -435,11 +436,11 @@ void OvertoneFilterEditor::render()
     jassert(OpenGLHelpers::isContextActive());
     OpenGLHelpers::clear(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+0);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
 
     {
-        openGLContext.extensions.glActiveTexture(GL_TEXTURE0+2);
+        openGLContext.extensions.glActiveTexture(GL_TEXTURE0 + 2);
         boundariesTexture.bind();
     }
 
@@ -465,7 +466,7 @@ void OvertoneFilterEditor::render()
     spectrumDisplay.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
-    openGLContext.extensions.glActiveTexture(GL_TEXTURE0+1);
+    openGLContext.extensions.glActiveTexture(GL_TEXTURE0 + 1);
 }
 
 void OvertoneFilterEditor::createShaders()
@@ -644,6 +645,12 @@ void OvertoneFilterEditor::openGLContextClosing()
     outputMeter.shutdown();
     spectrumDisplay.shutdown();
     shutdown();
+}
+
+//==============================================================================
+void OvertoneFilterEditor::timerCallback()
+{
+    internalMix.setValue(parameterHelper.getCurrentMix(0));
 }
 
 //==============================================================================

@@ -67,9 +67,9 @@ public:
     void setCurrentMix(int channel, const float currentWetDry);
 
     //==============================================================================
-    void useNoteOffWetDry(int channel);
+    void useNoteOffMix(int channel);
 
-    void useParamWetDry(int channel);
+    void useParamMix(int channel);
 
     //==============================================================================
 
@@ -92,7 +92,7 @@ private:
     std::vector<SmoothFloat> smoothOutGain{};
     std::vector<SmoothFloat> smoothMix{};
     //==============================================================================
-    std::vector<bool> useInternalWetDry{};
+    std::vector<bool> useInternalMix{};
 
     //==============================================================================
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;

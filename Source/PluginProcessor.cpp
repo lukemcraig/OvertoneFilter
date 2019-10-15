@@ -67,7 +67,7 @@ void OvertoneFilterAudioProcessor::releaseResources()
 void OvertoneFilterAudioProcessor::reset()
 {
     for (int i = 0; i < numInputChannels; ++i)
-        parameterHelper.useNoteOffWetDry(i);
+        parameterHelper.useNoteOffMix(i);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -102,7 +102,7 @@ void OvertoneFilterAudioProcessor::handleNoteOn(const float noteNumber)
 
 void OvertoneFilterAudioProcessor::handleNoteOn(int channel, const float noteNumber)
 {
-    parameterHelper.useParamWetDry(channel);
+    parameterHelper.useParamMix(channel);
     // todo it might make more sense to store the current note number and calculate the filterCutoff at even intervals instead
     const auto standard = parameterHelper.getCurrentPitchStandard(channel);
     const auto newFreq = standard * std::pow(2.0f, (noteNumber - 69.0f) / 12.0f);
@@ -117,7 +117,7 @@ void OvertoneFilterAudioProcessor::handleNoteOff()
 
 void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
 {
-    parameterHelper.useNoteOffWetDry(channel);
+    parameterHelper.useNoteOffMix(channel);
 }
 
 void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages, int startSample, const int numSamples,

@@ -30,7 +30,7 @@ void ParameterHelper::prepare(const int numChannels)
     smoothWetGain.resize(numChannels);
     smoothOutGain.resize(numChannels);
 
-    useInternalWetDry.resize(numChannels);
+    useInternalMix.resize(numChannels);
 }
 
 void ParameterHelper::resetSmoothers(const double sampleRate)
@@ -83,7 +83,7 @@ void ParameterHelper::updateSmoothers()
 
     for (auto i = 0; i < smoothMix.size(); ++i)
     {
-        if (!useInternalWetDry[i])
+        if (!useInternalMix[i])
             smoothMix[i].setTargetValue(*valueTreeState.getRawParameterValue(pidMix));
     }
 }
@@ -153,15 +153,15 @@ void ParameterHelper::setCurrentWetGain(const int channel, const float currentGa
     smoothWetGain[channel].setCurrentAndTargetValue(currentGain);
 }
 
-void ParameterHelper::useNoteOffWetDry(const int channel)
+void ParameterHelper::useNoteOffMix(const int channel)
 {
-    useInternalWetDry[channel] = true;
+    useInternalMix[channel] = true;
     setMixTarget(channel, 0.0f);
 }
 
-void ParameterHelper::useParamWetDry(const int channel)
+void ParameterHelper::useParamMix(const int channel)
 {
-    useInternalWetDry[channel] = false;
+    useInternalMix[channel] = false;
     setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
 }
 
