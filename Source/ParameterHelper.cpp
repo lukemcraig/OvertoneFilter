@@ -256,7 +256,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            }));
     params.push_back(std::make_unique<AudioParameterFloat>(pidMixRelease,
                                                            "Mix Release",
-                                                           NormalisableRange<float>( 0.01f, 2.0f, 0, 1.0f),
+                                                           NormalisableRange<float>(0.01f, 2.0f, 0, 1.0f),
                                                            0.1f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,

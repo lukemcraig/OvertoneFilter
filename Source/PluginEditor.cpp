@@ -17,7 +17,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       dryMeter(inputLevel, openGLContext),
       wetMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
-      spectrumDisplay(p, openGLContext, iss, oss, ph)
+      spectrumDisplay(p, openGLContext, iss, oss, ph),
+      mixSlider(openGLContext, ph)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -254,7 +255,7 @@ void OvertoneFilterEditor::resized()
     setLabelAreaAboveCentered(mixReleaseLabel, mixReleaseArea);
     mixReleaseSlider.setBounds(mixReleaseArea);
 
-    rightArea.reduce(0,20);
+    rightArea.reduce(0, 20);
 
     auto dryMeterArea = rightArea.removeFromLeft(rightArea.proportionOfWidth(0.5));
     auto wetMeterArea = rightArea;
@@ -509,6 +510,7 @@ void OvertoneFilterEditor::render()
     wetMeter.renderOpenGL();
     outputMeter.renderOpenGL();
     spectrumDisplay.renderOpenGL();
+    mixSlider.renderOpenGL();
 
     // needed to use the child components as a texture. I think this is using cachedImageFrameBuffer somehow.
     openGLContext.extensions.glActiveTexture(GL_TEXTURE0 + 1);
@@ -675,6 +677,7 @@ void OvertoneFilterEditor::newOpenGLContextCreated()
     wetMeter.initialiseOpenGL();
     outputMeter.initialiseOpenGL();
     spectrumDisplay.initialiseOpenGL();
+    mixSlider.initialiseOpenGL();
 }
 
 void OvertoneFilterEditor::renderOpenGL()
@@ -689,6 +692,7 @@ void OvertoneFilterEditor::openGLContextClosing()
     wetMeter.shutdown();
     outputMeter.shutdown();
     spectrumDisplay.shutdown();
+    mixSlider.shutdown();
     shutdown();
 }
 

@@ -7,6 +7,7 @@
 #include "MySlider.h"
 #include "SpectrumDisplay.h"
 #include "Shape.h"
+#include "SliderWithMeter.h"
 
 //==============================================================================
 /**
@@ -77,10 +78,6 @@ private:
     std::unique_ptr<SliderAttachment> qAttachment;
     Label qLabel;
 
-    MySlider mixSlider;
-    std::unique_ptr<SliderAttachment> mixAttachment;
-    Label mixLabel;
-
     MySlider mixAttackSlider;
     std::unique_ptr<SliderAttachment> mixAttackAttachment;
     Label mixAttackLabel;
@@ -134,6 +131,10 @@ private:
     //==============================================================================
     OpenGLContext openGLContext;
     SpectrumDisplay spectrumDisplay;
+
+    SliderWithMeter mixSlider;
+    std::unique_ptr<SliderAttachment> mixAttachment;
+    Label mixLabel;
 
     GLuint fboHandle;
     GLuint renderTex;

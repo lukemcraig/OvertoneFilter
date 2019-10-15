@@ -38,6 +38,10 @@
             file="Source/PluginProcessor.h"/>
       <FILE id="ZOGdda" name="Shape.cpp" compile="1" resource="0" file="Source/Shape.cpp"/>
       <FILE id="pXGpb9" name="Shape.h" compile="0" resource="0" file="Source/Shape.h"/>
+      <FILE id="skvGOS" name="SliderWithMeter.cpp" compile="1" resource="0"
+            file="Source/SliderWithMeter.cpp"/>
+      <FILE id="uy9tPA" name="SliderWithMeter.h" compile="0" resource="0"
+            file="Source/SliderWithMeter.h"/>
       <FILE id="xXN75n" name="SpectrumDisplay.cpp" compile="1" resource="0"
             file="Source/SpectrumDisplay.cpp"/>
       <FILE id="n3cBD4" name="SpectrumDisplay.h" compile="0" resource="0"
