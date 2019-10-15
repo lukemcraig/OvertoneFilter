@@ -19,6 +19,8 @@ MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p
 {
     //setColour(whiteNoteColourId, Colours::transparentWhite);
     //setColour(blackNoteColourId, Colour(0x88000000));
+    setColour(mouseOverKeyOverlayColourId, Colours::lightskyblue);
+    setColour(keyDownOverlayColourId, Colours::darkblue);
     parameterHelper.valueTreeState.addParameterListener(parameterHelper.pidPitchStandard, this);
 }
 
@@ -35,29 +37,28 @@ void MyMidiKeyboardComponent::parameterChanged(const String& parameterID, float 
     }
 }
 
+void MyMidiKeyboardComponent::mouseUp(const MouseEvent& e)
+{
+    MidiKeyboardComponent::mouseUp(e);
+    if (currentNoteDown != -1)
+    {
+        processor.handleNoteOff(static_cast<float>(currentNoteDown));
+    }
+    currentNoteDown = -1;
+}
+
 //==============================================================================
 bool MyMidiKeyboardComponent::mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e)
 {
-    processor.handleNoteOn(static_cast<float>(midiNoteNumber));
     return false;
 }
 
 bool MyMidiKeyboardComponent::mouseDownOnKey(int midiNoteNumber, const MouseEvent& e)
 {
+    currentNoteDown = midiNoteNumber;
     processor.handleNoteOn(static_cast<float>(midiNoteNumber));
     return false;
 }
-
-void MyMidiKeyboardComponent::mouseUpOnKey(int midiNoteNumber, const MouseEvent& e)
-{
-    processor.handleNoteOff(static_cast<float>(midiNoteNumber));
-}
-
-//String MyMidiKeyboardComponent::getWhiteNoteText(int midiNoteNumber)
-//{
-//    const auto freq = 440.0f * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
-//    return MidiKeyboardComponent::getWhiteNoteText(midiNoteNumber) +"\n"+ String(freq) + " Hz";
-//}
 
 void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, Rectangle<float> area,
                                             bool isDown, bool isOver, Colour lineColour, Colour textColour)

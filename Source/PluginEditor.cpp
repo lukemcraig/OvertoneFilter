@@ -75,7 +75,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         internalMix.setSliderStyle(Slider::LinearVertical);
         internalMix.setPopupDisplayEnabled(false, false, this);
         addAndMakeVisible(internalMix);
-        startTimer(100);
+        startTimer(50);
     }
     {
         inputGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
