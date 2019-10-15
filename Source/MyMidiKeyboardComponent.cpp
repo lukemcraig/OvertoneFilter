@@ -50,7 +50,7 @@ bool MyMidiKeyboardComponent::mouseDownOnKey(int midiNoteNumber, const MouseEven
 
 void MyMidiKeyboardComponent::mouseUpOnKey(int midiNoteNumber, const MouseEvent& e)
 {
-    processor.handleNoteOff();
+    processor.handleNoteOff(static_cast<float>(midiNoteNumber));
 }
 
 //String MyMidiKeyboardComponent::getWhiteNoteText(int midiNoteNumber)
