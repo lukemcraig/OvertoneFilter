@@ -486,9 +486,9 @@ void OvertoneFilterEditor::createShaders()
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
-        "    vec3 fg = vec3(1., 1., 1.);\n"
-        "    vec3 bg = vec3( 0.0, 0.0, 0.0);\n"
-        "    vec3 col = mix(bg,fg,1.-vec3(texture2D(iChannel0,uv).y));  \n"
+        "    vec3 bg = vec3(.518, .698, .353);\n"
+        "    vec3 fg = vec3( .208, 0.196, 0.475);\n"
+        "    vec3 col = mix(fg,bg,1.-vec3(texture2D(iChannel0,uv).y));  \n"
 
         "    vec2 uvCenter = uv * ( 1.0 - uv.xy);\n"
         "    float vignette = uvCenter.x * uvCenter.y * 15.0;\n"

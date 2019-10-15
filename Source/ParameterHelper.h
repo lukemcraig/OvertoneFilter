@@ -43,7 +43,7 @@ public:
     //==============================================================================
     float getCurrentResonance(int channel);
 
-    void skipResonance(int channel, const int numSamples);
+    void skipResonance(int channel, int numSamples);
 
     //==============================================================================
     float getInputGain(int channel);
@@ -55,7 +55,7 @@ public:
 
     float getCurrentWetGain(int channel);
 
-    void setCurrentWetGain(int channel, const float currentGain);
+    void setCurrentWetGain(int channel, float currentGain);
 
     //==============================================================================
     float getMix(int channel);
@@ -64,7 +64,9 @@ public:
 
     float getCurrentMix(int channel);
 
-    void setCurrentMix(int channel, const float currentWetDry);
+    void setCurrentMix(int channel, float currentWetDry);
+
+    void setMixRampTime(int channel, float mixRampTime);
 
     //==============================================================================
     void useNoteOffMix(int channel);
@@ -81,8 +83,11 @@ public:
     const String pidResonance = "q";
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
+    float mixReleaseTime = 0.5;
+    float mixAttackTime = 0.01;
 
 private:
+    double sampleRate{};
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
     std::vector<SmoothFloat> smoothStandard{};

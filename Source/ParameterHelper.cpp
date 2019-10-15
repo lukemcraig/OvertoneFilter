@@ -35,6 +35,8 @@ void ParameterHelper::prepare(const int numChannels)
 
 void ParameterHelper::resetSmoothers(const double sampleRate)
 {
+    this->sampleRate = sampleRate;
+
     for (auto& smoother : smoothStandard)
         smoother.reset(sampleRate, 0.0);
     for (auto& smoother : smoothResonance)
@@ -105,7 +107,7 @@ float ParameterHelper::getCurrentResonance(const int channel)
 
 void ParameterHelper::skipResonance(int channel, const int numSamples)
 {
-     smoothResonance[channel].skip(numSamples);
+    smoothResonance[channel].skip(numSamples);
 }
 
 float ParameterHelper::getInputGain(int channel)
@@ -143,6 +145,30 @@ void ParameterHelper::setCurrentMix(const int channel, const float currentWetDry
     smoothMix[channel].setCurrentAndTargetValue(currentWetDry);
 }
 
+void ParameterHelper::setMixRampTime(const int channel, float mixRampTime)
+{
+    jassert(sampleRate>0);
+    auto cv = smoothMix[channel].getCurrentValue();
+    auto tv = smoothMix[channel].getTargetValue();
+    smoothMix[channel].reset(sampleRate, mixRampTime);
+    smoothMix[channel].setCurrentAndTargetValue(cv);
+    smoothMix[channel].setTargetValue(tv);
+}
+
+void ParameterHelper::useNoteOffMix(const int channel)
+{
+    useInternalMix[channel] = true;
+    setMixRampTime(channel, mixReleaseTime);
+    setMixTarget(channel, 0.0f);
+}
+
+void ParameterHelper::useParamMix(const int channel)
+{
+    useInternalMix[channel] = false;
+    setMixRampTime(channel, mixAttackTime);
+    setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
+}
+
 float ParameterHelper::getCurrentWetGain(const int channel)
 {
     return smoothWetGain[channel].getCurrentValue();
@@ -151,18 +177,6 @@ float ParameterHelper::getCurrentWetGain(const int channel)
 void ParameterHelper::setCurrentWetGain(const int channel, const float currentGain)
 {
     smoothWetGain[channel].setCurrentAndTargetValue(currentGain);
-}
-
-void ParameterHelper::useNoteOffMix(const int channel)
-{
-    useInternalMix[channel] = true;
-    setMixTarget(channel, 0.0f);
-}
-
-void ParameterHelper::useParamMix(const int channel)
-{
-    useInternalMix[channel] = false;
-    setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
 }
 
 //==============================================================================
