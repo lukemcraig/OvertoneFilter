@@ -100,6 +100,8 @@ private:
     LevelMeter wetMeter;
     LevelMeter outputMeter;
 
+    LevelMeterAudioSource& outputLevel;
+
     Label dryMeterLabel;
     Label wetMeterLabel;
     Label outputMeterLabel;
@@ -113,7 +115,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, iFrame, iChannel0, iChannel1, iChannel2;
+            iResolution, iTime, iFrame, iChannel0, iChannel1, iChannel2, iLevel;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,

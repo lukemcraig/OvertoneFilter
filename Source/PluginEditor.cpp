@@ -18,7 +18,8 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       wetMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
       spectrumDisplay(p, openGLContext, iss, oss, ph),
-      mixSlider(openGLContext, ph)
+      mixSlider(openGLContext, ph),
+      outputLevel(outputLevel)
 {
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
@@ -165,7 +166,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     addAndMakeVisible(keyboard);
     setResizable(true, true);
 
-    setSize(1240, 680);
+    setSize(1280, 640);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
@@ -438,6 +439,10 @@ void OvertoneFilterEditor::renderToTexture()
     {
         uniforms2->iChannel2->set(static_cast<GLint>(renderTex));
     }
+    if (uniforms2->iLevel != nullptr)
+    {
+        uniforms2->iLevel->set(outputLevel.getLevel());
+    }
 
     // render texture scene
     quad->draw(openGLContext, *attributes2);
@@ -537,29 +542,17 @@ void OvertoneFilterEditor::createShaders()
         "uniform float iTime;\n"
         "uniform int iFrame;\n"
         "uniform vec2 iResolution;\n"
+        "uniform float iLevel;\n"
 
         "uniform sampler2D iChannel0;\n"
         "uniform sampler2D iChannel1;\n"
         "uniform sampler2D iChannel2;\n"
 
-        "#define m 1\n"
-
         "#define d_a 1.0\n"
         "#define d_b 0.3\n"
         "#define f 0.05\n"
-        "#define k 0.06\n"
-        // "#define k k3(uv,iResolution)\n"
-        "float k3(vec2 uv, vec2 iResolution){\n"
-        "    vec2 p =  1. /  iResolution.xy;\n"
-        "    float maxPix = (0.);\n"
-        "    for (int i=-m;i<=m;i++){\n"
-        "        for (int j=-m;j<=m;j++){\n"
-        "           maxPix = max(maxPix,texture2D(iChannel1,uv+p*vec2(i,j)).a);\n"
-        "        }\n"
-        "    }"
-        "        return (1.0 - maxPix )*0.06;\n"
-        "}\n"
-        "\n"
+        "#define k mix(0.06,0.065,sin(iTime))\n"
+
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
         "  vec2 p = 1. / iResolution.xy;\n"
         "  return texture2D(iChannel0,uv) * -1.0\n"
@@ -607,7 +600,7 @@ void OvertoneFilterEditor::createShaders()
         "    if(iFrame <= 1) {\n"
         "        // initialize A and B\n"
         "        col.x = 1.0; \n"
-        "        if(uv.y>0.5 && uv.y<0.75){\n"
+        "        if((uv.y>0.9 && uv.y<1.0)||(uv.y>0.5 && uv.y<0.75)){\n"
         "            col.y = random(uv)*0.5;\n"
         "        }"
         "    } "
@@ -616,7 +609,7 @@ void OvertoneFilterEditor::createShaders()
         "    col.y = updateB(uv,iChannel0,iResolution, iTime);\n"
         "    }\n"
         "    col.x = min(col.x,1.0-max(texture2D(iChannel2,uv).a,texture2D(iChannel1,uv).a));\n"
-        "    col.y = clamp(col.y,0.0,0.9);\n"
+        //"    col.y = clamp(col.y,0.0,0.9);\n"
         "    // store A and B\n"
         "    gl_FragColor = vec4(col,1.,1.);\n"
         "}";
@@ -708,6 +701,7 @@ OvertoneFilterEditor::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLSha
     iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iChannel2.reset(createUniform(openGLContext, shaderProgram, "iChannel2"));
+    iLevel.reset(createUniform(openGLContext, shaderProgram, "iLevel"));
 }
 
 OpenGLShaderProgram::Uniform* OvertoneFilterEditor::Uniforms::createUniform(OpenGLContext& openGLContext,
