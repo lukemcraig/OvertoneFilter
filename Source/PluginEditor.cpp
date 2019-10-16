@@ -551,7 +551,7 @@ void OvertoneFilterEditor::createShaders()
         "#define d_a 1.0\n"
         "#define d_b 0.3\n"
         "#define f 0.05\n"
-        "#define k mix(0.06,0.065,sin(iTime))\n"
+        "#define k mix(0.06,0.08,iLevel)\n"
 
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
         "  vec2 p = 1. / iResolution.xy;\n"
