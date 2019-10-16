@@ -97,14 +97,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(mixReleaseLabel);
     }
     {
-        internalMix.setRange(0.0, 1.0);
-        internalMix.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
-        internalMix.setSliderStyle(Slider::LinearHorizontal);
-        internalMix.setPopupDisplayEnabled(false, false, this);
-        addAndMakeVisible(internalMix);
-        startTimer(50);
-    }
-    {
         dryGainSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
         dryGainSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         dryGainSlider.setPopupDisplayEnabled(true, true, this);
@@ -244,7 +236,6 @@ void OvertoneFilterEditor::resized()
     auto mixSliderArea = rightArea.removeFromBottom(128);
     setLabelAreaAboveCentered(mixLabel, mixSliderArea);
     mixSlider.setBounds(mixSliderArea.removeFromTop(32));
-    internalMix.setBounds(mixSliderArea.removeFromTop(32));
 
     auto mixAttackArea = mixSliderArea.removeFromLeft(mixSliderArea.proportionOfWidth(0.5));
     auto mixReleaseArea = mixSliderArea;
@@ -261,11 +252,11 @@ void OvertoneFilterEditor::resized()
     auto wetMeterArea = rightArea;
 
     setLabelAreaAboveCentered(dryMeterLabel, dryMeterArea);
-    dryMeter.setBounds(dryMeterArea.removeFromBottom(32).reduced(2, 0));
+    dryMeter.setBounds(dryMeterArea.removeFromBottom(32).reduced(10, 0));
     dryGainSlider.setBounds(dryMeterArea);
 
     setLabelAreaAboveCentered(wetMeterLabel, wetMeterArea);
-    wetMeter.setBounds(wetMeterArea.removeFromBottom(32).reduced(2, 0));
+    wetMeter.setBounds(wetMeterArea.removeFromBottom(32).reduced(10, 0));
     wetGainSlider.setBounds(wetMeterArea);
 
     // left area
@@ -305,6 +296,8 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(mixLabel.getBounds());
         imageG.fillRect(mixAttackLabel.getBounds());
         imageG.fillRect(mixReleaseLabel.getBounds());
+
+        imageG.fillRect(mixSlider.getBounds());
 
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
@@ -694,12 +687,6 @@ void OvertoneFilterEditor::openGLContextClosing()
     spectrumDisplay.shutdown();
     mixSlider.shutdown();
     shutdown();
-}
-
-//==============================================================================
-void OvertoneFilterEditor::timerCallback()
-{
-    internalMix.setValue(parameterHelper.getCurrentMix(0));
 }
 
 //==============================================================================

@@ -13,8 +13,7 @@
 /**
 */
 class OvertoneFilterEditor : public AudioProcessorEditor,
-                             public OpenGLRenderer,
-                             public Timer
+                             public OpenGLRenderer
 
 {
 public:
@@ -55,9 +54,6 @@ public:
     void renderOpenGL() override;
 
     void openGLContextClosing() override;
-
-    //==============================================================================
-    void timerCallback() override;
 
     //==============================================================================
 private:
@@ -109,9 +105,6 @@ private:
     Label outputMeterLabel;
     // -----
     Label nameLabel;
-
-    // -----
-    Slider internalMix;
 
     //==============================================================================
     // This class manages the uniform values that the shaders use.
