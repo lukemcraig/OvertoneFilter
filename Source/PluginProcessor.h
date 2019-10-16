@@ -4,6 +4,7 @@
 #include "ParameterHelper.h"
 #include "LevelMeterAudioSource.h"
 #include "SpectrumSource.h"
+#include <list>
 
 //==============================================================================
 /**
@@ -37,9 +38,9 @@ public:
     /**
      * \brief Handles note off for all channels (called from the GUI)
      */
-    void handleNoteOff();
+    void handleNoteOff(const float noteNumber);
 
-    void handleNoteOff(int channel);
+    void handleNoteOff(int channel, const float noteNumber);
 
     void processSubBlockMidi(MidiBuffer& midiMessages, int startSample, int numSamples, int channel);
 
@@ -100,6 +101,8 @@ private:
     std::vector<float> filterCutoff{};
 
     AudioBuffer<float> wetMix;
+
+    std::vector<std::list<float>> notesHeldDown{};
     //==============================================================================
     LevelMeterAudioSource inputLevel;
     LevelMeterAudioSource wetMixLevel;

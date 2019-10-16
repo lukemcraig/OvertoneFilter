@@ -27,14 +27,12 @@ public:
 
     void parameterChanged(const String& parameterID, float newValue) override;
 
+    void mouseUp(const MouseEvent&) override;
+
 protected:
     bool mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e) override;
 
     bool mouseDownOnKey(int midiNoteNumber, const MouseEvent& e) override;
-
-    void mouseUpOnKey(int midiNoteNumber, const MouseEvent& e) override;
-
-    //String getWhiteNoteText(int midiNoteNumber) override;
 
     void drawWhiteNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown, bool isOver,
                        Colour lineColour, Colour textColour) override;
@@ -42,6 +40,7 @@ protected:
 private:
     OvertoneFilterAudioProcessor& processor;
     ParameterHelper& parameterHelper;
+    int currentNoteDown = -1;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MyMidiKeyboardComponent)
 };

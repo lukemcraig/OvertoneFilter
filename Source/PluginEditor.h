@@ -7,6 +7,7 @@
 #include "MySlider.h"
 #include "SpectrumDisplay.h"
 #include "Shape.h"
+#include "SliderWithMeter.h"
 
 //==============================================================================
 /**
@@ -55,7 +56,6 @@ public:
     void openGLContextClosing() override;
 
     //==============================================================================
-
 private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
@@ -74,12 +74,16 @@ private:
     std::unique_ptr<SliderAttachment> qAttachment;
     Label qLabel;
 
-    MySlider mixSlider;
-    std::unique_ptr<SliderAttachment> mixAttachment;
-    Label mixLabel;
+    MySlider mixAttackSlider;
+    std::unique_ptr<SliderAttachment> mixAttackAttachment;
+    Label mixAttackLabel;
+
+    MySlider mixReleaseSlider;
+    std::unique_ptr<SliderAttachment> mixReleaseAttachment;
+    Label mixReleaseLabel;
 
     // -----
-    MySlider inputGainSlider;
+    MySlider dryGainSlider;
     std::unique_ptr<SliderAttachment> inputGainAttachment;
     Label inputGainLabel;
 
@@ -92,22 +96,18 @@ private:
     Label outputGainLabel;
     // -----
 
-    LevelMeter inputMeter;
-    LevelMeter wetMixMeter;
+    LevelMeter dryMeter;
+    LevelMeter wetMeter;
     LevelMeter outputMeter;
 
-    Label inputMeterLabel;
-    Label wetMixMeterLabel;
+    Label dryMeterLabel;
+    Label wetMeterLabel;
     Label outputMeterLabel;
     // -----
-    DrawablePath bgPath;
-    DrawablePath borderPath;
     Label nameLabel;
 
     //==============================================================================
-
-    //==============================================================================
-    // This class just manages the uniform values that the demo shaders use.
+    // This class manages the uniform values that the shaders use.
     struct Uniforms
     {
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
@@ -124,6 +124,10 @@ private:
     //==============================================================================
     OpenGLContext openGLContext;
     SpectrumDisplay spectrumDisplay;
+
+    SliderWithMeter mixSlider;
+    std::unique_ptr<SliderAttachment> mixAttachment;
+    Label mixLabel;
 
     GLuint fboHandle;
     GLuint renderTex;

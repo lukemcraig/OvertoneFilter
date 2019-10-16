@@ -43,7 +43,7 @@ public:
     //==============================================================================
     float getCurrentResonance(int channel);
 
-    void skipResonance(int channel, const int numSamples);
+    void skipResonance(int channel, int numSamples);
 
     //==============================================================================
     float getInputGain(int channel);
@@ -55,7 +55,7 @@ public:
 
     float getCurrentWetGain(int channel);
 
-    void setCurrentWetGain(int channel, const float currentGain);
+    void setCurrentWetGain(int channel, float currentGain);
 
     //==============================================================================
     float getMix(int channel);
@@ -64,25 +64,31 @@ public:
 
     float getCurrentMix(int channel);
 
-    void setCurrentMix(int channel, const float currentWetDry);
+    void setCurrentMix(int channel, float currentWetDry);
+
+    void setMixRampTime(int channel, float mixRampTime);
 
     //==============================================================================
-    void useNoteOffWetDry(int channel);
+    void useNoteOffMix(int channel);
 
-    void useParamWetDry(int channel);
+    void useParamMix(int channel);
 
     //==============================================================================
+    const String pidPitchStandard = "standard";
+    const String pidResonance = "q";
 
     const String pidInputGain = "inputGain";
     const String pidWetGain = "wetGain";
     const String pidOutputGain = "outputGain";
+
     const String pidMix = "mix";
-    const String pidPitchStandard = "standard";
-    const String pidResonance = "q";
+    const String pidMixAttack = "mixAttack";
+    const String pidMixRelease = "mixRelease";
     //==============================================================================
     AudioProcessorValueTreeState valueTreeState;
 
 private:
+    double sampleRate{};
 
     typedef SmoothedValue<float, ValueSmoothingTypes::Linear> SmoothFloat;
     std::vector<SmoothFloat> smoothStandard{};
@@ -91,8 +97,9 @@ private:
     std::vector<SmoothFloat> smoothWetGain{};
     std::vector<SmoothFloat> smoothOutGain{};
     std::vector<SmoothFloat> smoothMix{};
+
     //==============================================================================
-    std::vector<bool> useInternalWetDry{};
+    std::vector<bool> useInternalMix{};
 
     //==============================================================================
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;

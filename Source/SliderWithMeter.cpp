@@ -1,45 +1,29 @@
 /*
   ==============================================================================
 
-    LevelMeter.cpp
-    Created: 2 Oct 2019 3:52:35pm
+    SliderWithMeter.cpp
+    Created: 15 Oct 2019 7:29:54pm
     Author:  Luke
 
   ==============================================================================
 */
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "LevelMeter.h"
+#include "SliderWithMeter.h"
 
-//==============================================================================
-LevelMeter::LevelMeter(LevelMeterAudioSource& lmas, OpenGLContext& oglc) :
-    levelMeterAudioSource(lmas), openGLContext(oglc)
-{
-    setOpaque(true);
-}
-
-LevelMeter::~LevelMeter()
+SliderWithMeter::SliderWithMeter(OpenGLContext& oglc, ParameterHelper& ph) : openGLContext(oglc), parameterHelper(ph)
 {
 }
 
-void LevelMeter::paint(Graphics& g)
-{
-    g.setColour(Colours::black);
-    g.drawRect(getLocalBounds());
-    g.setColour(Colours::white);
-    g.drawRect(getLocalBounds().reduced(1, 1));
-}
-
-void LevelMeter::resized()
+SliderWithMeter::~SliderWithMeter()
 {
 }
 
-void LevelMeter::initialiseOpenGL()
+void SliderWithMeter::initialiseOpenGL()
 {
     createShaders();
 }
 
-void LevelMeter::shutdown()
+void SliderWithMeter::shutdown()
 {
     shaderProgram.reset();
 
@@ -48,7 +32,7 @@ void LevelMeter::shutdown()
     uniforms.reset();
 }
 
-void LevelMeter::renderScene()
+void SliderWithMeter::renderScene()
 {
     //render scene
     auto desktopScale = (float)openGLContext.getRenderingScale();
@@ -73,15 +57,13 @@ void LevelMeter::renderScene()
 
     if (uniforms->iLevel != nullptr)
     {
-        //todo
-        const auto rms = 1.4125375446227544f * levelMeterAudioSource.getLevel();
-        uniforms->iLevel->set(rms);
+        uniforms->iLevel->set(parameterHelper.getCurrentMix(0));
     }
 
     quad->draw(openGLContext, *attributes);
 }
 
-void LevelMeter::render()
+void SliderWithMeter::render()
 {
     jassert(OpenGLHelpers::isContextActive());
 
@@ -92,7 +74,7 @@ void LevelMeter::render()
     openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void LevelMeter::createShaders()
+void SliderWithMeter::createShaders()
 {
     vertexShader =
         "attribute vec4 position;\n"
@@ -114,7 +96,6 @@ void LevelMeter::createShaders()
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
-        //"    vec3 col = mix(quietColor, loudColor, uv.x);\n"
         "    vec3 col = loudColor;\n"
         "    float mask = clamp(sign(iLevel - uv.x),0.0,1.0);\n"
         "    gl_FragColor = vec4(col*mask, 1.0);\n"
@@ -147,21 +128,45 @@ void LevelMeter::createShaders()
     }
 }
 
-void LevelMeter::renderOpenGL()
+void SliderWithMeter::renderOpenGL()
 {
     render();
 }
 
+void SliderWithMeter::mouseDown(const MouseEvent& e)
+{
+    Slider::mouseDown(e);
+    // https://forum.juce.com/t/fr-make-the-bubble-component-used-for-the-slider-popup-display-customizable/33823/3
+    if (auto* popupDisplay = getCurrentPopupDisplay())
+        popupDisplay->setComponentEffect(nullptr);
+}
+
+void SliderWithMeter::mouseEnter(const MouseEvent& e)
+{
+    Slider::mouseEnter(e);
+    // https://forum.juce.com/t/fr-make-the-bubble-component-used-for-the-slider-popup-display-customizable/33823/3
+    if (auto* popupDisplay = getCurrentPopupDisplay())
+        popupDisplay->setComponentEffect(nullptr);
+}
+
+void SliderWithMeter::mouseMove(const MouseEvent& e)
+{
+    Slider::mouseMove(e);
+    // https://forum.juce.com/t/fr-make-the-bubble-component-used-for-the-slider-popup-display-customizable/33823/3
+    if (auto* popupDisplay = getCurrentPopupDisplay())
+        popupDisplay->setComponentEffect(nullptr);
+}
+
 //==============================================================================
 
-LevelMeter::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
+SliderWithMeter::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram)
 {
     iResolution.reset(createUniform(openGLContext, shaderProgram, "iResolution"));
     iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
     iLevel.reset(createUniform(openGLContext, shaderProgram, "iLevel"));
 }
 
-OpenGLShaderProgram::Uniform* LevelMeter::Uniforms::createUniform(OpenGLContext& openGLContext,
+OpenGLShaderProgram::Uniform* SliderWithMeter::Uniforms::createUniform(OpenGLContext& openGLContext,
                                                                   OpenGLShaderProgram&
                                                                   shaderProgram,
                                                                   const char* uniformName)

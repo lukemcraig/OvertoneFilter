@@ -3,7 +3,7 @@
 
 //==============================================================================
 OvertoneFilterAudioProcessor::OvertoneFilterAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations 
+#ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
                      .withInput("Input", AudioChannelSet::stereo(), true)
                      .withOutput("Output", AudioChannelSet::stereo(), true)
@@ -41,7 +41,10 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     parameterHelper.resetSmoothers(sampleRate);
     parameterHelper.instantlyUpdateSmoothers();
 
-    handleNoteOff();
+    for (auto channel = 0; channel < numInputChannels; ++channel)
+    {
+        parameterHelper.useNoteOffMix(channel);
+    }
 
     filterCutoff.resize(numInputChannels);
     for (auto&& cutoff : filterCutoff)
@@ -49,6 +52,8 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
 
     wetMix.setSize(numInputChannels, samplesPerBlock, false, false, false);
     wetMix.clear();
+    //--------
+    notesHeldDown.resize(numInputChannels);
     //--------
     inputLevel.prepare(0.010f, sampleRate);
     wetMixLevel.prepare(0.010f, sampleRate);
@@ -67,7 +72,7 @@ void OvertoneFilterAudioProcessor::releaseResources()
 void OvertoneFilterAudioProcessor::reset()
 {
     for (int i = 0; i < numInputChannels; ++i)
-        parameterHelper.useNoteOffWetDry(i);
+        parameterHelper.useNoteOffMix(i);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -102,22 +107,42 @@ void OvertoneFilterAudioProcessor::handleNoteOn(const float noteNumber)
 
 void OvertoneFilterAudioProcessor::handleNoteOn(int channel, const float noteNumber)
 {
-    parameterHelper.useParamWetDry(channel);
-    // todo it might make more sense to store the current note number and calculate the filterCutoff at even intervals instead
-    const auto standard = parameterHelper.getCurrentPitchStandard(channel);
-    const auto newFreq = standard * std::pow(2.0f, (noteNumber - 69.0f) / 12.0f);
-    filterCutoff[channel] = newFreq;
+    auto& l = notesHeldDown[channel];
+    // a note is held down, so use the parameter (slider) mix value
+    parameterHelper.useParamMix(channel);
+    // add the new note to the end of the linked list
+    l.push_back(noteNumber);
+    // if no other note was held down already, update the cutoff frequency
+    if (l.size() == 1)
+    {
+        const auto standard = parameterHelper.getCurrentPitchStandard(channel);
+        const auto newFreq = standard * std::pow(2.0f, (noteNumber - 69.0f) / 12.0f);
+        filterCutoff[channel] = newFreq;
+    }
 }
 
-void OvertoneFilterAudioProcessor::handleNoteOff()
+void OvertoneFilterAudioProcessor::handleNoteOff(const float noteNumber)
 {
     for (auto i = 0; i < numInputChannels; ++i)
-        handleNoteOff(i);
+        handleNoteOff(i, noteNumber);
 }
 
-void OvertoneFilterAudioProcessor::handleNoteOff(int channel)
+void OvertoneFilterAudioProcessor::handleNoteOff(int channel, const float noteNumber)
 {
-    parameterHelper.useNoteOffWetDry(channel);
+    auto& l = notesHeldDown[channel];
+    l.remove(noteNumber);
+    // if no notes are held down, smooth the mix to dry
+    if (l.size() == 0)
+        parameterHelper.useNoteOffMix(channel);
+    else
+    {
+        // otherwise, set the cutoff to the oldest note held down
+        auto oldestNoteNumber = l.front();
+        //todo code duplication
+        const auto standard = parameterHelper.getCurrentPitchStandard(channel);
+        const auto newFreq = standard * std::pow(2.0f, (oldestNoteNumber - 69.0f) / 12.0f);
+        filterCutoff[channel] = newFreq;
+    }
 }
 
 void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages, int startSample, const int numSamples,
@@ -139,7 +164,8 @@ void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages,
 
         else if (message.isNoteOff())
         {
-            handleNoteOff(channel);
+            const auto noteNumber = static_cast<float>(message.getNoteNumber());
+            handleNoteOff(channel, noteNumber);
         }
     }
 }

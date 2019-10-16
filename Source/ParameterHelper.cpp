@@ -30,11 +30,13 @@ void ParameterHelper::prepare(const int numChannels)
     smoothWetGain.resize(numChannels);
     smoothOutGain.resize(numChannels);
 
-    useInternalWetDry.resize(numChannels);
+    useInternalMix.resize(numChannels);
 }
 
 void ParameterHelper::resetSmoothers(const double sampleRate)
 {
+    this->sampleRate = sampleRate;
+
     for (auto& smoother : smoothStandard)
         smoother.reset(sampleRate, 0.0);
     for (auto& smoother : smoothResonance)
@@ -83,7 +85,7 @@ void ParameterHelper::updateSmoothers()
 
     for (auto i = 0; i < smoothMix.size(); ++i)
     {
-        if (!useInternalWetDry[i])
+        if (!useInternalMix[i])
             smoothMix[i].setTargetValue(*valueTreeState.getRawParameterValue(pidMix));
     }
 }
@@ -105,7 +107,7 @@ float ParameterHelper::getCurrentResonance(const int channel)
 
 void ParameterHelper::skipResonance(int channel, const int numSamples)
 {
-     smoothResonance[channel].skip(numSamples);
+    smoothResonance[channel].skip(numSamples);
 }
 
 float ParameterHelper::getInputGain(int channel)
@@ -143,6 +145,30 @@ void ParameterHelper::setCurrentMix(const int channel, const float currentWetDry
     smoothMix[channel].setCurrentAndTargetValue(currentWetDry);
 }
 
+void ParameterHelper::setMixRampTime(const int channel, float mixRampTime)
+{
+    jassert(sampleRate>0);
+    auto cv = smoothMix[channel].getCurrentValue();
+    auto tv = smoothMix[channel].getTargetValue();
+    smoothMix[channel].reset(sampleRate, mixRampTime);
+    smoothMix[channel].setCurrentAndTargetValue(cv);
+    smoothMix[channel].setTargetValue(tv);
+}
+
+void ParameterHelper::useNoteOffMix(const int channel)
+{
+    useInternalMix[channel] = true;
+    setMixRampTime(channel, *valueTreeState.getRawParameterValue(pidMixRelease));
+    setMixTarget(channel, 0.0f);
+}
+
+void ParameterHelper::useParamMix(const int channel)
+{
+    useInternalMix[channel] = false;
+    setMixRampTime(channel, *valueTreeState.getRawParameterValue(pidMixAttack));
+    setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
+}
+
 float ParameterHelper::getCurrentWetGain(const int channel)
 {
     return smoothWetGain[channel].getCurrentValue();
@@ -151,18 +177,6 @@ float ParameterHelper::getCurrentWetGain(const int channel)
 void ParameterHelper::setCurrentWetGain(const int channel, const float currentGain)
 {
     smoothWetGain[channel].setCurrentAndTargetValue(currentGain);
-}
-
-void ParameterHelper::useNoteOffWetDry(const int channel)
-{
-    useInternalWetDry[channel] = true;
-    setMixTarget(channel, 0.0f);
-}
-
-void ParameterHelper::useParamWetDry(const int channel)
-{
-    useInternalWetDry[channel] = false;
-    setMixTarget(channel, *valueTreeState.getRawParameterValue(pidMix));
 }
 
 //==============================================================================
@@ -229,6 +243,26 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            [](float value, int maximumStringLength)
                                                            {
                                                                return String(value, 2) + " Hz";
+                                                           }));
+    params.push_back(std::make_unique<AudioParameterFloat>(pidMixAttack,
+                                                           "Mix Attack",
+                                                           NormalisableRange<float>(0.01f, 2.0f, 0, 1.0f),
+                                                           0.05f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value, 2) + " s";
+                                                           }));
+    params.push_back(std::make_unique<AudioParameterFloat>(pidMixRelease,
+                                                           "Mix Release",
+                                                           NormalisableRange<float>(0.01f, 2.0f, 0, 1.0f),
+                                                           0.1f,
+                                                           String(),
+                                                           AudioProcessorParameter::genericParameter,
+                                                           [](float value, int maximumStringLength)
+                                                           {
+                                                               return String(value, 2) + " s";
                                                            }));
     return {params.begin(), params.end()};
 }
