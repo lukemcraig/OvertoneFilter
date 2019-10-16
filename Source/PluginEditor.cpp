@@ -121,10 +121,10 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                                         outputGainSlider));
     }
     {
-        nameLabel.setFont(30);
-        nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
+        nameLabel.setFont(100);
+        nameLabel.setText("Overtone Filter", dontSendNotification);
         nameLabel.setJustificationType(Justification::centred);
-        nameLabel.setColour(Label::textColourId, Colours::white);
+        nameLabel.setColour(Label::textColourId, Colour(0xff84B25A));
         addAndMakeVisible(nameLabel);
     }
     {
@@ -187,6 +187,7 @@ void OvertoneFilterEditor::paint(Graphics& g)
     g.setColour(Colour(0xFF000000));
     g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
     //g.setFont(15.0f);
+    //g.fillRect(nameLabel.getBounds());
 }
 
 void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea)
@@ -200,13 +201,7 @@ void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
 
-    area.removeFromBottom(10);
-    {
-        auto nameArea = area.removeFromBottom(30).withSizeKeepingCentre(
-            6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
-        nameLabel.setPaintingIsUnclipped(true);
-        nameLabel.setBounds(nameArea);
-    }
+    nameLabel.setPaintingIsUnclipped(true);
 
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(10, 10);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
@@ -267,6 +262,8 @@ void OvertoneFilterEditor::resized()
     auto sliderArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 10);
     sliderArea.removeFromTop(16);
 
+    nameLabel.setBounds(leftArea.reduced(16));
+
     const auto nSliders = 2;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
 
@@ -301,7 +298,7 @@ void OvertoneFilterEditor::resized()
 
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
-        imageG.fillRect(nameLabel.getBounds());
+        //imageG.fillRect(nameLabel.getBounds());
 
         imageG.fillRect(keyboard.getBounds());
         imageG.fillRect(spectrumDisplay.getBounds());
