@@ -35,8 +35,6 @@ void LevelMeter::paint(Graphics& g)
     area.reduce(2, 2);
     g.drawRect(area);
     area.reduce(2, 2);
-    //g.setColour(Colours::white);
-    //g.drawRect(getLocalBounds().reduced(1, 1));
 }
 
 void LevelMeter::resized()

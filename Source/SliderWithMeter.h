@@ -23,6 +23,8 @@ public:
 
     ~SliderWithMeter();
 
+    void paint(Graphics&) override;
+
     void initialiseOpenGL();
 
     void shutdown();
@@ -47,7 +49,7 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iViewport, iLevel;
+            iResolution, iViewport, iLevel, iSlider;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,
