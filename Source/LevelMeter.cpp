@@ -26,13 +26,16 @@ void LevelMeter::paint(Graphics& g)
 {
     auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
     auto area = getLocalBounds();
-    g.setColour(lineCol);
+    g.setColour(lineCol);    
     g.drawRect(area);
     area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
     g.drawRect(area);
     area.reduce(2, 2);
+    g.setColour(lineCol);  
     g.drawRect(area);
     area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
     g.drawRect(area);
     area.reduce(2, 2);
 }
@@ -123,7 +126,7 @@ void LevelMeter::createShaders()
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         //"    vec3 col = mix(quietColor, loudColor, uv.x);\n"
-       // "    vec3 col = gold;\n"
+        // "    vec3 col = gold;\n"
         "    float mask = clamp(sign(iLevel - uv.x),0.0,1.0);\n"
         "    gl_FragColor = vec4(mix(purp,gold,mask), 1.0);\n"
         "}\n";

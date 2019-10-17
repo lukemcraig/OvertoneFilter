@@ -31,14 +31,14 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     setLookAndFeel(&overtoneLookAndFeel);
     // --------
     {
-        auto& lookAndFeel = getLookAndFeel();
-        lookAndFeel.setColour(Label::textColourId, Colours::black);
+        auto& lookAndFeel = getLookAndFeel();        
+        lookAndFeel.setColour(Label::textColourId, Colour(0xff010201));
         lookAndFeel.setColour(Slider::thumbColourId, Colour(0xffB28859));
         lookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour(0xffB28859));
         lookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour(0xff233016));
         lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::transparentWhite);
         lookAndFeel.setColour(Slider::textBoxOutlineColourId, Colours::transparentWhite);
-        lookAndFeel.setColour(Slider::textBoxTextColourId, Colours::black);
+        lookAndFeel.setColour(Slider::textBoxTextColourId, Colour(0xff010201));
     }
 
     // --------

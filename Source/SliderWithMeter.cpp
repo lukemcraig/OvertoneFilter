@@ -26,14 +26,17 @@ void SliderWithMeter::paint(Graphics& g)
     g.fillRect(x - 5.0f, 0.0f, 10.0f, static_cast<float>(getHeight()));
 
     auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
-    g.setColour(lineCol);
     auto area = getLocalBounds();
+    g.setColour(lineCol);    
     g.drawRect(area);
     area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
     g.drawRect(area);
     area.reduce(2, 2);
+    g.setColour(lineCol);  
     g.drawRect(area);
     area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
     g.drawRect(area);
     area.reduce(2, 2);
 }
