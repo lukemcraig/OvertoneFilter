@@ -17,8 +17,8 @@ MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p
     MidiKeyboardComponent(state, orientation),
     processor(p), parameterHelper(ph)
 {
-    setColour(whiteNoteColourId, Colour(0xff84B25A));
-    setColour(blackNoteColourId, Colour(0xff353279));
+    setColour(whiteNoteColourId, Colour(0xffB28859));
+    setColour(blackNoteColourId, Colour(0xffB28859));
     setColour(mouseOverKeyOverlayColourId, Colours::grey);
     setColour(keyDownOverlayColourId, Colours::white);
     parameterHelper.valueTreeState.addParameterListener(parameterHelper.pidPitchStandard, this);
@@ -139,4 +139,16 @@ void MyMidiKeyboardComponent::drawBlackNote(int midiNoteNumber, Graphics& g, Rec
 
     g.setColour(c);
     g.fillRect(area);
+    g.setColour(getLookAndFeel().findColour(keySeparatorLineColourId));
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.drawRect(area);
 }

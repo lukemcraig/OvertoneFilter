@@ -112,7 +112,7 @@ void SpectrumDisplay::renderScene()
 
     if (uniforms->iNyquist != nullptr)
     {
-        auto nyq = inputSpectrumSource.getSampleRate()/2.0;
+        auto nyq = inputSpectrumSource.getSampleRate() / 2.0;
         uniforms->iNyquist->set(static_cast<GLfloat>(nyq));
     }
 
@@ -165,14 +165,21 @@ void SpectrumDisplay::createShaders()
         "    x = (iPitchStandard * pow(2.0,(x * (iMaxNote-iMinNote)+iMinNote - 69.0)/12.0))/iNyquist;\n"
         "    float fftinput = texture(iSpectrum,vec2(x,1.0)).r;\n"
         "    float fftoutput = texture(iSpectrum,vec2(x,0.0)).r;\n"
-        "    if(fftoutput>uv.y){\n"
-        "    gl_FragColor = vec4( .208, 0.196, 0.475,1.0);\n"
+        "    vec3 specCol = vec3( .698, .533, .349);\n"
+        "    vec3 lineCol = vec3( .0, .0, .0);\n"
+        "    if(uv.y<=fftoutput){\n"
+        "       if(uv.y>=fftoutput-0.01){\n"
+        "           gl_FragColor = vec4( .0, .0, .0,0.5);\n"
+        "       }\n"
+        "       else{\n"
+        "           gl_FragColor = vec4(mix(specCol,lineCol,mod(distance(uv.y,fftoutput),0.10 ) ),1.0);\n"
+        "       }\n"
         "    }\n"
         "    else if(fftinput>uv.y){\n"
-        "    gl_FragColor = vec4(0.2,0.2,0.2,1.0);\n"
+        "       gl_FragColor = vec4(0.2,0.2,0.2,1.0);\n"
         "    }\n"
         "    else{\n"
-        "    gl_FragColor = vec4(0.0,0.0,0.0,0.0);\n"
+        "       gl_FragColor = vec4(0.0,0.0,0.0,0.0);\n"
         "    }\n"
         "    \n"
         //"    float maskin = clamp(sign(fftinput - uv.y),0.0,1.0);\n"
