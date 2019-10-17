@@ -33,7 +33,9 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         auto& lookAndFeel = getLookAndFeel();
         lookAndFeel.setColour(Label::textColourId, Colours::black);
         lookAndFeel.setColour(Slider::thumbColourId, Colours::white);
-        lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::black);
+        lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::transparentWhite);
+        lookAndFeel.setColour(Slider::textBoxTextColourId, Colours::black);
+        lookAndFeel.setColour(Slider::textBoxOutlineColourId, Colours::transparentWhite);
     }
     // --------
     const auto textEntryBoxWidth = 64;
@@ -122,11 +124,19 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                                         outputGainSlider));
     }
     {
+        titleLabel.setPaintingIsUnclipped(true);
         titleLabel.setFont(100);
         titleLabel.setText("Overtone Filter", dontSendNotification);
         titleLabel.setJustificationType(Justification::centred);
         titleLabel.setColour(Label::textColourId, Colour(0xff84B25A));
         addAndMakeVisible(titleLabel);
+    }
+    {
+        //nameLabel.setFont(100);
+        nameLabel.setText("Luke M. Craig", dontSendNotification);
+        nameLabel.setJustificationType(Justification::centred);
+        //nameLabel.setColour(Label::textColourId, Colour(0xff84B25A));
+        addAndMakeVisible(nameLabel);
     }
     {
         addAndMakeVisible(dryMeter);
@@ -147,6 +157,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     {
         makeLabelUpperCase(titleLabel);
+        makeLabelUpperCase(nameLabel);
 
         makeLabelUpperCase(standardLabel);
         makeLabelUpperCase(qLabel);
@@ -201,17 +212,17 @@ void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
-
-    titleLabel.setPaintingIsUnclipped(true);
-
+    
+    //area.removeFromTop(10);
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(100));
     //keyboardSpectrumArea.removeFromTop(20);
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
     keyboard.setAvailableRange(0, 127);
-
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
+
+    nameLabel.setBounds(keyboardSpectrumArea.removeFromBottom(16));
 
     area.removeFromTop(20);
     area.removeFromRight(20);
@@ -231,7 +242,7 @@ void OvertoneFilterEditor::resized()
 
     auto mixSliderArea = rightArea.removeFromBottom(128);
     setLabelAreaAboveCentered(mixLabel, mixSliderArea);
-    mixSlider.setBounds(mixSliderArea.removeFromTop(32).reduced(0,5));
+    mixSlider.setBounds(mixSliderArea.removeFromTop(32).reduced(0, 5));
 
     auto mixAttackArea = mixSliderArea.removeFromLeft(mixSliderArea.proportionOfWidth(0.5));
     auto mixReleaseArea = mixSliderArea;
