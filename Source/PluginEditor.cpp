@@ -206,7 +206,7 @@ void OvertoneFilterEditor::resized()
 
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
-    keyboardSpectrumArea.removeFromTop(10);
+    keyboardSpectrumArea.removeFromTop(20);
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
     keyboard.setAvailableRange(0, 127);

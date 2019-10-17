@@ -37,6 +37,9 @@ protected:
     void drawWhiteNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown, bool isOver,
                        Colour lineColour, Colour textColour) override;
 
+    void drawBlackNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown, bool isOver,
+                       Colour noteFillColour) override;
+
 private:
     OvertoneFilterAudioProcessor& processor;
     ParameterHelper& parameterHelper;
