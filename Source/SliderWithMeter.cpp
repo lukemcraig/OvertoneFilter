@@ -18,6 +18,29 @@ SliderWithMeter::~SliderWithMeter()
 {
 }
 
+void SliderWithMeter::paint(Graphics& g)
+{
+    g.setColour(Colour(0xafB28859));
+    auto normX = (getValue() - getRange().getStart()) / getRange().getLength();
+    auto x = normX * getWidth();
+    g.fillRect(x - 5.0f, 0.0f, 10.0f, static_cast<float>(getHeight()));
+
+    auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
+    auto area = getLocalBounds();
+    g.setColour(lineCol);    
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.setColour(lineCol);  
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
+    g.drawRect(area);
+    area.reduce(2, 2);
+}
+
 void SliderWithMeter::initialiseOpenGL()
 {
     createShaders();
@@ -59,6 +82,10 @@ void SliderWithMeter::renderScene()
     {
         uniforms->iLevel->set(parameterHelper.getCurrentMix(0));
     }
+    if (uniforms->iSlider != nullptr)
+    {
+        uniforms->iSlider->set(static_cast<GLfloat>(getValue()));
+    }
 
     quad->draw(openGLContext, *attributes);
 }
@@ -88,17 +115,19 @@ void SliderWithMeter::createShaders()
         "uniform vec2 iResolution;\n"
         "uniform vec2 iViewport;\n"
         "uniform float iLevel;\n"
+        "uniform float iSlider;\n"
 
-        "#define quietColor vec3(0.0, 0.0, 0.0)\n"
-        "#define loudColor vec3(1.0, 1.0, 1.0)\n"
+        "#define quietColor vec3(.208, 0.196, 0.475)\n"
+        "#define loudColor vec3(.698, .533, .349)\n"
 
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
-        "    vec3 col = loudColor;\n"
+        //"    vec3 col = quietColor;\n"
         "    float mask = clamp(sign(iLevel - uv.x),0.0,1.0);\n"
-        "    gl_FragColor = vec4(col*mask, 1.0);\n"
+        "    vec3 col = mix(quietColor,loudColor,mask);\n"
+        "    gl_FragColor = vec4(col,1.0);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
@@ -164,12 +193,13 @@ SliderWithMeter::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLShaderPr
     iResolution.reset(createUniform(openGLContext, shaderProgram, "iResolution"));
     iViewport.reset(createUniform(openGLContext, shaderProgram, "iViewport"));
     iLevel.reset(createUniform(openGLContext, shaderProgram, "iLevel"));
+    iSlider.reset(createUniform(openGLContext, shaderProgram, "iSlider"));
 }
 
 OpenGLShaderProgram::Uniform* SliderWithMeter::Uniforms::createUniform(OpenGLContext& openGLContext,
-                                                                  OpenGLShaderProgram&
-                                                                  shaderProgram,
-                                                                  const char* uniformName)
+                                                                       OpenGLShaderProgram&
+                                                                       shaderProgram,
+                                                                       const char* uniformName)
 {
     if (openGLContext.extensions.glGetUniformLocation(shaderProgram.getProgramID(), uniformName) < 0)
         return nullptr;

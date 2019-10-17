@@ -8,6 +8,7 @@
 #include "SpectrumDisplay.h"
 #include "Shape.h"
 #include "SliderWithMeter.h"
+#include "OvertoneLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -60,6 +61,8 @@ private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
 
+    OvertoneLookAndFeel overtoneLookAndFeel;
+
     OvertoneFilterAudioProcessor& processor;
     ParameterHelper& parameterHelper;
     MidiKeyboardState& keyboardState;
@@ -100,10 +103,13 @@ private:
     LevelMeter wetMeter;
     LevelMeter outputMeter;
 
+    LevelMeterAudioSource& outputLevel;
+
     Label dryMeterLabel;
     Label wetMeterLabel;
     Label outputMeterLabel;
     // -----
+    Label titleLabel;
     Label nameLabel;
 
     //==============================================================================
@@ -113,14 +119,14 @@ private:
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
         std::unique_ptr<OpenGLShaderProgram::Uniform>
-            iResolution, iTime, iFrame, iChannel0, iChannel1, iChannel2;
+            iResolution, iTime, iFrame, iChannel0, iChannel1, iChannel2, iLevel;
 
     private:
         static OpenGLShaderProgram::Uniform* createUniform(OpenGLContext& openGLContext,
                                                            OpenGLShaderProgram& shaderProgram,
                                                            const char* uniformName);
     };
-
+    float iLevelAccum{};
     //==============================================================================
     OpenGLContext openGLContext;
     SpectrumDisplay spectrumDisplay;

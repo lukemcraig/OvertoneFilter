@@ -17,6 +17,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       dryMeter(inputLevel, openGLContext),
       wetMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
+      outputLevel(outputLevel),
       spectrumDisplay(p, openGLContext, iss, oss, ph),
       mixSlider(openGLContext, ph)
 {
@@ -27,13 +28,19 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     openGLContext.attachTo(*this);
     openGLContext.setContinuousRepainting(true);
 
+    setLookAndFeel(&overtoneLookAndFeel);
     // --------
     {
         auto& lookAndFeel = getLookAndFeel();
-        lookAndFeel.setColour(Label::textColourId, Colours::black);
-        lookAndFeel.setColour(Slider::thumbColourId, Colours::white);
-        lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::black);
+        lookAndFeel.setColour(Label::textColourId, Colour(0xff010201));
+        lookAndFeel.setColour(Slider::thumbColourId, Colour(0xffB28859));
+        lookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour(0xffB28859));
+        lookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour(0xff233016));
+        lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::transparentWhite);
+        lookAndFeel.setColour(Slider::textBoxOutlineColourId, Colours::transparentWhite);
+        lookAndFeel.setColour(Slider::textBoxTextColourId, Colour(0xff010201));
     }
+
     // --------
     const auto textEntryBoxWidth = 64;
     {
@@ -47,6 +54,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         standardLabel.setText("Pitch Standard", dontSendNotification);
         standardLabel.setJustificationType(Justification::centred);
         addAndMakeVisible(standardLabel);
+        standardSlider.setLookAndFeel(&overtoneLookAndFeel);
     }
     {
         qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
@@ -121,10 +129,18 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                                         outputGainSlider));
     }
     {
-        nameLabel.setFont(30);
-        nameLabel.setText("Overtone Filter - Luke M. Craig - " __DATE__ + String(" ") + __TIME__, dontSendNotification);
+        titleLabel.setPaintingIsUnclipped(true);
+        titleLabel.setFont(100);
+        titleLabel.setText("Overtone Filter", dontSendNotification);
+        titleLabel.setJustificationType(Justification::centred);
+        titleLabel.setColour(Label::textColourId, Colour(0xff84B25A));
+        addAndMakeVisible(titleLabel);
+    }
+    {
+        nameLabel.setFont(Font(24, Font::bold));
+        nameLabel.setText("Luke M. Craig", dontSendNotification);
         nameLabel.setJustificationType(Justification::centred);
-        nameLabel.setColour(Label::textColourId, Colours::white);
+        nameLabel.setColour(Label::textColourId, Colour(0xff283719));
         addAndMakeVisible(nameLabel);
     }
     {
@@ -145,6 +161,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(outputMeterLabel);
     }
     {
+        makeLabelUpperCase(titleLabel);
         makeLabelUpperCase(nameLabel);
 
         makeLabelUpperCase(standardLabel);
@@ -163,13 +180,13 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
-    setResizable(true, true);
-
-    setSize(1240, 680);
+    setResizable(false, false);
+    setSize(1280, 640);
 }
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
 {
+    setLookAndFeel(nullptr);
     shutdownOpenGL();
     jassert(! openGLContext.isAttached());
 }
@@ -184,9 +201,10 @@ void OvertoneFilterEditor::paint(Graphics& g)
 {
     //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    g.setColour(Colour(0xFF000000));
-    g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
+    //g.setColour(Colour(0xFF000000));
+    //g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
     //g.setFont(15.0f);
+    //g.fillRect(nameLabel.getBounds());
 }
 
 void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea)
@@ -200,22 +218,16 @@ void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
 
-    area.removeFromBottom(10);
-    {
-        auto nameArea = area.removeFromBottom(30).withSizeKeepingCentre(
-            6 + nameLabel.getFont().getStringWidth(nameLabel.getText()), 10);
-        nameLabel.setPaintingIsUnclipped(true);
-        nameLabel.setBounds(nameArea);
-    }
-
-    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(10, 10);
-    spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
-    keyboardSpectrumArea.removeFromTop(10);
+    //area.removeFromTop(10);
+    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 0).withTrimmedTop(10);
+    spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(100));
+    //keyboardSpectrumArea.removeFromTop(20);
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
     keyboard.setAvailableRange(0, 127);
-
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
+
+    nameLabel.setBounds(keyboardSpectrumArea);
 
     area.removeFromTop(20);
     area.removeFromRight(20);
@@ -231,11 +243,11 @@ void OvertoneFilterEditor::resized()
     outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
     setLabelAreaAboveCentered(outputMeterLabel, outputMeterArea);
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
-    outputMeter.setBounds(outputMeterArea.removeFromTop(32));
+    outputMeter.setBounds(outputGainSlider.getBounds().reduced(40, 110));
 
     auto mixSliderArea = rightArea.removeFromBottom(128);
     setLabelAreaAboveCentered(mixLabel, mixSliderArea);
-    mixSlider.setBounds(mixSliderArea.removeFromTop(32));
+    mixSlider.setBounds(mixSliderArea.removeFromTop(32).reduced(0, 5));
 
     auto mixAttackArea = mixSliderArea.removeFromLeft(mixSliderArea.proportionOfWidth(0.5));
     auto mixReleaseArea = mixSliderArea;
@@ -252,12 +264,12 @@ void OvertoneFilterEditor::resized()
     auto wetMeterArea = rightArea;
 
     setLabelAreaAboveCentered(dryMeterLabel, dryMeterArea);
-    dryMeter.setBounds(dryMeterArea.removeFromBottom(32).reduced(10, 0));
     dryGainSlider.setBounds(dryMeterArea);
+    dryMeter.setBounds(dryGainSlider.getBounds().reduced(30, 60));
 
     setLabelAreaAboveCentered(wetMeterLabel, wetMeterArea);
-    wetMeter.setBounds(wetMeterArea.removeFromBottom(32).reduced(10, 0));
     wetGainSlider.setBounds(wetMeterArea);
+    wetMeter.setBounds(wetGainSlider.getBounds().reduced(30, 60));
 
     // left area
 
@@ -266,6 +278,8 @@ void OvertoneFilterEditor::resized()
 
     auto sliderArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 10);
     sliderArea.removeFromTop(16);
+
+    titleLabel.setBounds(leftArea.reduced(16));
 
     const auto nSliders = 2;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
@@ -281,9 +295,11 @@ void OvertoneFilterEditor::resized()
     // extra boundaries for the background shader
     {
         componentMask = Image(Image::ARGB, getWidth(), getHeight(), true);
-
         Graphics imageG(componentMask);
         imageG.setColour(Colours::white);
+
+        imageG.drawRoundedRectangle(getBounds().toFloat(), 20.0f, 2.0f);
+
         imageG.fillRect(outputMeter.getBounds());
         imageG.fillRect(outputMeterLabel.getBounds());
 
@@ -301,10 +317,10 @@ void OvertoneFilterEditor::resized()
 
         imageG.fillRect(standardLabel.getBounds());
         imageG.fillRect(qLabel.getBounds());
-        imageG.fillRect(nameLabel.getBounds());
+        //imageG.fillRect(nameLabel.getBounds());
 
-        imageG.fillRect(keyboard.getBounds());
-        imageG.fillRect(spectrumDisplay.getBounds());
+        imageG.fillRoundedRectangle(keyboard.getBounds().toFloat(), 2.0f);
+        imageG.fillRoundedRectangle(spectrumDisplay.getBounds().toFloat(), 2.0f);
     }
 }
 
@@ -441,6 +457,11 @@ void OvertoneFilterEditor::renderToTexture()
     {
         uniforms2->iChannel2->set(static_cast<GLint>(renderTex));
     }
+    if (uniforms2->iLevel != nullptr)
+    {
+        iLevelAccum += outputLevel.getLevel() * outputLevel.getLevel();
+        uniforms2->iLevel->set(iLevelAccum);
+    }
 
     // render texture scene
     quad->draw(openGLContext, *attributes2);
@@ -522,14 +543,23 @@ void OvertoneFilterEditor::createShaders()
     fragmentShader =
         "uniform vec2 iResolution;\n"
         "uniform sampler2D iChannel0;\n"
+
+        //http://www.science-and-fiction.org/rendering/noise.html
+        "float random (vec2 st) {\n"
+        "    return fract(sin(dot(st.xy,\n"
+        "                         vec2(12.9898,78.233)))*\n"
+        "        43758.5453123);\n"
+        "}"
+
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
         "    vec3 bg = vec3(.518, .698, .353);\n"
         "    vec3 fg = vec3( .208, 0.196, 0.475);\n"
-        "    vec3 col = mix(fg,bg,1.-vec3(texture2D(iChannel0,uv).y));  \n"
-
+        "    float blend = pow(1.-texture(iChannel0,uv).y,3.0);\n"
+        "    vec3 col = mix(fg,bg,blend );"
+        "    col -= vec3(random(uv)*0.07);"
         "    vec2 uvCenter = uv * ( 1.0 - uv.xy);\n"
         "    float vignette = uvCenter.x * uvCenter.y * 15.0;\n"
         "    vignette = pow(vignette, 0.1);\n"
@@ -540,19 +570,18 @@ void OvertoneFilterEditor::createShaders()
         "uniform float iTime;\n"
         "uniform int iFrame;\n"
         "uniform vec2 iResolution;\n"
+        "uniform float iLevel;\n"
 
         "uniform sampler2D iChannel0;\n"
         "uniform sampler2D iChannel1;\n"
         "uniform sampler2D iChannel2;\n"
+
         "#define d_a 1.0\n"
-        "#define d_b 0.4\n"
-        "#define f 0.0367\n"
-        "//#define k 0.06\n"
-        "#define k k3(uv)\n"
-        "float k3(vec2 uv){\n"
-        "        return (1.0 - texture2D(iChannel1,uv).r )*.06;\n"
-        "}\n"
-        "\n"
+        //"#define d_b 0.3\n"
+        "#define d_b mix(0.2,0.3,-abs(2.0*uv.x-1.0)+1.0)\n"
+        "#define f 0.05\n"
+        "#define k mix(0.06,0.065,sin(iTime))\n"
+
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
         "  vec2 p = 1. / iResolution.xy;\n"
         "  return texture2D(iChannel0,uv) * -1.0\n"
@@ -583,7 +612,7 @@ void OvertoneFilterEditor::createShaders()
         "        + (a * b * b) \n"
         "        - ((k + f) * b));\n"
         "}"
-
+        //http://www.science-and-fiction.org/rendering/noise.html
         "float random (vec2 st) {\n"
         "    return fract(sin(dot(st.xy,\n"
         "                         vec2(12.9898,78.233)))*\n"
@@ -593,21 +622,24 @@ void OvertoneFilterEditor::createShaders()
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
+
         "    \n"
         "    vec2 col = vec2(1.0,0.0);   \n"
         "    // if this is the first frame\n"
         "    if(iFrame <= 1) {\n"
         "        // initialize A and B\n"
         "        col.x = 1.0; \n"
-        "        col.y = random(uv);\n"
+        "        if((uv.x>0.001 && uv.x<0.01)||(uv.x>0.99 && uv.x<0.999)"
+        "           ||(uv.y>0.01 && uv.y<0.2)||(uv.y>0.5 && uv.y<0.6)||(uv.y>0.7 && uv.y<0.75)||(uv.y>0.9 && uv.y<1.0)){\n"
+        "            col.y = random(uv)*0.5;\n"
+        "        }"
         "    } "
         "    else{\n"
         "    col.x = updateA(uv,iChannel0,iResolution, iTime);\n"
         "    col.y = updateB(uv,iChannel0,iResolution, iTime);\n"
         "    }\n"
-        "\n"
-        "    col.x = min(col.x,1.0-texture2D(iChannel2,uv).a);\n"
-        "    col.y = clamp(col.y,0.0,0.9);\n"
+        "    col.x = min(col.x,1.0-max(texture2D(iChannel2,uv).a,texture2D(iChannel1,uv).a));\n"
+        //"    col.y = clamp(col.y,0.0,0.9);\n"
         "    // store A and B\n"
         "    gl_FragColor = vec4(col,1.,1.);\n"
         "}";
@@ -699,6 +731,7 @@ OvertoneFilterEditor::Uniforms::Uniforms(OpenGLContext& openGLContext, OpenGLSha
     iChannel0.reset(createUniform(openGLContext, shaderProgram, "iChannel0"));
     iChannel1.reset(createUniform(openGLContext, shaderProgram, "iChannel1"));
     iChannel2.reset(createUniform(openGLContext, shaderProgram, "iChannel2"));
+    iLevel.reset(createUniform(openGLContext, shaderProgram, "iLevel"));
 }
 
 OpenGLShaderProgram::Uniform* OvertoneFilterEditor::Uniforms::createUniform(OpenGLContext& openGLContext,

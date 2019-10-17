@@ -25,6 +25,10 @@
             file="Source/MyMidiKeyboardComponent.h"/>
       <FILE id="VWm1jv" name="MySlider.cpp" compile="1" resource="0" file="Source/MySlider.cpp"/>
       <FILE id="kDqZUv" name="MySlider.h" compile="0" resource="0" file="Source/MySlider.h"/>
+      <FILE id="qxIVUE" name="OvertoneLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/OvertoneLookAndFeel.cpp"/>
+      <FILE id="MSOAQF" name="OvertoneLookAndFeel.h" compile="0" resource="0"
+            file="Source/OvertoneLookAndFeel.h"/>
       <FILE id="ys226C" name="ParameterHelper.cpp" compile="1" resource="0"
             file="Source/ParameterHelper.cpp"/>
       <FILE id="LdGv9r" name="ParameterHelper.h" compile="0" resource="0"

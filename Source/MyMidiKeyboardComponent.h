@@ -25,6 +25,8 @@ public:
 
     ~MyMidiKeyboardComponent();
 
+    void paint(Graphics&) override;
+
     void parameterChanged(const String& parameterID, float newValue) override;
 
     void mouseUp(const MouseEvent&) override;
@@ -36,6 +38,9 @@ protected:
 
     void drawWhiteNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown, bool isOver,
                        Colour lineColour, Colour textColour) override;
+
+    void drawBlackNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown, bool isOver,
+                       Colour noteFillColour) override;
 
 private:
     OvertoneFilterAudioProcessor& processor;

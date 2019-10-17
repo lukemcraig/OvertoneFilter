@@ -24,10 +24,20 @@ LevelMeter::~LevelMeter()
 
 void LevelMeter::paint(Graphics& g)
 {
-    g.setColour(Colours::black);
-    g.drawRect(getLocalBounds());
-    g.setColour(Colours::white);
-    g.drawRect(getLocalBounds().reduced(1, 1));
+    auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
+    auto area = getLocalBounds();
+    g.setColour(lineCol);    
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.setColour(lineCol);  
+    g.drawRect(area);
+    area.reduce(2, 2);
+    g.setColour(Colour(0xffB28859));
+    g.drawRect(area);
+    area.reduce(2, 2);
 }
 
 void LevelMeter::resized()
@@ -107,17 +117,18 @@ void LevelMeter::createShaders()
         "uniform vec2 iViewport;\n"
         "uniform float iLevel;\n"
 
-        "#define quietColor vec3(0.0, 0.0, 0.0)\n"
-        "#define loudColor vec3(1.0, 1.0, 1.0)\n"
+        "#define purp vec3(.208, 0.196, 0.475)\n"
+        "#define green vec3(.518, .698, .353)\n"
+        "#define gold vec3( .698, .533, .349)\n"
 
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
         "    vec2 uv = (gl_FragCoord.xy-iViewport.xy)/iResolution.xy;\n"
         //"    vec3 col = mix(quietColor, loudColor, uv.x);\n"
-        "    vec3 col = loudColor;\n"
+        // "    vec3 col = gold;\n"
         "    float mask = clamp(sign(iLevel - uv.x),0.0,1.0);\n"
-        "    gl_FragColor = vec4(col*mask, 1.0);\n"
+        "    gl_FragColor = vec4(mix(purp,gold,mask), 1.0);\n"
         "}\n";
 
     quad.reset(new Shape(openGLContext));
