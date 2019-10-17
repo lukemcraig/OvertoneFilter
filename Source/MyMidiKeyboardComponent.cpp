@@ -19,7 +19,7 @@ MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p
 {
     setColour(whiteNoteColourId, Colours::white);
     setColour(blackNoteColourId, Colour(0xffB28859));
-    setColour(mouseOverKeyOverlayColourId, Colours::grey);
+    setColour(mouseOverKeyOverlayColourId, Colour(0xff5983B2));
     setColour(keyDownOverlayColourId, Colours::white);
     setColour(shadowColourId, Colours::transparentWhite);
     parameterHelper.valueTreeState.addParameterListener(parameterHelper.pidPitchStandard, this);

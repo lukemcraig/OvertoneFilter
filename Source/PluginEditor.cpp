@@ -205,7 +205,7 @@ void OvertoneFilterEditor::resized()
     nameLabel.setPaintingIsUnclipped(true);
 
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
-    spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
+    spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(100));
     //keyboardSpectrumArea.removeFromTop(20);
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
@@ -227,7 +227,7 @@ void OvertoneFilterEditor::resized()
     outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
     setLabelAreaAboveCentered(outputMeterLabel, outputMeterArea);
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
-    outputMeter.setBounds(outputMeterArea.removeFromTop(32));
+    outputMeter.setBounds(outputGainSlider.getBounds().reduced(40, 100));
 
     auto mixSliderArea = rightArea.removeFromBottom(128);
     setLabelAreaAboveCentered(mixLabel, mixSliderArea);
@@ -248,12 +248,12 @@ void OvertoneFilterEditor::resized()
     auto wetMeterArea = rightArea;
 
     setLabelAreaAboveCentered(dryMeterLabel, dryMeterArea);
-    dryMeter.setBounds(dryMeterArea.removeFromBottom(32).reduced(10, 0));
     dryGainSlider.setBounds(dryMeterArea);
+    dryMeter.setBounds(dryGainSlider.getBounds().reduced(30, 55));
 
     setLabelAreaAboveCentered(wetMeterLabel, wetMeterArea);
-    wetMeter.setBounds(wetMeterArea.removeFromBottom(32).reduced(10, 0));
     wetGainSlider.setBounds(wetMeterArea);
+    wetMeter.setBounds(wetGainSlider.getBounds().reduced(30, 55));
 
     // left area
 
