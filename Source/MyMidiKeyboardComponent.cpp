@@ -17,10 +17,11 @@ MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p
     MidiKeyboardComponent(state, orientation),
     processor(p), parameterHelper(ph)
 {
-    setColour(whiteNoteColourId, Colour(0xffB28859));
+    setColour(whiteNoteColourId, Colours::white);
     setColour(blackNoteColourId, Colour(0xffB28859));
     setColour(mouseOverKeyOverlayColourId, Colours::grey);
     setColour(keyDownOverlayColourId, Colours::white);
+    setColour(shadowColourId, Colours::transparentWhite);
     parameterHelper.valueTreeState.addParameterListener(parameterHelper.pidPitchStandard, this);
 }
 

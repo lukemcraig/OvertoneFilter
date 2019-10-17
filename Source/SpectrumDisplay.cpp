@@ -176,7 +176,7 @@ void SpectrumDisplay::createShaders()
         "       }\n"
         "    }\n"
         "    else if(fftinput>uv.y){\n"
-        "       gl_FragColor = vec4(0.2,0.2,0.2,1.0);\n"
+        "       gl_FragColor = vec4(0.9,0.9,0.9,0.9);\n"
         "    }\n"
         "    else{\n"
         "       gl_FragColor = vec4(0.0,0.0,0.0,0.0);\n"
