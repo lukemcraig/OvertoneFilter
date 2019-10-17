@@ -122,7 +122,7 @@ private:
                                                            OpenGLShaderProgram& shaderProgram,
                                                            const char* uniformName);
     };
-
+    float iLevelAccum{};
     //==============================================================================
     OpenGLContext openGLContext;
     SpectrumDisplay spectrumDisplay;

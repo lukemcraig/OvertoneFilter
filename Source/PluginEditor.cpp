@@ -441,7 +441,8 @@ void OvertoneFilterEditor::renderToTexture()
     }
     if (uniforms2->iLevel != nullptr)
     {
-        uniforms2->iLevel->set(outputLevel.getLevel());
+        iLevelAccum += outputLevel.getLevel() * outputLevel.getLevel();
+        uniforms2->iLevel->set(iLevelAccum);
     }
 
     // render texture scene
@@ -530,7 +531,8 @@ void OvertoneFilterEditor::createShaders()
         "    vec2 uv = gl_FragCoord.xy/iResolution.xy;\n"
         "    vec3 bg = vec3(.518, .698, .353);\n"
         "    vec3 fg = vec3( .208, 0.196, 0.475);\n"
-        "    vec3 col = mix(fg,bg,1.-vec3(texture2D(iChannel0,uv).y));  \n"
+        "    float blend = pow(1.-texture(iChannel0,uv).y,3.0);\n"
+        "    vec3 col = mix(fg,bg,blend );"
 
         "    vec2 uvCenter = uv * ( 1.0 - uv.xy);\n"
         "    float vignette = uvCenter.x * uvCenter.y * 15.0;\n"
@@ -551,7 +553,7 @@ void OvertoneFilterEditor::createShaders()
         "#define d_a 1.0\n"
         "#define d_b 0.3\n"
         "#define f 0.05\n"
-        "#define k mix(0.06,0.08,iLevel)\n"
+        "#define k mix(0.06,0.065,sin(iLevel))\n"
 
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
         "  vec2 p = 1. / iResolution.xy;\n"
@@ -600,7 +602,7 @@ void OvertoneFilterEditor::createShaders()
         "    if(iFrame <= 1) {\n"
         "        // initialize A and B\n"
         "        col.x = 1.0; \n"
-        "        if((uv.y>0.9 && uv.y<1.0)||(uv.y>0.5 && uv.y<0.75)){\n"
+        "        if((uv.y>0.5 && uv.y<0.65)||(uv.y>0.7 && uv.y<0.75)||(uv.y>0.9 && uv.y<1.0)){\n"
         "            col.y = random(uv)*0.5;\n"
         "        }"
         "    } "
