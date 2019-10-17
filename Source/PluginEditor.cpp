@@ -17,10 +17,11 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       dryMeter(inputLevel, openGLContext),
       wetMeter(wetMixLevel, openGLContext),
       outputMeter(outputLevel, openGLContext),
+      outputLevel(outputLevel),
       spectrumDisplay(p, openGLContext, iss, oss, ph),
-      mixSlider(openGLContext, ph),
-      outputLevel(outputLevel)
+      mixSlider(openGLContext, ph)
 {
+    setLookAndFeel(&overtoneLookAndFeel);
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
     setOpaque(true);
@@ -182,6 +183,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
 {
+    setLookAndFeel (nullptr);
     shutdownOpenGL();
     jassert(! openGLContext.isAttached());
 }
@@ -212,7 +214,7 @@ void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int
 void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
-    
+
     //area.removeFromTop(10);
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(100));

@@ -8,6 +8,7 @@
 #include "SpectrumDisplay.h"
 #include "Shape.h"
 #include "SliderWithMeter.h"
+#include "OvertoneLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -59,6 +60,8 @@ public:
 private:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
+
+    OvertoneLookAndFeel overtoneLookAndFeel;
 
     OvertoneFilterAudioProcessor& processor;
     ParameterHelper& parameterHelper;
