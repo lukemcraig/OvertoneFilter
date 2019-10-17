@@ -527,6 +527,14 @@ void OvertoneFilterEditor::createShaders()
     fragmentShader =
         "uniform vec2 iResolution;\n"
         "uniform sampler2D iChannel0;\n"
+
+        //http://www.science-and-fiction.org/rendering/noise.html
+        "float random (vec2 st) {\n"
+        "    return fract(sin(dot(st.xy,\n"
+        "                         vec2(12.9898,78.233)))*\n"
+        "        43758.5453123);\n"
+        "}"
+
         "void main()\n"
         "{\n"
         "    // Normalized pixel coordinates (from 0 to 1)\n"
@@ -535,7 +543,7 @@ void OvertoneFilterEditor::createShaders()
         "    vec3 fg = vec3( .208, 0.196, 0.475);\n"
         "    float blend = pow(1.-texture(iChannel0,uv).y,3.0);\n"
         "    vec3 col = mix(fg,bg,blend );"
-
+        "    col -= vec3(random(uv)*0.07);"
         "    vec2 uvCenter = uv * ( 1.0 - uv.xy);\n"
         "    float vignette = uvCenter.x * uvCenter.y * 15.0;\n"
         "    vignette = pow(vignette, 0.1);\n"
@@ -588,7 +596,7 @@ void OvertoneFilterEditor::createShaders()
         "        + (a * b * b) \n"
         "        - ((k + f) * b));\n"
         "}"
-
+        //http://www.science-and-fiction.org/rendering/noise.html
         "float random (vec2 st) {\n"
         "    return fract(sin(dot(st.xy,\n"
         "                         vec2(12.9898,78.233)))*\n"
