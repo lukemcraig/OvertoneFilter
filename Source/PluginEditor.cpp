@@ -31,7 +31,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     setLookAndFeel(&overtoneLookAndFeel);
     // --------
     {
-        auto& lookAndFeel = getLookAndFeel();        
+        auto& lookAndFeel = getLookAndFeel();
         lookAndFeel.setColour(Label::textColourId, Colour(0xff010201));
         lookAndFeel.setColour(Slider::thumbColourId, Colour(0xffB28859));
         lookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour(0xffB28859));
@@ -137,10 +137,10 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(titleLabel);
     }
     {
-        //nameLabel.setFont(100);
+        nameLabel.setFont(Font(24, Font::bold));
         nameLabel.setText("Luke M. Craig", dontSendNotification);
         nameLabel.setJustificationType(Justification::centred);
-        //nameLabel.setColour(Label::textColourId, Colour(0xff84B25A));
+        nameLabel.setColour(Label::textColourId, Colour(0xff283719));
         addAndMakeVisible(nameLabel);
     }
     {
@@ -219,7 +219,7 @@ void OvertoneFilterEditor::resized()
     auto area = getLocalBounds();
 
     //area.removeFromTop(10);
-    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
+    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 0).withTrimmedTop(10);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(100));
     //keyboardSpectrumArea.removeFromTop(20);
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
@@ -227,7 +227,7 @@ void OvertoneFilterEditor::resized()
     keyboard.setAvailableRange(0, 127);
     keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
 
-    nameLabel.setBounds(keyboardSpectrumArea.removeFromBottom(16));
+    nameLabel.setBounds(keyboardSpectrumArea);
 
     area.removeFromTop(20);
     area.removeFromRight(20);
