@@ -106,7 +106,7 @@ private:
     Label wetMeterLabel;
     Label outputMeterLabel;
     // -----
-    Label nameLabel;
+    Label titleLabel;
 
     //==============================================================================
     // This class manages the uniform values that the shaders use.

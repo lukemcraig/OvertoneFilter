@@ -122,11 +122,11 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
                                                         outputGainSlider));
     }
     {
-        nameLabel.setFont(100);
-        nameLabel.setText("Overtone Filter", dontSendNotification);
-        nameLabel.setJustificationType(Justification::centred);
-        nameLabel.setColour(Label::textColourId, Colour(0xff84B25A));
-        addAndMakeVisible(nameLabel);
+        titleLabel.setFont(100);
+        titleLabel.setText("Overtone Filter", dontSendNotification);
+        titleLabel.setJustificationType(Justification::centred);
+        titleLabel.setColour(Label::textColourId, Colour(0xff84B25A));
+        addAndMakeVisible(titleLabel);
     }
     {
         addAndMakeVisible(dryMeter);
@@ -146,7 +146,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         addAndMakeVisible(outputMeterLabel);
     }
     {
-        makeLabelUpperCase(nameLabel);
+        makeLabelUpperCase(titleLabel);
 
         makeLabelUpperCase(standardLabel);
         makeLabelUpperCase(qLabel);
@@ -202,7 +202,7 @@ void OvertoneFilterEditor::resized()
 {
     auto area = getLocalBounds();
 
-    nameLabel.setPaintingIsUnclipped(true);
+    titleLabel.setPaintingIsUnclipped(true);
 
     auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(100));
@@ -227,11 +227,11 @@ void OvertoneFilterEditor::resized()
     outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
     setLabelAreaAboveCentered(outputMeterLabel, outputMeterArea);
     outputGainSlider.setBounds(outputMeterArea.removeFromTop(meterWidth));
-    outputMeter.setBounds(outputGainSlider.getBounds().reduced(40, 100));
+    outputMeter.setBounds(outputGainSlider.getBounds().reduced(40, 110));
 
     auto mixSliderArea = rightArea.removeFromBottom(128);
     setLabelAreaAboveCentered(mixLabel, mixSliderArea);
-    mixSlider.setBounds(mixSliderArea.removeFromTop(32));
+    mixSlider.setBounds(mixSliderArea.removeFromTop(32).reduced(0,5));
 
     auto mixAttackArea = mixSliderArea.removeFromLeft(mixSliderArea.proportionOfWidth(0.5));
     auto mixReleaseArea = mixSliderArea;
@@ -249,11 +249,11 @@ void OvertoneFilterEditor::resized()
 
     setLabelAreaAboveCentered(dryMeterLabel, dryMeterArea);
     dryGainSlider.setBounds(dryMeterArea);
-    dryMeter.setBounds(dryGainSlider.getBounds().reduced(30, 55));
+    dryMeter.setBounds(dryGainSlider.getBounds().reduced(30, 60));
 
     setLabelAreaAboveCentered(wetMeterLabel, wetMeterArea);
     wetGainSlider.setBounds(wetMeterArea);
-    wetMeter.setBounds(wetGainSlider.getBounds().reduced(30, 55));
+    wetMeter.setBounds(wetGainSlider.getBounds().reduced(30, 60));
 
     // left area
 
@@ -263,7 +263,7 @@ void OvertoneFilterEditor::resized()
     auto sliderArea = leftArea.removeFromTop(paneAreaHeight).reduced(10, 10);
     sliderArea.removeFromTop(16);
 
-    nameLabel.setBounds(leftArea.reduced(16));
+    titleLabel.setBounds(leftArea.reduced(16));
 
     const auto nSliders = 2;
     auto sliderHeight = sliderArea.getWidth() / nSliders;
