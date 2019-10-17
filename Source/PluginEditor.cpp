@@ -185,8 +185,8 @@ void OvertoneFilterEditor::paint(Graphics& g)
 {
     //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    g.setColour(Colour(0xFF000000));
-    g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
+    //g.setColour(Colour(0xFF000000));
+    //g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
     //g.setFont(15.0f);
     //g.fillRect(nameLabel.getBounds());
 }
@@ -204,7 +204,7 @@ void OvertoneFilterEditor::resized()
 
     nameLabel.setPaintingIsUnclipped(true);
 
-    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(10, 10);
+    auto keyboardSpectrumArea = area.removeFromBottom(300).reduced(20, 20);
     spectrumDisplay.setBounds(keyboardSpectrumArea.removeFromTop(150));
     keyboardSpectrumArea.removeFromTop(10);
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
@@ -279,9 +279,11 @@ void OvertoneFilterEditor::resized()
     // extra boundaries for the background shader
     {
         componentMask = Image(Image::ARGB, getWidth(), getHeight(), true);
-
         Graphics imageG(componentMask);
         imageG.setColour(Colours::white);
+
+        imageG.drawRoundedRectangle(getBounds().toFloat(), 20.0f, 2.0f);
+
         imageG.fillRect(outputMeter.getBounds());
         imageG.fillRect(outputMeterLabel.getBounds());
 
@@ -301,8 +303,8 @@ void OvertoneFilterEditor::resized()
         imageG.fillRect(qLabel.getBounds());
         //imageG.fillRect(nameLabel.getBounds());
 
-        imageG.fillRect(keyboard.getBounds());
-        imageG.fillRect(spectrumDisplay.getBounds());
+        imageG.fillRoundedRectangle(keyboard.getBounds().toFloat(), 2.0f);
+        imageG.fillRoundedRectangle(spectrumDisplay.getBounds().toFloat(), 2.0f);
     }
 }
 
@@ -551,9 +553,10 @@ void OvertoneFilterEditor::createShaders()
         "uniform sampler2D iChannel2;\n"
 
         "#define d_a 1.0\n"
-        "#define d_b 0.3\n"
+        //"#define d_b 0.3\n"
+        "#define d_b mix(0.2,0.3,-abs(2.0*uv.x-1.0)+1.0)\n"
         "#define f 0.05\n"
-        "#define k mix(0.06,0.065,sin(iLevel))\n"
+        "#define k mix(0.06,0.065,sin(iTime))\n"
 
         "vec4 laplace(vec2 uv, sampler2D iChannel0, vec2 iResolution){\n"
         "  vec2 p = 1. / iResolution.xy;\n"
@@ -602,7 +605,8 @@ void OvertoneFilterEditor::createShaders()
         "    if(iFrame <= 1) {\n"
         "        // initialize A and B\n"
         "        col.x = 1.0; \n"
-        "        if((uv.y>0.5 && uv.y<0.65)||(uv.y>0.7 && uv.y<0.75)||(uv.y>0.9 && uv.y<1.0)){\n"
+        "        if((uv.x>0.001 && uv.x<0.01)||(uv.x>0.99 && uv.x<0.999)"
+        "           ||(uv.y>0.01 && uv.y<0.2)||(uv.y>0.5 && uv.y<0.6)||(uv.y>0.7 && uv.y<0.75)||(uv.y>0.9 && uv.y<1.0)){\n"
         "            col.y = random(uv)*0.5;\n"
         "        }"
         "    } "

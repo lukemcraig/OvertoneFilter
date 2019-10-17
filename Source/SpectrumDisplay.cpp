@@ -166,7 +166,7 @@ void SpectrumDisplay::createShaders()
         "    float fftinput = texture(iSpectrum,vec2(x,1.0)).r;\n"
         "    float fftoutput = texture(iSpectrum,vec2(x,0.0)).r;\n"
         "    if(fftoutput>uv.y){\n"
-        "    gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
+        "    gl_FragColor = vec4( .208, 0.196, 0.475,1.0);\n"
         "    }\n"
         "    else if(fftinput>uv.y){\n"
         "    gl_FragColor = vec4(0.2,0.2,0.2,1.0);\n"
