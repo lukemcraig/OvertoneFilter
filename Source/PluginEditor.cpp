@@ -38,7 +38,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         lookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour(0xff233016));
         lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::transparentWhite);
         lookAndFeel.setColour(Slider::textBoxOutlineColourId, Colours::transparentWhite);
-        lookAndFeel.setColour(Slider::textBoxTextColourId, Colours::black);        
+        lookAndFeel.setColour(Slider::textBoxTextColourId, Colours::black);
     }
 
     // --------
@@ -180,8 +180,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     }
     addAndMakeVisible(spectrumDisplay);
     addAndMakeVisible(keyboard);
-    setResizable(true, true);
-
+    setResizable(false, false);
     setSize(1280, 640);
 }
 

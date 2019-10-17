@@ -25,6 +25,8 @@ public:
 
     ~MyMidiKeyboardComponent();
 
+    void paint(Graphics&) override;
+
     void parameterChanged(const String& parameterID, float newValue) override;
 
     void mouseUp(const MouseEvent&) override;

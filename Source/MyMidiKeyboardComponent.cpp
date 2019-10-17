@@ -30,6 +30,13 @@ MyMidiKeyboardComponent::~MyMidiKeyboardComponent()
     parameterHelper.valueTreeState.removeParameterListener(parameterHelper.pidPitchStandard, this);
 }
 
+void MyMidiKeyboardComponent::paint(Graphics& g)
+{
+    MidiKeyboardComponent::paint(g);
+    g.setColour(Colour(0xff353279));
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), 5.0f, 5.0f);
+}
+
 void MyMidiKeyboardComponent::parameterChanged(const String& parameterID, float newValue)
 {
     if (parameterID == parameterHelper.pidPitchStandard)
