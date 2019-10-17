@@ -21,7 +21,6 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
       spectrumDisplay(p, openGLContext, iss, oss, ph),
       mixSlider(openGLContext, ph)
 {
-    setLookAndFeel(&overtoneLookAndFeel);
     openGLContext.setOpenGLVersionRequired(OpenGLContext::OpenGLVersion::openGL3_2);
 
     setOpaque(true);
@@ -29,15 +28,19 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
     openGLContext.attachTo(*this);
     openGLContext.setContinuousRepainting(true);
 
+    setLookAndFeel(&overtoneLookAndFeel);
     // --------
     {
         auto& lookAndFeel = getLookAndFeel();
         lookAndFeel.setColour(Label::textColourId, Colours::black);
-        lookAndFeel.setColour(Slider::thumbColourId, Colours::white);
+        lookAndFeel.setColour(Slider::thumbColourId, Colour(0xffB28859));
+        lookAndFeel.setColour(Slider::rotarySliderFillColourId, Colour(0xffB28859));
+        lookAndFeel.setColour(Slider::rotarySliderOutlineColourId, Colour(0xff233016));
         lookAndFeel.setColour(Slider::textBoxBackgroundColourId, Colours::transparentWhite);
-        lookAndFeel.setColour(Slider::textBoxTextColourId, Colours::black);
         lookAndFeel.setColour(Slider::textBoxOutlineColourId, Colours::transparentWhite);
+        lookAndFeel.setColour(Slider::textBoxTextColourId, Colours::black);        
     }
+
     // --------
     const auto textEntryBoxWidth = 64;
     {
@@ -51,6 +54,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
         standardLabel.setText("Pitch Standard", dontSendNotification);
         standardLabel.setJustificationType(Justification::centred);
         addAndMakeVisible(standardLabel);
+        standardSlider.setLookAndFeel(&overtoneLookAndFeel);
     }
     {
         qSlider.setTextBoxStyle(Slider::NoTextBox, false, textEntryBoxWidth, 16);
@@ -183,7 +187,7 @@ OvertoneFilterEditor::OvertoneFilterEditor(OvertoneFilterAudioProcessor& p,
 
 OvertoneFilterEditor::~OvertoneFilterEditor()
 {
-    setLookAndFeel (nullptr);
+    setLookAndFeel(nullptr);
     shutdownOpenGL();
     jassert(! openGLContext.isAttached());
 }

@@ -18,49 +18,6 @@ OvertoneLookAndFeel::~OvertoneLookAndFeel()
 {
 }
 
-void OvertoneLookAndFeel::drawLinearSlider(Graphics& g, const int x, const int y, const int width, const int height,
-                                           const float sliderPos, float /*minSliderPos*/, float /*maxSliderPos*/,
-                                           const Slider::SliderStyle /*style*/, Slider& slider)
-{
-    // most of this is copied from the overridden library code
-    const auto trackWidth = jmin(6.0f, slider.isHorizontal() ? height * 0.25f : width * 0.25f);
-
-    const Point<float> startPoint(slider.isHorizontal() ? x : x + width * 0.5f,
-                                  slider.isHorizontal() ? y + height * 0.5f : height + y);
-
-    const Point<float> endPoint(slider.isHorizontal() ? width + x : startPoint.x,
-                                slider.isHorizontal() ? startPoint.y : y);
-
-    Path backgroundTrack;
-    backgroundTrack.startNewSubPath(startPoint);
-    backgroundTrack.lineTo(endPoint);
-    const auto backgroundColour = slider.findColour(Slider::backgroundColourId);
-    g.setColour(backgroundColour);
-    g.strokePath(backgroundTrack, {trackWidth, PathStrokeType::curved, PathStrokeType::rounded});
-
-    // added this
-    g.setColour(backgroundColour.darker(trackDarkenAmount));
-    g.strokePath(backgroundTrack, {valueTrackWidth * innerTrackScale, PathStrokeType::curved, PathStrokeType::rounded});
-
-    const auto kx = slider.isHorizontal() ? sliderPos : (x + width * 0.5f);
-    const auto ky = slider.isHorizontal() ? (y + height * 0.5f) : sliderPos;
-
-    const auto minPoint = startPoint;
-    const Point<float> maxPoint = {kx, ky};
-
-    const auto thumbWidth = static_cast<float>(getSliderThumbRadius(slider));
-
-    Path valueTrack;
-    valueTrack.startNewSubPath(minPoint);
-    valueTrack.lineTo(maxPoint);
-    const auto trackColour = slider.findColour(Slider::trackColourId);
-    g.setColour(trackColour);
-    // changed this
-    g.strokePath(valueTrack, {valueTrackWidth, PathStrokeType::curved, PathStrokeType::rounded});
-
-    drawThumbKnob(g, slider, backgroundColour, valueTrackWidth, maxPoint, thumbWidth);
-}
-
 void OvertoneLookAndFeel::drawRotarySlider(Graphics& g, const int x, const int y, const int width, const int height,
                                            const float sliderPosProportional, const float rotaryStartAngle,
                                            const float rotaryEndAngle, Slider& slider)
@@ -91,7 +48,7 @@ void OvertoneLookAndFeel::drawRotarySlider(Graphics& g, const int x, const int y
 
         g.setColour(outline);
         g.strokePath(backgroundArc, PathStrokeType(lineW, PathStrokeType::curved, PathStrokeType::rounded));
-        g.setColour(outline.darker(trackDarkenAmount));
+        g.setColour(outline.brighter(trackDarkenAmount));
         g.strokePath(backgroundArc,
                      PathStrokeType(valueLineW * innerTrackScale, PathStrokeType::curved, PathStrokeType::rounded));
     }
