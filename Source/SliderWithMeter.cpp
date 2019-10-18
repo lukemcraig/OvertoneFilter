@@ -58,7 +58,6 @@ void SliderWithMeter::shutdown()
 
 void SliderWithMeter::renderScene() const
 {
-    //render scene
     const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
     const auto width = roundToInt(desktopScale * static_cast<float>(getWidth()));
     const auto height = roundToInt(desktopScale * static_cast<float>(getHeight()));
