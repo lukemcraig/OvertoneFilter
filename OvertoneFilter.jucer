@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="Overtone Filter" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.4.4" companyName="Luke M. Craig" reportAppUsage="0"
+              jucerVersion="5.4.5" companyName="Luke M. Craig" reportAppUsage="0"
               pluginName="Overtone Filter" pluginManufacturer="Luke M. Craig"
-              pluginWantsMidiIn="1" id="fu59EL" pluginFormats="buildAUv3,buildStandalone,buildVST3"
+              pluginWantsMidiIn="1" id="fu59EL" pluginFormats="buildAU,buildStandalone,buildVST3"
               pluginCharacteristicsValue="pluginWantsMidiIn" buildVST="0" buildVST3="1"
-              buildAU="0" buildAUv3="1" buildRTAS="0" buildAAX="0" enableIAA="0"
+              buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0" enableIAA="0"
               pluginDesc="Simulate sygyt style overtone singing (a.k.a. throat singing) by emphasizing MIDI-selected harmonics of an audio signal."
               pluginManufacturerCode="LMCA" pluginCode="LCOF" aaxIdentifier="com.lukemcraig.overtonefilter"
-              defines="JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES">
+              defines="JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES" bundleIdentifier="com.lukemcraig.overtonefilter">
   <MAINGROUP id="uOFHnM" name="Overtone Filter">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
       <FILE id="VoN6G0" name="Attributes.cpp" compile="1" resource="0" file="Source/Attributes.cpp"/>
