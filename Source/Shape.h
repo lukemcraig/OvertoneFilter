@@ -19,7 +19,7 @@
 */
 struct Shape
 {
-    Shape(OpenGLContext& glContext);
+    explicit Shape(OpenGLContext& glContext);
 
     void draw(OpenGLContext& glContext, Attributes& glAttributes);
 
