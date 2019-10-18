@@ -41,6 +41,16 @@ void MyMidiKeyboardComponent::parameterChanged(const String& parameterID, float 
 {
     if (parameterID == parameterHelper.pidPitchStandard)
     {
+        needToRepaint = true;
+    }
+}
+
+void MyMidiKeyboardComponent::timerCallback()
+{
+    MidiKeyboardComponent::timerCallback();
+    if (needToRepaint)
+    {
+        needToRepaint = false;
         repaint();
     }
 }
@@ -68,7 +78,7 @@ bool MyMidiKeyboardComponent::mouseDownOnKey(int midiNoteNumber, const MouseEven
     return false;
 }
 
-void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, Rectangle<float> area,
+void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, const Rectangle<float> area,
                                             bool isDown, bool isOver, Colour lineColour, Colour textColour)
 {
     auto c = Colours::transparentWhite;
@@ -79,60 +89,37 @@ void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, Rec
     g.setColour(c);
     g.fillRect(area);
 
-    auto text = getWhiteNoteText(midiNoteNumber);
+    const auto text = getWhiteNoteText(midiNoteNumber);
 
-    const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
-    auto freqText = String(freq);
-    //text += NewLine::getDefault() + freqText;
     if (text.isNotEmpty())
     {
-        auto fontHeight = jmin(12.0f, getKeyWidth() * 0.9f);
+        const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
+        const auto freqText = String(freq, 1) + ((midiNoteNumber==0) ? " Hz" : "");
+
+        const auto fontHeight = getKeyWidth();
+        const Font freqFont(fontHeight * .7f);
+        auto area2 = area;
+        const auto areaToDraw = area2.removeFromBottom(freqFont.getStringWidth(freqText) +6.0f).withTrimmedBottom(6.0f);
 
         g.setColour(textColour);
-        g.setFont(Font(fontHeight).withHorizontalScale(0.5f));
+        g.setFont(freqFont);
 
-        switch (getOrientation())
-        {
-        case horizontalKeyboard: g.drawText(freqText, area.withTrimmedLeft(1.0f).withTrimmedBottom(2.0f),
-                                            Justification::centredBottom, false);
-            /*g.drawText(freqText, area.withTrimmedLeft(1.0f).withTrimmedBottom(2.0f),
-                                            Justification::centredBottom, false);*/
-            break;
-        case verticalKeyboardFacingLeft: g.drawText(text, area.reduced(2.0f), Justification::centredLeft, false);
-            break;
-        case verticalKeyboardFacingRight: g.drawText(text, area.reduced(2.0f), Justification::centredRight, false);
-            break;
-        default: break;
-        }
+        const auto rotation = AffineTransform::rotation(-MathConstants<float>::halfPi, areaToDraw.getCentreX(),
+                                                        areaToDraw.getCentreY());
+        g.addTransform(rotation);
+
+        g.drawText(freqText, areaToDraw.transformedBy(rotation), Justification::left, false);
+        g.addTransform(rotation.inverted());
     }
 
     if (! lineColour.isTransparent())
     {
         g.setColour(lineColour);
-
-        switch (getOrientation())
-        {
-        case horizontalKeyboard: g.fillRect(area.withWidth(1.0f));
-            break;
-        case verticalKeyboardFacingLeft: g.fillRect(area.withHeight(1.0f));
-            break;
-        case verticalKeyboardFacingRight: g.fillRect(area.removeFromBottom(1.0f));
-            break;
-        default: break;
-        }
+        g.fillRect(area.withWidth(1.0f));
 
         if (midiNoteNumber == getRangeEnd())
         {
-            switch (getOrientation())
-            {
-            case horizontalKeyboard: g.fillRect(area.expanded(1.0f, 0).removeFromRight(1.0f));
-                break;
-            case verticalKeyboardFacingLeft: g.fillRect(area.expanded(0, 1.0f).removeFromBottom(1.0f));
-                break;
-            case verticalKeyboardFacingRight: g.fillRect(area.expanded(0, 1.0f).removeFromTop(1.0f));
-                break;
-            default: break;
-            }
+            g.fillRect(area.expanded(1.0f, 0).removeFromRight(1.0f));
         }
     }
 }

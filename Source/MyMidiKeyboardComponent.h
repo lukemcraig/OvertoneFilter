@@ -17,7 +17,8 @@
 /*
 */
 class MyMidiKeyboardComponent : public MidiKeyboardComponent,
-                                public AudioProcessorValueTreeState::Listener
+                                public AudioProcessorValueTreeState::Listener,
+                                public Timer
 {
 public:
     MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p, MidiKeyboardState& state,
@@ -30,6 +31,8 @@ public:
     void parameterChanged(const String& parameterID, float newValue) override;
 
     void mouseUp(const MouseEvent&) override;
+
+    void timerCallback() override;
 
 protected:
     bool mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e) override;
@@ -46,6 +49,7 @@ private:
     OvertoneFilterAudioProcessor& processor;
     ParameterHelper& parameterHelper;
     int currentNoteDown = -1;
+    bool needToRepaint{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MyMidiKeyboardComponent)
 };
