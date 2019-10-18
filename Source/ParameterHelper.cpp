@@ -83,24 +83,25 @@ void ParameterHelper::updateSmoothers()
     for (auto& smoother : smoothOutGain)
         smoother.setTargetValue(*valueTreeState.getRawParameterValue(pidOutputGain));
 
-    for (auto i = 0; i < smoothMix.size(); ++i)
+    for (size_t i = 0; i < smoothMix.size(); ++i)
     {
         if (!useInternalMix[i])
             smoothMix[i].setTargetValue(*valueTreeState.getRawParameterValue(pidMix));
     }
 }
 
-float ParameterHelper::getCurrentPitchStandard(int channel)
+float ParameterHelper::getCurrentPitchStandard(const int channel)
 {
-    if (smoothStandard.size()==0){
+    if (smoothStandard.empty())
+    {
         DBG("smoother not prepared");
         return 0.0f;
     }
-        
+
     return smoothStandard[channel].getCurrentValue();
 }
 
-void ParameterHelper::skipPitchStandard(int channel, int numSamples)
+void ParameterHelper::skipPitchStandard(const int channel, const int numSamples)
 {
     smoothStandard[channel].skip(numSamples);
 }
@@ -110,17 +111,17 @@ float ParameterHelper::getCurrentResonance(const int channel)
     return smoothResonance[channel].getCurrentValue();
 }
 
-void ParameterHelper::skipResonance(int channel, const int numSamples)
+void ParameterHelper::skipResonance(const int channel, const int numSamples)
 {
     smoothResonance[channel].skip(numSamples);
 }
 
-float ParameterHelper::getInputGain(int channel)
+float ParameterHelper::getInputGain(const int channel)
 {
     return smoothInGain[channel].getNextValue();
 }
 
-float ParameterHelper::getOutGain(int channel)
+float ParameterHelper::getOutGain(const int channel)
 {
     return smoothOutGain[channel].getNextValue();
 }
@@ -142,7 +143,8 @@ void ParameterHelper::setMixTarget(const int channel, const float target)
 
 float ParameterHelper::getCurrentMix(const int channel)
 {
-    if (smoothMix.size()==0){
+    if (smoothMix.empty())
+    {
         DBG("smoother not prepared");
         return 0.0f;
     }
@@ -154,11 +156,11 @@ void ParameterHelper::setCurrentMix(const int channel, const float currentWetDry
     smoothMix[channel].setCurrentAndTargetValue(currentWetDry);
 }
 
-void ParameterHelper::setMixRampTime(const int channel, float mixRampTime)
+void ParameterHelper::setMixRampTime(const int channel, const float mixRampTime)
 {
     jassert(sampleRate>0);
-    auto cv = smoothMix[channel].getCurrentValue();
-    auto tv = smoothMix[channel].getTargetValue();
+    const auto cv = smoothMix[channel].getCurrentValue();
+    const auto tv = smoothMix[channel].getTargetValue();
     smoothMix[channel].reset(sampleRate, mixRampTime);
     smoothMix[channel].setCurrentAndTargetValue(cv);
     smoothMix[channel].setTargetValue(tv);
@@ -199,7 +201,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            0.85f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value * 100.0f, 2) + " %";
                                                            }));
@@ -209,7 +211,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            0.5f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value * 100.0f, 2) + " %";
                                                            }));
@@ -219,7 +221,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            1.0f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value * 100.0f, 2) + " %";
                                                            }));
@@ -229,7 +231,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            0.75f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value * 100.0f, 2) + " %";
                                                            }));
@@ -239,7 +241,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            1.0f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value * 100.0f, 2) + " %";
                                                            }));
@@ -249,7 +251,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            440.0f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value, 2) + " Hz";
                                                            }));
@@ -259,7 +261,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            0.05f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value, 2) + " s";
                                                            }));
@@ -269,7 +271,7 @@ AudioProcessorValueTreeState::ParameterLayout ParameterHelper::createParameterLa
                                                            0.1f,
                                                            String(),
                                                            AudioProcessorParameter::genericParameter,
-                                                           [](float value, int maximumStringLength)
+                                                           [](const float value, int /*maximumStringLength*/)
                                                            {
                                                                return String(value, 2) + " s";
                                                            }));
