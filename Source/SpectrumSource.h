@@ -25,9 +25,9 @@ public:
 
     void pushSample(float sample);
 
-    void setSampleRate(double newSampleRate) { sampleRate = newSampleRate; }
+    void setSampleRate(const double newSampleRate) { sampleRate = newSampleRate; }
 
-    double getSampleRate() { return sampleRate; }
+    double getSampleRate() const { return sampleRate; }
 
     enum
     {
@@ -37,6 +37,7 @@ public:
         fftSizePositive = 1 << (fftOrder - 1)
     };
 
+private:
     dsp::FFT forwardFFT;
     dsp::WindowingFunction<float> window;
     std::array<float, fftSize> fifo{};
@@ -44,9 +45,8 @@ public:
     int fifoIndex = 0;
     bool nextFFTBlockReady = false;
 
-private:
-    float mindB = -100.0f;
-    float maxdB = 0.0f;
+    const float mindB = -100.0f;
+    const float maxdB = 0.0f;
     double sampleRate{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrumSource)
