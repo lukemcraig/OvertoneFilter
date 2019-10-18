@@ -3,7 +3,7 @@
 
     LevelMeterAudioSource.cpp
     Created: 4 Oct 2019 11:05:10am
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */

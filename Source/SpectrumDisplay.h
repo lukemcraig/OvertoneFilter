@@ -3,7 +3,7 @@
 
     SpectrumDisplay.h
     Created: 9 Oct 2019 12:19:27am
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */

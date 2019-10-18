@@ -3,7 +3,7 @@
 
     SliderWithMeter.cpp
     Created: 15 Oct 2019 7:29:54pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */

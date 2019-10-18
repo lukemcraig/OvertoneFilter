@@ -3,7 +3,7 @@
 
     LevelMeter.cpp
     Created: 2 Oct 2019 3:52:35pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */

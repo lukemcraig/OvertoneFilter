@@ -1,3 +1,8 @@
+/*
+  ==============================================================================
+    Author:  Luke McDuffie Craig
+  ==============================================================================
+*/
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -126,6 +131,7 @@ private:
                                                            OpenGLShaderProgram& shaderProgram,
                                                            const char* uniformName);
     };
+
     float iLevelAccum{};
     //==============================================================================
     OpenGLContext openGLContext;

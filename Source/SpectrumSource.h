@@ -3,7 +3,7 @@
 
     SpectrumSource.h
     Created: 11 Oct 2019 12:53:12pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
