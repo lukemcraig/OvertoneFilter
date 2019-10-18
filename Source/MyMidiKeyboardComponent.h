@@ -17,8 +17,7 @@
 /*
 */
 class MyMidiKeyboardComponent : public MidiKeyboardComponent,
-                                public AudioProcessorValueTreeState::Listener,
-                                public Timer
+                                public AudioProcessorValueTreeState::Listener
 {
 public:
     MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p, MidiKeyboardState& state,

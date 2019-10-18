@@ -15,9 +15,11 @@
 SpectrumDisplay::
 SpectrumDisplay(OvertoneFilterAudioProcessor& p, OpenGLContext& oc, SpectrumSource& iss, SpectrumSource& oss,
                 ParameterHelper& parameterHelper) :
-    openGLContext(oc),
     processor(p),
-    inputSpectrumSource(iss), outputSpectrumSource(oss), parameterHelper(parameterHelper)
+    openGLContext(oc),
+    parameterHelper(parameterHelper),
+    inputSpectrumSource(iss),
+    outputSpectrumSource(oss)
 {
 }
 

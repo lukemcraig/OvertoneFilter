@@ -10,7 +10,9 @@
 
 #include "SliderWithMeter.h"
 
-SliderWithMeter::SliderWithMeter(OpenGLContext& oglc, ParameterHelper& ph) : openGLContext(oglc), parameterHelper(ph)
+SliderWithMeter::SliderWithMeter(OpenGLContext& oglc, ParameterHelper& ph) : parameterHelper(ph),
+    openGLContext(oglc)
+    
 {
 }
 

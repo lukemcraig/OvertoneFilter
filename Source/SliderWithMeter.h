@@ -44,6 +44,8 @@ public:
     void mouseMove(const MouseEvent&) override;
 
 private:
+    ParameterHelper& parameterHelper;
+    //==============================================================================
     struct Uniforms
     {
         Uniforms(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
@@ -58,7 +60,6 @@ private:
     };
 
     //==============================================================================
-    ParameterHelper& parameterHelper;
     OpenGLContext& openGLContext;
 
     String vertexShader;
@@ -68,7 +69,6 @@ private:
     std::unique_ptr<Shape> quad;
     std::unique_ptr<Attributes> attributes;
     std::unique_ptr<Uniforms> uniforms;
-
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SliderWithMeter)
 };
