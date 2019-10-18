@@ -13,10 +13,11 @@
 
 //==============================================================================
 MyMidiKeyboardComponent::MyMidiKeyboardComponent(OvertoneFilterAudioProcessor& p, MidiKeyboardState& state,
-                                                 Orientation orientation, ParameterHelper& ph) :
+                                                 const Orientation orientation, ParameterHelper& ph) :
     MidiKeyboardComponent(state, orientation),
     processor(p), parameterHelper(ph)
 {
+    jassert(orientation==horizontalKeyboard);
     setColour(whiteNoteColourId, Colours::white);
     setColour(blackNoteColourId, Colour(0xffB28859));
     setColour(mouseOverKeyOverlayColourId, Colours::grey);
@@ -37,7 +38,7 @@ void MyMidiKeyboardComponent::paint(Graphics& g)
     g.drawRoundedRectangle(getLocalBounds().toFloat(), 5.0f, 5.0f);
 }
 
-void MyMidiKeyboardComponent::parameterChanged(const String& parameterID, float newValue)
+void MyMidiKeyboardComponent::parameterChanged(const String& parameterID, float /*newValue*/)
 {
     if (parameterID == parameterHelper.pidPitchStandard)
     {
@@ -66,20 +67,21 @@ void MyMidiKeyboardComponent::mouseUp(const MouseEvent& e)
 }
 
 //==============================================================================
-bool MyMidiKeyboardComponent::mouseDraggedToKey(int midiNoteNumber, const MouseEvent& e)
+bool MyMidiKeyboardComponent::mouseDraggedToKey(int /*midiNoteNumber*/, const MouseEvent& /*e*/)
 {
     return false;
 }
 
-bool MyMidiKeyboardComponent::mouseDownOnKey(int midiNoteNumber, const MouseEvent& e)
+bool MyMidiKeyboardComponent::mouseDownOnKey(const int midiNoteNumber, const MouseEvent& /*e*/)
 {
     currentNoteDown = midiNoteNumber;
     processor.handleNoteOn(static_cast<float>(midiNoteNumber));
     return false;
 }
 
-void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, const Rectangle<float> area,
-                                            bool isDown, bool isOver, Colour lineColour, Colour textColour)
+void MyMidiKeyboardComponent::drawWhiteNote(const int midiNoteNumber, Graphics& g, const Rectangle<float> area,
+                                            const bool isDown, const bool isOver, const Colour lineColour,
+                                            const Colour textColour)
 {
     auto c = Colours::transparentWhite;
 
@@ -93,13 +95,14 @@ void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, con
 
     if (text.isNotEmpty())
     {
-        const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(2.0f, (midiNoteNumber - 69.0f) / 12.0f);
-        const auto freqText = String(freq, 1) + ((midiNoteNumber==0) ? " Hz" : "");
+        const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(
+            2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
+        const auto freqText = String(freq, 1) + ((midiNoteNumber == 0) ? " Hz" : "");
 
         const auto fontHeight = getKeyWidth();
         const Font freqFont(fontHeight * .7f);
         auto area2 = area;
-        const auto areaToDraw = area2.removeFromBottom(freqFont.getStringWidth(freqText) +6.0f).withTrimmedBottom(6.0f);
+        const auto areaToDraw = area2.removeFromBottom(freqFont.getStringWidth(freqText) + 6).withTrimmedBottom(6);
 
         g.setColour(textColour);
         g.setFont(freqFont);
@@ -124,8 +127,9 @@ void MyMidiKeyboardComponent::drawWhiteNote(int midiNoteNumber, Graphics& g, con
     }
 }
 
-void MyMidiKeyboardComponent::drawBlackNote(int midiNoteNumber, Graphics& g, Rectangle<float> area, bool isDown,
-                                            bool isOver, Colour noteFillColour)
+void MyMidiKeyboardComponent::drawBlackNote(int /*midiNoteNumber*/, Graphics& g, Rectangle<float> area,
+                                            const bool isDown,
+                                            const bool isOver, const Colour noteFillColour)
 {
     auto c = noteFillColour;
 
