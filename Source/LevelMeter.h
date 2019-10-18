@@ -39,7 +39,7 @@ public:
 
     void createShaders();
 
-    void renderOpenGL();
+    void renderOpenGL() const;
 
     //==============================================================================
 

@@ -97,7 +97,7 @@ void MyMidiKeyboardComponent::drawWhiteNote(const int midiNoteNumber, Graphics& 
     {
         const auto freq = parameterHelper.getCurrentPitchStandard(0) * std::pow(
             2.0f, (static_cast<float>(midiNoteNumber) - 69.0f) / 12.0f);
-        const auto freqText = String(freq, 1) + ((midiNoteNumber == 0) ? " Hz" : "");
+        const auto freqText = String(freq, 1) + (midiNoteNumber == 0 ? " Hz" : "");
 
         const auto fontHeight = getKeyWidth();
         const Font freqFont(fontHeight * .7f);

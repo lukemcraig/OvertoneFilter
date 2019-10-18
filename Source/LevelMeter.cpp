@@ -157,7 +157,7 @@ void LevelMeter::createShaders()
     }
 }
 
-void LevelMeter::renderOpenGL()
+void LevelMeter::renderOpenGL() const
 {
     render();
 }

@@ -33,7 +33,7 @@ bool SpectrumSource::getSpectrum(Image& spectrumImage, const int row)
                                 - Decibels::gainToDecibels(static_cast<float>(fftSize))),
                          mindB, maxdB, 0.0f, 1.0f);
 
-            const auto pixelValue = static_cast<uint8>(jmin((value) * 255.0f, 255.0f));
+            const auto pixelValue = static_cast<uint8>(jmin(value * 255.0f, 255.0f));
 
             spectrumImage.setPixelAt(i, row, Colour(pixelValue, pixelValue, pixelValue, pixelValue));
         }
