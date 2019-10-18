@@ -92,6 +92,11 @@ void ParameterHelper::updateSmoothers()
 
 float ParameterHelper::getCurrentPitchStandard(int channel)
 {
+    if (smoothStandard.size()==0){
+        DBG("smoother not prepared");
+        return 0.0f;
+    }
+        
     return smoothStandard[channel].getCurrentValue();
 }
 
