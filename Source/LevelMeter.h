@@ -33,9 +33,9 @@ public:
 
     void shutdown();
 
-    void renderScene();
+    void renderScene() const;
 
-    void render();
+    void render() const;
 
     void createShaders();
 

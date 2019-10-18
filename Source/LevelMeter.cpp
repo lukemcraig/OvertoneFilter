@@ -24,15 +24,15 @@ LevelMeter::~LevelMeter()
 
 void LevelMeter::paint(Graphics& g)
 {
-    auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
+    const auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
     auto area = getLocalBounds();
-    g.setColour(lineCol);    
+    g.setColour(lineCol);
     g.drawRect(area);
     area.reduce(2, 2);
     g.setColour(Colour(0xffB28859));
     g.drawRect(area);
     area.reduce(2, 2);
-    g.setColour(lineCol);  
+    g.setColour(lineCol);
     g.drawRect(area);
     area.reduce(2, 2);
     g.setColour(Colour(0xffB28859));
@@ -58,15 +58,14 @@ void LevelMeter::shutdown()
     uniforms.reset();
 }
 
-void LevelMeter::renderScene()
+void LevelMeter::renderScene() const
 {
-    //render scene
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
+    const auto width = roundToInt(desktopScale * static_cast<float>(getWidth()));
+    const auto height = roundToInt(desktopScale * static_cast<float>(getHeight()));
 
-    auto x = getRight() * desktopScale - width;
-    auto y = (getParentHeight() - getBottom()) * desktopScale;
+    const auto x = static_cast<float>(getRight()) * desktopScale - width;
+    const auto y = static_cast<float>(getParentHeight() - getBottom()) * desktopScale;
     glViewport(x, y, width, height);
 
     shaderProgram->use();
@@ -91,7 +90,7 @@ void LevelMeter::renderScene()
     quad->draw(openGLContext, *attributes);
 }
 
-void LevelMeter::render()
+void LevelMeter::render() const
 {
     jassert(OpenGLHelpers::isContextActive());
 

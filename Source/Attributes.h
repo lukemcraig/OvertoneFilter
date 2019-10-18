@@ -16,9 +16,9 @@ struct Attributes
 {
     Attributes(OpenGLContext& openGLContext, OpenGLShaderProgram& shaderProgram);
 
-    void enable(OpenGLContext& glContext);
+    void enable(OpenGLContext& glContext) const;
 
-    void disable(OpenGLContext& glContext);
+    void disable(OpenGLContext& glContext) const;
 
     std::unique_ptr<OpenGLShaderProgram::Attribute> position;
 
