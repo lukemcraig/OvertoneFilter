@@ -43,9 +43,9 @@ public:
     /**
      * \brief Handles note off for all channels (called from the GUI)
      */
-    void handleNoteOff(const float noteNumber);
+    void handleNoteOff(float noteNumber);
 
-    void handleNoteOff(int channel, const float noteNumber);
+    void handleNoteOff(int channel, float noteNumber);
 
     void processSubBlockMidi(MidiBuffer& midiMessages, int startSample, int numSamples, int channel);
 
@@ -78,11 +78,11 @@ public:
 
     int getCurrentProgram() override { return 0; }
 
-    void setCurrentProgram(int index) override { ; }
+    void setCurrentProgram(int) override { ; }
 
-    const String getProgramName(int index) override { return {}; }
+    const String getProgramName(int) override { return {}; }
 
-    void changeProgramName(int index, const String& newName) override { ; }
+    void changeProgramName(int, const String&) override { ; }
 
     //==============================================================================
     void getStateInformation(MemoryBlock& destData) override;
