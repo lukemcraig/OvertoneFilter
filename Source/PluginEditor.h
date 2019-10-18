@@ -29,12 +29,12 @@ public:
 
     ~OvertoneFilterEditor();
 
-    void makeLabelUpperCase(Label& label);
+    static void makeLabelUpperCase(Label& label);
 
     //==============================================================================
     void paint(Graphics&) override;
 
-    void setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea);
+    static void setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea);
 
     void resized() override;
 
@@ -141,9 +141,9 @@ private:
     std::unique_ptr<SliderAttachment> mixAttachment;
     Label mixLabel;
 
-    GLuint fboHandle;
-    GLuint renderTex;
-    GLuint depthBuf;
+    GLuint fboHandle{};
+    GLuint renderTex{};
+    GLuint depthBuf{};
 
     Image componentMask;
     OpenGLTexture boundariesTexture;
@@ -162,7 +162,7 @@ private:
     //==============================================================================
     typedef void (__stdcall *type_glDrawBuffers)(GLsizei n, const GLenum* bufs);
 
-    type_glDrawBuffers glDrawBuffers;
+    type_glDrawBuffers glDrawBuffers{};
 
     typedef void (__stdcall *type_glTexStorage2D)(GLenum target,
                                                   GLsizei levels,
@@ -170,7 +170,7 @@ private:
                                                   GLsizei width,
                                                   GLsizei height);
 
-    type_glTexStorage2D glTexStorage2D;
+    type_glTexStorage2D glTexStorage2D{};
     //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterEditor)

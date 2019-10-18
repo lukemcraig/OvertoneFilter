@@ -203,14 +203,8 @@ void OvertoneFilterEditor::makeLabelUpperCase(Label& label)
 }
 
 //==============================================================================
-void OvertoneFilterEditor::paint(Graphics& g)
+void OvertoneFilterEditor::paint(Graphics& /*g*/)
 {
-    //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
-
-    //g.setColour(Colour(0xFF000000));
-    //g.fillRect(keyboard.getBounds().expanded(10, 10).withTrimmedBottom(-40));
-    //g.setFont(15.0f);
-    //g.fillRect(nameLabel.getBounds());
 }
 
 void OvertoneFilterEditor::setLabelAreaAboveCentered(Label& label, Rectangle<int>& labelArea)
@@ -231,7 +225,7 @@ void OvertoneFilterEditor::resized()
     keyboard.setBounds(keyboardSpectrumArea.removeFromTop(140));
 
     keyboard.setAvailableRange(0, 127);
-    keyboard.setKeyWidth(keyboard.getWidth() / (75.0f));
+    keyboard.setKeyWidth(static_cast<float>(keyboard.getWidth()) / 75.0f);
 
     nameLabel.setBounds(keyboardSpectrumArea);
 
@@ -243,7 +237,7 @@ void OvertoneFilterEditor::resized()
 
     // right area
 
-    auto meterWidth = rightArea.proportionOfWidth(0.5);
+    const auto meterWidth = rightArea.proportionOfWidth(0.5);
     auto outputMeterArea = rightArea.removeFromRight(meterWidth);
 
     outputMeterArea.removeFromTop(outputMeterArea.getHeight() * 0.5 - meterWidth * 0.5);
@@ -288,7 +282,7 @@ void OvertoneFilterEditor::resized()
     titleLabel.setBounds(leftArea.reduced(16));
 
     const auto nSliders = 2;
-    auto sliderHeight = sliderArea.getWidth() / nSliders;
+    const auto sliderHeight = sliderArea.getWidth() / nSliders;
 
     auto standardSliderArea = sliderArea.removeFromLeft(sliderHeight);
     setLabelAreaAboveCentered(standardLabel, standardSliderArea);
@@ -379,13 +373,13 @@ void OvertoneFilterEditor::setupFBO()
     //TODO how to get this outside of
     {
         const MessageManagerLock mmLock;
-        auto desktopScale = Desktop::getInstance().getDisplays().getMainDisplay().scale;
+        const auto desktopScale = Desktop::getInstance().getDisplays().getMainDisplay().scale;
 
-        auto width = roundToInt(desktopScale * getWidth());
-        auto height = roundToInt(desktopScale * getHeight());
+        const auto width = roundToInt(desktopScale * getWidth());
+        const auto height = roundToInt(desktopScale * getHeight());
 
         //TODO what to do if resolution changes?
-        glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, width, height, 0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, width, height, 0,GL_RGBA,GL_UNSIGNED_BYTE, nullptr);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -409,7 +403,7 @@ void OvertoneFilterEditor::setupFBO()
     GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, drawBufs);
 
-    GLenum result = openGLContext.extensions.glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    const auto result = openGLContext.extensions.glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (result == GL_FRAMEBUFFER_COMPLETE)
     {
         DBG("Framebuffer is complete");
@@ -426,9 +420,9 @@ void OvertoneFilterEditor::setupFBO()
 void OvertoneFilterEditor::renderToTexture()
 {
     // Viewport for the texture
-    const auto desktopScale = (float)openGLContext.getRenderingScale();
-    const auto width = roundToInt(desktopScale * getWidth());
-    const auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
+    const auto width = roundToInt(desktopScale * static_cast<float>(getWidth()));
+    const auto height = roundToInt(desktopScale * static_cast<float>(getHeight()));
     glViewport(0, 0, width, height);
 
     bufferAProgram->use();
@@ -440,7 +434,7 @@ void OvertoneFilterEditor::renderToTexture()
 
     if (uniforms2->iTime != nullptr)
     {
-        const float sec = Time::getMillisecondCounterHiRes() * 0.001f;
+        const auto sec = static_cast<float>(Time::getMillisecondCounterHiRes()) * 0.001f;
         uniforms2->iTime->set(sec);
     }
 
@@ -477,8 +471,8 @@ void OvertoneFilterEditor::renderScene()
 {
     //render scene
     const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
-    const auto width = roundToInt(desktopScale * getWidth());
-    const auto height = roundToInt(desktopScale * getHeight());
+    const auto width = roundToInt(desktopScale * static_cast<float>(getWidth()));
+    const auto height = roundToInt(desktopScale * static_cast<float>(getHeight()));
     glViewport(0, 0, width, height);
 
     shaderProgram->use();
