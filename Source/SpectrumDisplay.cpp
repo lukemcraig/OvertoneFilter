@@ -206,7 +206,7 @@ void SpectrumDisplay::createShaders()
         attributes.reset();
         uniforms.reset();
 
-        shaderProgram.reset(newShader.release());
+        shaderProgram = std::move(newShader);
         shaderProgram->use();
 
         attributes.reset(new Attributes(openGLContext, *shaderProgram));

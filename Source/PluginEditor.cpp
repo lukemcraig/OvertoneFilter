@@ -659,7 +659,7 @@ void OvertoneFilterEditor::createShaders()
         attributes.reset();
         uniforms.reset();
 
-        shaderProgram.reset(newShader.release());
+        shaderProgram = std::move(newShader);
         shaderProgram->use();
 
         attributes.reset(new Attributes(openGLContext, *shaderProgram));
@@ -683,7 +683,7 @@ void OvertoneFilterEditor::createShaders()
         attributes2.reset();
         uniforms2.reset();
 
-        bufferAProgram.reset(newShader2.release());
+        bufferAProgram = std::move(newShader2);
         bufferAProgram->use();
 
         attributes2.reset(new Attributes(openGLContext, *bufferAProgram));
