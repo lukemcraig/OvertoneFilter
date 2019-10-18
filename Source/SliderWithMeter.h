@@ -29,13 +29,13 @@ public:
 
     void shutdown();
 
-    void renderScene();
+    void renderScene() const;
 
-    void render();
+    void render() const;
 
     void createShaders();
 
-    void renderOpenGL();
+    void renderOpenGL() const;
 
     void mouseDown(const MouseEvent&) override;
 
@@ -45,6 +45,7 @@ public:
 
 private:
     ParameterHelper& parameterHelper;
+
     //==============================================================================
     struct Uniforms
     {
