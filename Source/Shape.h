@@ -30,9 +30,9 @@ private:
 
         ~VertexBuffer();
 
-        void bind();
+        void bind() const;
 
-        GLuint vertexBuffer, indexBuffer;
+        GLuint vertexBuffer{}, indexBuffer{};
         int numIndices;
         OpenGLContext& openGLContext;
 
