@@ -92,6 +92,11 @@ void ParameterHelper::updateSmoothers()
 
 float ParameterHelper::getCurrentPitchStandard(int channel)
 {
+    if (smoothStandard.size()==0){
+        DBG("smoother not prepared");
+        return 0.0f;
+    }
+        
     return smoothStandard[channel].getCurrentValue();
 }
 
@@ -137,6 +142,10 @@ void ParameterHelper::setMixTarget(const int channel, const float target)
 
 float ParameterHelper::getCurrentMix(const int channel)
 {
+    if (smoothMix.size()==0){
+        DBG("smoother not prepared");
+        return 0.0f;
+    }
     return smoothMix[channel].getCurrentValue();
 }
 

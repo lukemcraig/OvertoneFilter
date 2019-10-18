@@ -27,11 +27,15 @@ void LevelMeterAudioSource::prepare(float timeConstant, float sampleRate)
 
 void LevelMeterAudioSource::pushSample(float sample)
 {
+    jassert(prepared);
     yPrevious = alpha * yPrevious + (1.0f - alpha) * (sample*sample);
 }
 
 float LevelMeterAudioSource::getLevel() const
 {
-    jassert(prepared);
-    return std::sqrt(yPrevious);
+    if(prepared)
+        return std::sqrt(yPrevious);
+    else{
+        return 0.0f;
+    }
 }
