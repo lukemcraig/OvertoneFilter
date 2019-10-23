@@ -3,7 +3,7 @@
 
     LevelMeter.h
     Created: 2 Oct 2019 3:52:35pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
@@ -33,13 +33,13 @@ public:
 
     void shutdown();
 
-    void renderScene();
+    void renderScene() const;
 
-    void render();
+    void render() const;
 
     void createShaders();
 
-    void renderOpenGL();
+    void renderOpenGL() const;
 
     //==============================================================================
 

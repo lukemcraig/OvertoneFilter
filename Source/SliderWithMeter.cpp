@@ -3,7 +3,7 @@
 
     SliderWithMeter.cpp
     Created: 15 Oct 2019 7:29:54pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
@@ -11,8 +11,7 @@
 #include "SliderWithMeter.h"
 
 SliderWithMeter::SliderWithMeter(OpenGLContext& oglc, ParameterHelper& ph) : parameterHelper(ph),
-    openGLContext(oglc)
-    
+                                                                             openGLContext(oglc)
 {
 }
 
@@ -23,19 +22,19 @@ SliderWithMeter::~SliderWithMeter()
 void SliderWithMeter::paint(Graphics& g)
 {
     g.setColour(Colour(0xafB28859));
-    auto normX = (getValue() - getRange().getStart()) / getRange().getLength();
-    auto x = normX * getWidth();
-    g.fillRect(x - 5.0f, 0.0f, 10.0f, static_cast<float>(getHeight()));
+    const auto normX = (getValue() - getRange().getStart()) / getRange().getLength();
+    const auto x = normX * getWidth();
+    g.fillRect(static_cast<float>(x) - 5.0f, 0.0f, 10.0f, static_cast<float>(getHeight()));
 
-    auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
+    const auto lineCol = getLookAndFeel().findColour(MidiKeyboardComponent::keySeparatorLineColourId);
     auto area = getLocalBounds();
-    g.setColour(lineCol);    
+    g.setColour(lineCol);
     g.drawRect(area);
     area.reduce(2, 2);
     g.setColour(Colour(0xffB28859));
     g.drawRect(area);
     area.reduce(2, 2);
-    g.setColour(lineCol);  
+    g.setColour(lineCol);
     g.drawRect(area);
     area.reduce(2, 2);
     g.setColour(Colour(0xffB28859));
@@ -57,15 +56,14 @@ void SliderWithMeter::shutdown()
     uniforms.reset();
 }
 
-void SliderWithMeter::renderScene()
+void SliderWithMeter::renderScene() const
 {
-    //render scene
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
+    const auto width = roundToInt(desktopScale * static_cast<float>(getWidth()));
+    const auto height = roundToInt(desktopScale * static_cast<float>(getHeight()));
 
-    auto x = getRight() * desktopScale - width;
-    auto y = (getParentHeight() - getBottom()) * desktopScale;
+    const auto x = static_cast<float>(getRight()) * desktopScale - width;
+    const auto y = static_cast<float>(getParentHeight() - getBottom()) * desktopScale;
     glViewport(x, y, width, height);
 
     shaderProgram->use();
@@ -92,7 +90,7 @@ void SliderWithMeter::renderScene()
     quad->draw(openGLContext, *attributes);
 }
 
-void SliderWithMeter::render()
+void SliderWithMeter::render() const
 {
     jassert(OpenGLHelpers::isContextActive());
 
@@ -147,7 +145,7 @@ void SliderWithMeter::createShaders()
         attributes.reset();
         uniforms.reset();
 
-        shaderProgram.reset(newShader.release());
+        shaderProgram = std::move(newShader);
         shaderProgram->use();
 
         attributes.reset(new Attributes(openGLContext, *shaderProgram));
@@ -159,7 +157,7 @@ void SliderWithMeter::createShaders()
     }
 }
 
-void SliderWithMeter::renderOpenGL()
+void SliderWithMeter::renderOpenGL() const
 {
     render();
 }

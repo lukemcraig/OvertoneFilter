@@ -16,7 +16,7 @@ class ParameterHelper
 {
 public:
     //==============================================================================
-    ParameterHelper(AudioProcessor& processorToConnectTo);
+    explicit ParameterHelper(AudioProcessor& processorToConnectTo);
 
     ~ParameterHelper();
 

@@ -3,7 +3,7 @@
 
     SliderWithMeter.h
     Created: 15 Oct 2019 7:29:54pm
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
@@ -29,13 +29,13 @@ public:
 
     void shutdown();
 
-    void renderScene();
+    void renderScene() const;
 
-    void render();
+    void render() const;
 
     void createShaders();
 
-    void renderOpenGL();
+    void renderOpenGL() const;
 
     void mouseDown(const MouseEvent&) override;
 
@@ -45,6 +45,7 @@ public:
 
 private:
     ParameterHelper& parameterHelper;
+
     //==============================================================================
     struct Uniforms
     {

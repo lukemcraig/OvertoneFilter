@@ -12,7 +12,7 @@
 
 Shape::Shape(OpenGLContext& glContext)
 {
-    String objFileContent{
+    const String objFileContent{
         "v -1.000000 -1.000000 0.000000\n"
         "v 1.000000 -1.000000 0.000000\n"
         "v -1.000000 1.000000 -0.000000\n"
@@ -58,7 +58,7 @@ Shape::VertexBuffer::VertexBuffer(OpenGLContext& context,
     openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     openGLContext.extensions.glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                                           static_cast<GLsizeiptr>(static_cast<size_t>(numIndices) * sizeof(
-                                              juce::uint32)),
+                                              uint32)),
                                           aShape.mesh.indices.getRawDataPointer(), GL_STATIC_DRAW);
 }
 
@@ -68,18 +68,18 @@ Shape::VertexBuffer::~VertexBuffer()
     openGLContext.extensions.glDeleteBuffers(1, &indexBuffer);
 }
 
-void Shape::VertexBuffer::bind()
+void Shape::VertexBuffer::bind() const
 {
     openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 }
 
 void Shape::createVertexListFromMesh(const WavefrontObjFile::Mesh& mesh,
-                                     Array<Vertex>& list, Colour colour)
+                                     Array<Vertex>& list, const Colour colour)
 {
-    auto scale = 0.2f;
-    WavefrontObjFile::TextureCoord defaultTexCoord{0.5f, 0.5f};
-    WavefrontObjFile::Vertex defaultNormal{0.5f, 0.5f, 0.5f};
+    const auto scale = 0.2f;
+    const WavefrontObjFile::TextureCoord defaultTexCoord{0.5f, 0.5f};
+    const WavefrontObjFile::Vertex defaultNormal{0.5f, 0.5f, 0.5f};
 
     for (auto i = 0; i < mesh.vertices.size(); ++i)
     {

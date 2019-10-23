@@ -1,3 +1,8 @@
+/*
+  ==============================================================================
+    Author:  Luke McDuffie Craig
+  ==============================================================================
+*/
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -18,7 +23,7 @@ OvertoneFilterAudioProcessor::~OvertoneFilterAudioProcessor()
 }
 
 //==============================================================================
-void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void OvertoneFilterAudioProcessor::prepareToPlay(const double sampleRate, const int samplesPerBlock)
 {
     processSpec.sampleRate = sampleRate;
     processSpec.maximumBlockSize = samplesPerBlock;
@@ -55,9 +60,9 @@ void OvertoneFilterAudioProcessor::prepareToPlay(double sampleRate, int samplesP
     //--------
     notesHeldDown.resize(numInputChannels);
     //--------
-    inputLevel.prepare(0.010f, sampleRate);
-    wetMixLevel.prepare(0.010f, sampleRate);
-    outputLevel.prepare(0.010f, sampleRate);
+    inputLevel.prepare(0.010f, static_cast<float>(sampleRate));
+    wetMixLevel.prepare(0.010f, static_cast<float>(sampleRate));
+    outputLevel.prepare(0.010f, static_cast<float>(sampleRate));
     //--------
     outputSpectrumSource.setSampleRate(sampleRate);
     inputSpectrumSource.setSampleRate(sampleRate);
@@ -71,7 +76,7 @@ void OvertoneFilterAudioProcessor::releaseResources()
 
 void OvertoneFilterAudioProcessor::reset()
 {
-    for (int i = 0; i < numInputChannels; ++i)
+    for (auto i = 0; i < numInputChannels; ++i)
         parameterHelper.useNoteOffMix(i);
 }
 
@@ -105,7 +110,7 @@ void OvertoneFilterAudioProcessor::handleNoteOn(const float noteNumber)
         handleNoteOn(i, noteNumber);
 }
 
-void OvertoneFilterAudioProcessor::handleNoteOn(int channel, const float noteNumber)
+void OvertoneFilterAudioProcessor::handleNoteOn(const int channel, const float noteNumber)
 {
     auto& l = notesHeldDown[channel];
     // a note is held down, so use the parameter (slider) mix value
@@ -127,17 +132,17 @@ void OvertoneFilterAudioProcessor::handleNoteOff(const float noteNumber)
         handleNoteOff(i, noteNumber);
 }
 
-void OvertoneFilterAudioProcessor::handleNoteOff(int channel, const float noteNumber)
+void OvertoneFilterAudioProcessor::handleNoteOff(const int channel, const float noteNumber)
 {
     auto& l = notesHeldDown[channel];
     l.remove(noteNumber);
     // if no notes are held down, smooth the mix to dry
-    if (l.size() == 0)
+    if (l.empty())
         parameterHelper.useNoteOffMix(channel);
     else
     {
         // otherwise, set the cutoff to the oldest note held down
-        auto oldestNoteNumber = l.front();
+        const auto oldestNoteNumber = l.front();
         //todo code duplication
         const auto standard = parameterHelper.getCurrentPitchStandard(channel);
         const auto newFreq = standard * std::pow(2.0f, (oldestNoteNumber - 69.0f) / 12.0f);
@@ -145,8 +150,8 @@ void OvertoneFilterAudioProcessor::handleNoteOff(int channel, const float noteNu
     }
 }
 
-void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages, int startSample, const int numSamples,
-                                                       int channel)
+void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages, const int startSample, const int numSamples,
+                                                       const int channel)
 {
     MidiBuffer::Iterator iterator(midiMessages);
     iterator.setNextSamplePosition(startSample);
@@ -171,11 +176,11 @@ void OvertoneFilterAudioProcessor::processSubBlockMidi(MidiBuffer& midiMessages,
 }
 
 void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
-                                                   dsp::AudioBlock<float> blockChannel,
+                                                   const dsp::AudioBlock<float> blockChannel,
                                                    MidiBuffer& midiMessages,
-                                                   int startSample,
+                                                   const int startSample,
                                                    const int numSamples,
-                                                   int channel)
+                                                   const int channel)
 {
     processSubBlockMidi(midiMessages, startSample, numSamples, channel);
 
@@ -187,7 +192,7 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
         // input meter
         if (channel == 0)
         {
-            auto sampleData = buffer.getSample(0, startSample + sample);
+            const auto sampleData = buffer.getSample(0, startSample + sample);
             inputLevel.pushSample(sampleData);
             inputSpectrumSource.pushSample(sampleData);
         }
@@ -240,8 +245,8 @@ void OvertoneFilterAudioProcessor::processSubBlock(AudioBuffer<float>& buffer,
 void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    const auto totalNumInputChannels = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data
@@ -253,19 +258,19 @@ void OvertoneFilterAudioProcessor::processBlock(AudioBuffer<float>& buffer, Midi
     // this just updates the GUI keyboard component
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), false);
 
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
         wetMix.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
     }
-    dsp::AudioBlock<float> block(wetMix);
+    const dsp::AudioBlock<float> block(wetMix);
 
     const auto subBlockSize = 16;
-    const int numSubBlocks = buffer.getNumSamples() / subBlockSize;
-    const int samplesLeft = buffer.getNumSamples() - (numSubBlocks * subBlockSize);
+    const auto numSubBlocks = buffer.getNumSamples() / subBlockSize;
+    const auto samplesLeft = buffer.getNumSamples() - (numSubBlocks * subBlockSize);
 
     for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto blockChannel = block.getSingleChannelBlock(channel);
+        const auto blockChannel = block.getSingleChannelBlock(channel);
 
         for (auto i = 0; i < numSubBlocks; ++i)
         {
@@ -295,16 +300,16 @@ AudioProcessorEditor* OvertoneFilterAudioProcessor::createEditor()
 //==============================================================================
 void OvertoneFilterAudioProcessor::getStateInformation(MemoryBlock& destData)
 {
-    auto state = parameterHelper.valueTreeState.copyState();
-    std::unique_ptr<XmlElement> xml(state.createXml());
+    const auto state = parameterHelper.valueTreeState.copyState();
+    const auto xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
 
-void OvertoneFilterAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+void OvertoneFilterAudioProcessor::setStateInformation(const void* data, const int sizeInBytes)
 {
-    std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+    const auto xmlState(getXmlFromBinary(data, sizeInBytes));
 
-    if (xmlState.get() != nullptr)
+    if (xmlState != nullptr)
     {
         if (xmlState->hasTagName(parameterHelper.valueTreeState.state.getType()))
         {

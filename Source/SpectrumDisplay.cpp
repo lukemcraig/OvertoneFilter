@@ -3,7 +3,7 @@
 
     SpectrumDisplay.cpp
     Created: 9 Oct 2019 12:19:27am
-    Author:  Luke
+    Author:  Luke McDuffie Craig
 
   ==============================================================================
 */
@@ -27,7 +27,7 @@ SpectrumDisplay::~SpectrumDisplay()
 {
 }
 
-void SpectrumDisplay::paint(Graphics& g)
+void SpectrumDisplay::paint(Graphics& /*g*/)
 {
 }
 
@@ -53,13 +53,13 @@ void SpectrumDisplay::shutdown()
 
 void SpectrumDisplay::renderScene()
 {
-    //render scene
-    auto desktopScale = (float)openGLContext.getRenderingScale();
-    auto width = roundToInt(desktopScale * getWidth());
-    auto height = roundToInt(desktopScale * getHeight());
+    const auto desktopScale = static_cast<float>(openGLContext.getRenderingScale());
+    const auto width = roundToInt(desktopScale * static_cast<float>(getWidth()));
+    const auto height = roundToInt(desktopScale * static_cast<float>(getHeight()));
 
-    auto x = getRight() * desktopScale - width;
-    auto y = (getParentHeight() - getBottom()) * desktopScale;
+    const auto x = static_cast<float>(getRight()) * desktopScale - width;
+    const auto y = static_cast<float>(getParentHeight() - getBottom()) * desktopScale;
+
     glViewport(x, y, width, height);
 
     shaderProgram->use();
@@ -114,7 +114,7 @@ void SpectrumDisplay::renderScene()
 
     if (uniforms->iNyquist != nullptr)
     {
-        auto nyq = inputSpectrumSource.getSampleRate() / 2.0;
+        const auto nyq = inputSpectrumSource.getSampleRate() / 2.0;
         uniforms->iNyquist->set(static_cast<GLfloat>(nyq));
     }
 
@@ -206,7 +206,7 @@ void SpectrumDisplay::createShaders()
         attributes.reset();
         uniforms.reset();
 
-        shaderProgram.reset(newShader.release());
+        shaderProgram = std::move(newShader);
         shaderProgram->use();
 
         attributes.reset(new Attributes(openGLContext, *shaderProgram));
