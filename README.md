@@ -11,4 +11,4 @@ The following GIF shows a spectrogram of the signal before and after processing.
 
 [Here is a YouTube video showing the plug-in operating:](https://youtu.be/OiNwpGFCm-0)
 
-<a href="https://youtu.be/OiNwpGFCm-0" target="_blank"><img src="https://i9.ytimg.com/vi/OiNwpGFCm-0/maxresdefault.jpg" alt="Overtone Filter Video"  border="10" /></a>
+<a href="https://youtu.be/OiNwpGFCm-0" target="_blank"><img src="https://img.youtube.com/vi/OiNwpGFCm-0/maxresdefault.jpg" alt="Overtone Filter Video"  border="10" /></a>
