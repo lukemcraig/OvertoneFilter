@@ -327,7 +327,7 @@ void OvertoneFilterEditor::resized()
 void OvertoneFilterEditor::initialiseOpenGL()
 {
     glDrawBuffers = (type_glDrawBuffers)OpenGLHelpers::getExtensionFunction("glDrawBuffers");
-    glTexStorage2D = (type_glTexStorage2D)OpenGLHelpers::getExtensionFunction("glTexStorage2D");
+    //glTexStorage2D = (type_glTexStorage2D)OpenGLHelpers::getExtensionFunction("glTexStorage2D");
 
     createShaders();
 

@@ -8,7 +8,8 @@
               buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0" enableIAA="0"
               pluginDesc="Simulate sygyt style overtone singing (a.k.a. throat singing) by emphasizing MIDI-selected harmonics of an audio signal."
               pluginManufacturerCode="LMCA" pluginCode="LCOF" aaxIdentifier="com.lukemcraig.overtonefilter"
-              defines="JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES" bundleIdentifier="com.lukemcraig.overtonefilter">
+              defines="JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES" bundleIdentifier="com.lukemcraig.overtonefilter"
+              version="1.0.1">
   <MAINGROUP id="uOFHnM" name="Overtone Filter">
     <GROUP id="{E43A07D1-7E71-BFED-1A08-ACE30426B716}" name="Source">
       <FILE id="VoN6G0" name="Attributes.cpp" compile="1" resource="0" file="Source/Attributes.cpp"/>

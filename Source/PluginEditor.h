@@ -160,17 +160,17 @@ private:
     int frameCounter{};
 
     //==============================================================================
-    typedef void (__stdcall *type_glDrawBuffers)(GLsizei n, const GLenum* bufs);
+    typedef void (*type_glDrawBuffers)(GLsizei n, const GLenum* bufs);
 
     type_glDrawBuffers glDrawBuffers{};
 
-    typedef void (__stdcall *type_glTexStorage2D)(GLenum target,
-                                                  GLsizei levels,
-                                                  GLenum internalformat,
-                                                  GLsizei width,
-                                                  GLsizei height);
+   /* typedef void (*type_glTexStorage2D)(GLenum target,
+                                         GLsizei levels,
+                                         GLenum internalformat,
+                                         GLsizei width,
+                                         GLsizei height);
 
-    type_glTexStorage2D glTexStorage2D{};
+    type_glTexStorage2D glTexStorage2D{};*/
     //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OvertoneFilterEditor)
